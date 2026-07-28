@@ -19,6 +19,7 @@
 		A10000000000000000000010 /* BroadcastSharedSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* BroadcastSharedSettings.swift */; };
 		A10000000000000000000011 /* BroadcastSharedSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* BroadcastSharedSettings.swift */; };
 		A10000000000000000000012 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* Assets.xcassets */; };
+		A10000000000000000000013 /* UsageAccessManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* UsageAccessManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +39,7 @@
 		A20000000000000000000014 /* iPadMirrorPad.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iPadMirrorPad.entitlements; sourceTree = "<group>"; };
 		A20000000000000000000015 /* iPadMirrorBroadcastExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iPadMirrorBroadcastExtension.entitlements; sourceTree = "<group>"; };
 		A20000000000000000000016 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A20000000000000000000017 /* UsageAccessManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageAccessManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -99,6 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000013 /* BroadcastSharedSettings.swift */,
+				A20000000000000000000017 /* UsageAccessManager.swift */,
 			);
 			path = Sources/iPadMirrorShared;
 			sourceTree = "<group>";
@@ -242,6 +245,7 @@
 				A10000000000000000000005 /* BroadcastPickerButton.swift in Sources */,
 				A10000000000000000000009 /* BroadcastControllerModel.swift in Sources */,
 				A10000000000000000000010 /* BroadcastSharedSettings.swift in Sources */,
+				A10000000000000000000013 /* UsageAccessManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

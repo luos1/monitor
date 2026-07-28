@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @AppStorage("monitor.pad.didShowUsageGuide") private var didShowUsageGuide = false
     @State private var showingUsageGuide = false
+    @StateObject private var usageAccess = UsageAccessManager(namespace: "monitor.pad")
     @StateObject private var broadcast = BroadcastControllerModel()
 
     private var broadcastExtensionIdentifier: String {
@@ -11,7 +12,9 @@ struct ContentView: View {
 
     var body: some View {
         Group {
-            if didShowUsageGuide {
+            if usageAccess.isLocked {
+                usageLockedView
+            } else if didShowUsageGuide {
                 mainContent
             } else {
                 usageGuideView
@@ -19,6 +22,12 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showingUsageGuide) {
             usageGuideView
+        }
+        .onAppear {
+            usageAccess.startTracking()
+        }
+        .onDisappear {
+            usageAccess.stopTracking()
         }
     }
 
@@ -160,6 +169,64 @@ struct ContentView: View {
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+    private var usageLockedView: some View {
+        VStack(spacing: 18) {
+            Image(systemName: "lock.fill")
+                .font(.system(size: 54, weight: .semibold))
+                .foregroundStyle(.orange)
+
+            Text("60분 무료 사용이 끝났습니다")
+                .font(.largeTitle.weight(.semibold))
+
+            Text("광고를 보면 60분 더 쓸 수 있고, 나중에는 유료 구매와 도네이션 URL도 붙일 예정입니다.")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            VStack(spacing: 12) {
+                Button {
+                    usageAccess.grantAdExtension(minutes: 60)
+                } label: {
+                    Label("광고 보고 60분 연장", systemImage: "play.rectangle.fill")
+                        .font(.title3.weight(.semibold))
+                        .frame(width: 360, height: 60)
+                }
+                .buttonStyle(.borderedProminent)
+
+                Button {
+                    // TODO: 마켓 등록 후 App Store URL 연결
+                } label: {
+                    Label("영구 사용 구매 URL 대기", systemImage: "cart.fill")
+                        .font(.title3.weight(.semibold))
+                        .frame(width: 360, height: 56)
+                }
+                .buttonStyle(.bordered)
+
+                Button {
+                    // TODO: 마켓 등록 후 도네이션 URL 연결
+                } label: {
+                    Label("도네이션 URL 대기", systemImage: "heart.fill")
+                        .font(.title3.weight(.semibold))
+                        .frame(width: 360, height: 56)
+                }
+                .buttonStyle(.bordered)
+            }
+
+            Button("사용법 다시 보기") {
+                showingUsageGuide = true
+            }
+            .padding(.top, 8)
+
+            Text("남은 시간: \(usageAccess.remainingSeconds / 60)분")
+                .font(.headline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(32)
     }
 }
 

@@ -13,6 +13,11 @@ let package = Package(
         .executableTarget(
             name: "iPadMirrorMac",
             path: "Sources/iPadMirrorMac"
+        ),
+        .testTarget(
+            name: "iPadMirrorMacTests",
+            dependencies: ["iPadMirrorMac"],
+            path: "Tests/iPadMirrorMacTests"
         )
     ]
 )
