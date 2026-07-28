@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @AppStorage("monitor.pad.didShowUsageGuide") private var didShowUsageGuide = false
+    @State private var showingUsageGuide = false
     @StateObject private var broadcast = BroadcastControllerModel()
 
     private var broadcastExtensionIdentifier: String {
@@ -8,7 +10,20 @@ struct ContentView: View {
     }
 
     var body: some View {
-        VStack(spacing: 28) {
+        Group {
+            if didShowUsageGuide {
+                mainContent
+            } else {
+                usageGuideView
+            }
+        }
+        .sheet(isPresented: $showingUsageGuide) {
+            usageGuideView
+        }
+    }
+
+    private var mainContent: some View {
+        VStack(spacing: 24) {
             Image(systemName: broadcast.isBroadcasting ? "dot.radiowaves.left.and.right" : "ipad.and.iphone")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -16,16 +31,18 @@ struct ContentView: View {
                 .foregroundColor(broadcast.isBroadcasting ? .red : .accentColor)
 
             VStack(spacing: 10) {
-                Text("iPad 현재 화면 미러링")
+                Text("아이패드미러")
                     .font(.largeTitle)
                     .fontWeight(.semibold)
 
-                Text("시작을 누르면 홈 화면과 다른 앱을 포함한 iPad 현재 화면이 Mac 앱에 표시됩니다. 종료를 누르면 화면 공유가 중지됩니다.")
+                Text("이 iPad 앱은 화면을 보내는 역할입니다. Mac 앱이 함께 켜져 있어야 실제 미러링 화면이 보입니다.")
                     .font(.title3)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
+
+            dependencyWarningBanner
 
             VStack(spacing: 14) {
                 BroadcastPickerButton(preferredExtension: broadcastExtensionIdentifier)
@@ -50,18 +67,123 @@ struct ContentView: View {
                 .multilineTextAlignment(.center)
 
             VStack(spacing: 8) {
-                Text("Mac 앱 사용 순서")
+                Text("쉽게 쓰는 순서")
                     .font(.headline)
-                Text("1. ‘전체 화면 공유 시작’ 누르기")
-                Text("2. 방송 선택창에서 ‘iPad Mirror Broadcast’ 시작")
-                Text("3. Mac 앱에서 새로고침 후 iPad 이름 선택")
+                Text("1. Mac 앱을 먼저 켭니다.")
+                Text("2. iPad 앱에서 ‘전체 화면 공유 시작’을 누릅니다.")
+                Text("3. 방송 선택창에서 시작하면 Mac 앱에 화면이 나타납니다.")
             }
             .font(.body)
             .foregroundStyle(.secondary)
             .multilineTextAlignment(.center)
 
+            HStack {
+                Spacer()
+                Button("사용법 다시 보기") {
+                    showingUsageGuide = true
+                }
+            }
+            .padding(.horizontal)
+
             Spacer()
         }
         .padding(32)
+    }
+
+    private var usageGuideView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                Text("아이패드미러 사용법")
+                    .font(.largeTitle.weight(.semibold))
+
+                Text("이 앱은 Mac 앱과 같이 써야 완성됩니다. iPad는 화면을 보내고, Mac은 그 화면을 받아 보여줍니다.")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+
+                dependencyWarningBanner
+
+                GuideStepCard(number: "1", title: "Mac 앱 먼저 켜기", detail: "Mac 앱이 미러링 받을 준비를 해야 iPad 화면이 보입니다.")
+                GuideStepCard(number: "2", title: "iPad에서 방송 시작", detail: "아래 시작 버튼을 누르면 방송 선택창이 뜹니다. 거기서 ‘아이패드미러 방송’을 시작하세요.")
+                GuideStepCard(number: "3", title: "Mac에서 장치 선택", detail: "Mac 앱 왼쪽 목록에서 iPad를 선택하면 화면이 연결됩니다.")
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("중요")
+                        .font(.headline)
+                    Text("iPad 앱만 또는 Mac 앱만 켜서는 완성되지 않습니다. 둘 다 필요합니다.")
+                    Text("나중에 마켓 등록이 끝나면 설치/소개 URL을 이 안내와 버튼 옆에 추가할 예정입니다.")
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.yellow.opacity(0.12), in: RoundedRectangle(cornerRadius: 16))
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("유료/광고")
+                        .font(.headline)
+                    Text("기본 사용은 60분입니다. 60분이 지나면 전면광고를 보고 사용 시간을 연장할 수 있습니다.")
+                    Text("영구 사용 상품은 $4.99, 개발자 응원 도네이션 상품은 $99.99로 넣을 예정입니다.")
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.blue.opacity(0.10), in: RoundedRectangle(cornerRadius: 16))
+
+                Button {
+                    didShowUsageGuide = true
+                    showingUsageGuide = false
+                } label: {
+                    Text("시작하기")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding(32)
+        }
+        .frame(minWidth: 640, minHeight: 720)
+    }
+
+    private var dependencyWarningBanner: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+                .font(.title2)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("이 앱은 Mac 앱이 함께 있어야 제대로 작동합니다")
+                    .font(.headline)
+                Text("iPad 앱은 화면을 보내는 역할만 합니다. Mac 앱이 받아서 보여주지 않으면 화면이 안 보입니다.")
+                Text("마켓 등록 후에는 설치/소개 URL을 이 안내와 버튼 옆에 추가할 예정입니다.")
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+private struct GuideStepCard: View {
+    let number: String
+    let title: String
+    let detail: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 14) {
+            Text(number)
+                .font(.headline)
+                .frame(width: 32, height: 32)
+                .background(Color.accentColor.opacity(0.16), in: Circle())
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                Text(detail)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
     }
 }

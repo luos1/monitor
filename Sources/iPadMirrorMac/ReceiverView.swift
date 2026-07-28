@@ -6,25 +6,44 @@ private final class ReceiverDisplayMode: ObservableObject {
 }
 
 struct ReceiverView: View {
+    @AppStorage("monitor.mac.didShowUsageGuide") private var didShowUsageGuide = false
+    @State private var showingUsageGuide = false
     @StateObject private var browser = BonjourBrowser()
     @StateObject private var receiver = FrameReceiver()
     @StateObject private var displayMode = ReceiverDisplayMode()
 
     var body: some View {
         Group {
-            if displayMode.isFullWindowMirror {
-                fullWindowMirrorView
+            if didShowUsageGuide {
+                mainContent
             } else {
-                splitMirrorView
+                usageGuideView
             }
         }
         .frame(minWidth: 900, minHeight: 600)
+        .sheet(isPresented: $showingUsageGuide) {
+            usageGuideView
+        }
         .onAppear {
             browser.startSearching()
         }
         .onDisappear {
             receiver.disconnect()
             browser.stopSearching()
+        }
+    }
+
+    private var mainContent: some View {
+        VStack(spacing: 12) {
+            dependencyWarningBanner
+
+            Group {
+                if displayMode.isFullWindowMirror {
+                    fullWindowMirrorView
+                } else {
+                    splitMirrorView
+                }
+            }
         }
     }
 
@@ -45,6 +64,10 @@ struct ReceiverView: View {
 
                     Spacer()
 
+                    Button("사용법") {
+                        showingUsageGuide = true
+                    }
+
                     Button("앱 전체 크기로 보기") {
                         displayMode.isFullWindowMirror = true
                     }
@@ -61,7 +84,7 @@ struct ReceiverView: View {
     private var deviceListView: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("iPad 현재 화면")
+                Text("아이패드미러")
                     .font(.headline)
 
                 Spacer()
@@ -75,7 +98,7 @@ struct ReceiverView: View {
                 ContentUnavailableView(
                     "방송 중인 iPad 없음",
                     systemImage: "ipad.and.arrow.forward",
-                    description: Text("iPad 앱에서 ‘iPad Mirror Broadcast’ 화면 방송을 시작한 뒤 새로고침하세요.")
+                    description: Text("iPad 앱에서 방송을 시작해야 이 Mac 앱에 화면이 나타납니다.")
                 )
             } else {
                 List(browser.devices) { device in
@@ -133,6 +156,10 @@ struct ReceiverView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
+                Button("사용법") {
+                    showingUsageGuide = true
+                }
+
                 Button("목록 보기") {
                     displayMode.isFullWindowMirror = false
                 }
@@ -142,5 +169,102 @@ struct ReceiverView: View {
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
             .padding()
         }
+    }
+
+    private var usageGuideView: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                Text("아이패드미러 사용법")
+                    .font(.largeTitle.weight(.semibold))
+
+                Text("이 Mac 앱은 iPad가 화면을 보내야만 동작합니다. iPad 앱과 함께 켜야 화면을 받을 수 있습니다.")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+
+                dependencyWarningBanner
+
+                GuideStepCard(number: "1", title: "iPad 앱 먼저 준비", detail: "iPad 앱에서 방송을 시작해야 이 Mac 앱이 화면을 받을 수 있습니다.")
+                GuideStepCard(number: "2", title: "장치 목록에서 iPad 선택", detail: "왼쪽 목록에서 보이는 iPad 이름을 누르면 연결이 시작됩니다.")
+                GuideStepCard(number: "3", title: "전체 화면 보기", detail: "화면이 잡히면 ‘앱 전체 크기로 보기’로 전환해서 크게 볼 수 있습니다.")
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("중요")
+                        .font(.headline)
+                    Text("Mac 앱만 또는 iPad 앱만으로는 완성되지 않습니다. 둘 다 필요합니다.")
+                    Text("나중에 마켓 등록이 끝나면 설치/소개 URL을 이 안내에 붙이겠습니다.")
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.yellow.opacity(0.12), in: RoundedRectangle(cornerRadius: 16))
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("유료/광고")
+                        .font(.headline)
+                    Text("기본 사용은 60분입니다. 60분이 지나면 전면광고를 보고 사용 시간을 연장할 수 있습니다.")
+                    Text("영구 사용 상품은 $4.99, 개발자 응원 도네이션 상품은 $99.99로 넣을 예정입니다.")
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(.blue.opacity(0.10), in: RoundedRectangle(cornerRadius: 16))
+
+                Button {
+                    didShowUsageGuide = true
+                    showingUsageGuide = false
+                } label: {
+                    Text("시작하기")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding(32)
+        }
+        .frame(minWidth: 700, minHeight: 720)
+    }
+
+    private var dependencyWarningBanner: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+                .font(.title2)
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("이 Mac 앱은 iPad 앱이 있어야 화면을 받을 수 있습니다")
+                    .font(.headline)
+                Text("Mac 앱은 혼자서 화면을 만들지 않습니다. iPad 앱이 보내야 여기에서 보입니다.")
+                Text("마켓 등록 후에는 설치/소개 URL을 여기에 추가할 예정입니다.")
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.orange.opacity(0.12), in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+private struct GuideStepCard: View {
+    let number: String
+    let title: String
+    let detail: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 14) {
+            Text(number)
+                .font(.headline)
+                .frame(width: 32, height: 32)
+                .background(Color.accentColor.opacity(0.16), in: Circle())
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                Text(detail)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))
     }
 }
