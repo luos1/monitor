@@ -10,8 +10,13 @@ let package = Package(
         .executable(name: "iPadMirrorMac", targets: ["iPadMirrorMac"])
     ],
     targets: [
+        .target(
+            name: "iPadMirrorShared",
+            path: "Sources/iPadMirrorShared"
+        ),
         .executableTarget(
             name: "iPadMirrorMac",
+            dependencies: ["iPadMirrorShared"],
             path: "Sources/iPadMirrorMac"
         ),
         .testTarget(

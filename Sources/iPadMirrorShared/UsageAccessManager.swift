@@ -2,22 +2,22 @@ import Foundation
 import SwiftUI
 
 @MainActor
-final class UsageAccessManager: ObservableObject {
-    @Published private(set) var isLocked = false
-    @Published private(set) var remainingSeconds: Int
-    @Published private(set) var usedSeconds: Int
-    @Published private(set) var lifetimeUnlocked: Bool
-    @Published private(set) var bonusSeconds: Int
+public final class UsageAccessManager: ObservableObject {
+    @Published public private(set) var isLocked = false
+    @Published public private(set) var remainingSeconds: Int
+    @Published public private(set) var usedSeconds: Int
+    @Published public private(set) var lifetimeUnlocked: Bool
+    @Published public private(set) var bonusSeconds: Int
 
-    let namespace: String
-    let freeLimitSeconds: Int
+    public let namespace: String
+    public let freeLimitSeconds: Int
 
     private let defaults: UserDefaults
     private var activeSessionStartedAt: Date?
     private var timer: Timer?
     private var storedUsedSeconds: Int
 
-    init(namespace: String, freeLimitMinutes: Int = 60) {
+    public init(namespace: String, freeLimitMinutes: Int = 60) {
         self.namespace = namespace
         self.freeLimitSeconds = freeLimitMinutes * 60
         self.defaults = UserDefaults.standard
@@ -31,7 +31,7 @@ final class UsageAccessManager: ObservableObject {
         refreshState()
     }
 
-    func startTracking() {
+    public func startTracking() {
         guard timer == nil else { return }
         activeSessionStartedAt = Date()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
@@ -43,7 +43,7 @@ final class UsageAccessManager: ObservableObject {
         refreshState()
     }
 
-    func stopTracking() {
+    public func stopTracking() {
         persistActiveSessionIfNeeded()
         timer?.invalidate()
         timer = nil
@@ -51,19 +51,19 @@ final class UsageAccessManager: ObservableObject {
         refreshState()
     }
 
-    func grantAdExtension(minutes: Int = 60) {
+    public func grantAdExtension(minutes: Int = 60) {
         bonusSeconds += max(0, minutes) * 60
         defaults.set(bonusSeconds, forKey: "\(namespace).usage.bonusSeconds")
         refreshState()
     }
 
-    func unlockLifetime() {
+    public func unlockLifetime() {
         lifetimeUnlocked = true
         defaults.set(true, forKey: "\(namespace).usage.lifetimeUnlocked")
         refreshState()
     }
 
-    func resetForTesting() {
+    public func resetForTesting() {
         storedUsedSeconds = 0
         bonusSeconds = 0
         lifetimeUnlocked = false
@@ -74,7 +74,7 @@ final class UsageAccessManager: ObservableObject {
         refreshState()
     }
 
-    func simulateConsumed(seconds: Int) {
+    public func simulateConsumed(seconds: Int) {
         storedUsedSeconds = max(0, seconds)
         defaults.set(storedUsedSeconds, forKey: "\(namespace).usage.usedSeconds")
         refreshState()

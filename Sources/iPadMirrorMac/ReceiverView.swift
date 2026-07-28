@@ -1,5 +1,6 @@
 import Combine
 import SwiftUI
+import iPadMirrorShared
 
 private final class ReceiverDisplayMode: ObservableObject {
     @Published var isFullWindowMirror = false
