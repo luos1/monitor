@@ -24,6 +24,8 @@
 		A10000000000000000000014 /* MonitorTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000018 /* MonitorTheme.swift */; };
 		A10000000000000000000015 /* MonitorChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* MonitorChrome.swift */; };
 		A10000000000000000000016 /* StoreLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000020 /* StoreLinks.swift */; };
+		A10000000000000000000018 /* IAPProducts.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000022 /* IAPProducts.swift */; };
+		A10000000000000000000019 /* StorePurchaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000023 /* StorePurchaseManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +50,9 @@
 		A20000000000000000000019 /* MonitorChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitorChrome.swift; sourceTree = "<group>"; };
 		A20000000000000000000020 /* StoreLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreLinks.swift; sourceTree = "<group>"; };
 		A20000000000000000000021 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		A20000000000000000000022 /* IAPProducts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPProducts.swift; sourceTree = "<group>"; };
+		A20000000000000000000023 /* StorePurchaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePurchaseManager.swift; sourceTree = "<group>"; };
+		A20000000000000000000024 /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +79,7 @@
 				A40000000000000000000002 /* Sources/iPadMirrorPad */,
 				A40000000000000000000004 /* Sources/iPadMirrorBroadcastExtension */,
 				A40000000000000000000005 /* Sources/iPadMirrorShared */,
+				A40000000000000000000006 /* Configuration */,
 				A40000000000000000000003 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -114,8 +120,18 @@
 				A20000000000000000000018 /* MonitorTheme.swift */,
 				A20000000000000000000019 /* MonitorChrome.swift */,
 				A20000000000000000000020 /* StoreLinks.swift */,
+				A20000000000000000000022 /* IAPProducts.swift */,
+				A20000000000000000000023 /* StorePurchaseManager.swift */,
 			);
 			path = Sources/iPadMirrorShared;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000006 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000024 /* Products.storekit */,
+			);
+			path = Configuration;
 			sourceTree = "<group>";
 		};
 		A40000000000000000000003 /* Products */ = {
@@ -263,6 +279,8 @@
 				A10000000000000000000014 /* MonitorTheme.swift in Sources */,
 				A10000000000000000000015 /* MonitorChrome.swift in Sources */,
 				A10000000000000000000016 /* StoreLinks.swift in Sources */,
+				A10000000000000000000018 /* IAPProducts.swift in Sources */,
+				A10000000000000000000019 /* StorePurchaseManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

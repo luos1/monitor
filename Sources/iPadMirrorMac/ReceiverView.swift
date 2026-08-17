@@ -10,6 +10,7 @@ struct ReceiverView: View {
     @AppStorage("monitor.mac.didShowUsageGuide") private var didShowUsageGuide = false
     @State private var showingUsageGuide = false
     @StateObject private var usageAccess = UsageAccessManager(namespace: "monitor.mac")
+    @StateObject private var store = StorePurchaseManager()
     @StateObject private var browser = BonjourBrowser()
     @StateObject private var receiver = FrameReceiver()
     @StateObject private var displayMode = ReceiverDisplayMode()
@@ -19,6 +20,7 @@ struct ReceiverView: View {
             if usageAccess.isLocked {
                 MonitorPaywallView(
                     remainingLabel: usageAccess.remainingTimeLabel,
+                    store: store,
                     onWatchAd: { usageAccess.grantAdExtension(minutes: MonitorTheme.freeMinutes) },
                     onShowGuide: { showingUsageGuide = true }
                 )
@@ -42,6 +44,7 @@ struct ReceiverView: View {
         .onReceive(NotificationCenter.default.publisher(for: .monitorShowUsageGuide)) { _ in
             showingUsageGuide = true
         }
+        .syncsLifetimeUnlock(from: store, to: usageAccess)
         .onAppear {
             browser.startSearching()
             usageAccess.startTracking()

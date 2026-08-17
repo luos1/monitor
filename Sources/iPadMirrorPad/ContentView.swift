@@ -4,6 +4,7 @@ struct ContentView: View {
     @AppStorage("monitor.pad.didShowUsageGuide") private var didShowUsageGuide = false
     @State private var showingUsageGuide = false
     @StateObject private var usageAccess = UsageAccessManager(namespace: "monitor.pad")
+    @StateObject private var store = StorePurchaseManager()
     @StateObject private var broadcast = BroadcastControllerModel()
 
     private var broadcastExtensionIdentifier: String {
@@ -15,6 +16,7 @@ struct ContentView: View {
             if usageAccess.isLocked {
                 MonitorPaywallView(
                     remainingLabel: usageAccess.remainingTimeLabel,
+                    store: store,
                     onWatchAd: { usageAccess.grantAdExtension(minutes: MonitorTheme.freeMinutes) },
                     onShowGuide: { showingUsageGuide = true }
                 )
@@ -33,6 +35,7 @@ struct ContentView: View {
             }
             .frame(minWidth: 640, minHeight: 720)
         }
+        .syncsLifetimeUnlock(from: store, to: usageAccess)
         .onAppear {
             usageAccess.startTracking()
         }

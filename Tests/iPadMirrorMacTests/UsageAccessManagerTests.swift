@@ -27,6 +27,11 @@ final class UsageAccessManagerTests: XCTestCase {
         manager.unlockLifetime()
         XCTAssertFalse(manager.isLocked)
         XCTAssertEqual(manager.remainingTimeLabel, "무제한")
+
+        manager.setLifetimeUnlocked(false)
+        XCTAssertTrue(manager.isLocked)
+        manager.setLifetimeUnlocked(true)
+        XCTAssertFalse(manager.isLocked)
     }
 
     func testRemainingTimeLabelFormatting() {

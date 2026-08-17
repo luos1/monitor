@@ -8,7 +8,7 @@ ReplayKit Broadcast Upload Extension으로 홈 화면과 다른 앱을 포함한
 - `ContentView.swift` : 온보딩, 방송 제어, 잠금 화면
 - `BroadcastPickerButton.swift` : 시스템 방송 시작 버튼
 - `BroadcastControllerModel.swift` : 방송 종료 제어
-- `../iPadMirrorShared` : 테마, 사용 시간, 스토어 링크
+- `../iPadMirrorShared` : 테마, 사용 시간, StoreKit 인앱결제, 스토어 링크
 
 ## 사용
 
