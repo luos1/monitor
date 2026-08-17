@@ -10,22 +10,28 @@
     <string>dev.local.iPadMirrorMac</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
+    <key>CFBundleDisplayName</key>
+    <string>아이패드미러</string>
     <key>CFBundleName</key>
-    <string>iPad Mirror Mac</string>
+    <string>아이패드미러</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.1.0</string>
+    <string>1.0.0</string>
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>LSMinimumSystemVersion</key>
     <string>14.0</string>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.productivity</string>
     <key>NSBonjourServices</key>
     <array>
         <string>_ipadmirror._tcp</string>
     </array>
     <key>NSLocalNetworkUsageDescription</key>
-    <string>This app advertises a local receiver so your iPad can stream its screen to this Mac.</string>
+    <string>iPad 화면을 이 Mac으로 받기 위해 같은 네트워크의 아이패드미러 앱을 찾습니다.</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
 </dict>

@@ -19,7 +19,11 @@
 		A10000000000000000000010 /* BroadcastSharedSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* BroadcastSharedSettings.swift */; };
 		A10000000000000000000011 /* BroadcastSharedSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* BroadcastSharedSettings.swift */; };
 		A10000000000000000000012 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* Assets.xcassets */; };
+		A10000000000000000000017 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000021 /* PrivacyInfo.xcprivacy */; };
 		A10000000000000000000013 /* UsageAccessManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* UsageAccessManager.swift */; };
+		A10000000000000000000014 /* MonitorTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000018 /* MonitorTheme.swift */; };
+		A10000000000000000000015 /* MonitorChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* MonitorChrome.swift */; };
+		A10000000000000000000016 /* StoreLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000020 /* StoreLinks.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +44,10 @@
 		A20000000000000000000015 /* iPadMirrorBroadcastExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = iPadMirrorBroadcastExtension.entitlements; sourceTree = "<group>"; };
 		A20000000000000000000016 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A20000000000000000000017 /* UsageAccessManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsageAccessManager.swift; sourceTree = "<group>"; };
+		A20000000000000000000018 /* MonitorTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitorTheme.swift; sourceTree = "<group>"; };
+		A20000000000000000000019 /* MonitorChrome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MonitorChrome.swift; sourceTree = "<group>"; };
+		A20000000000000000000020 /* StoreLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreLinks.swift; sourceTree = "<group>"; };
+		A20000000000000000000021 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +88,7 @@
 				A20000000000000000000007 /* BroadcastPickerButton.swift */,
 				A20000000000000000000012 /* BroadcastControllerModel.swift */,
 				A20000000000000000000016 /* Assets.xcassets */,
+				A20000000000000000000021 /* PrivacyInfo.xcprivacy */,
 				A20000000000000000000005 /* Info.plist */,
 				A20000000000000000000014 /* iPadMirrorPad.entitlements */,
 			);
@@ -102,6 +111,9 @@
 			children = (
 				A20000000000000000000013 /* BroadcastSharedSettings.swift */,
 				A20000000000000000000017 /* UsageAccessManager.swift */,
+				A20000000000000000000018 /* MonitorTheme.swift */,
+				A20000000000000000000019 /* MonitorChrome.swift */,
+				A20000000000000000000020 /* StoreLinks.swift */,
 			);
 			path = Sources/iPadMirrorShared;
 			sourceTree = "<group>";
@@ -188,6 +200,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				ko,
 				Base,
 			);
 			mainGroup = A40000000000000000000001;
@@ -221,6 +234,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10000000000000000000012 /* Assets.xcassets in Resources */,
+				A10000000000000000000017 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -246,6 +260,9 @@
 				A10000000000000000000009 /* BroadcastControllerModel.swift in Sources */,
 				A10000000000000000000010 /* BroadcastSharedSettings.swift in Sources */,
 				A10000000000000000000013 /* UsageAccessManager.swift in Sources */,
+				A10000000000000000000014 /* MonitorTheme.swift in Sources */,
+				A10000000000000000000015 /* MonitorChrome.swift in Sources */,
+				A10000000000000000000016 /* StoreLinks.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,6 +292,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				APP_BUNDLE_IDENTIFIER = dev.local.iPadMirrorPad;
+				APP_GROUP_IDENTIFIER = "group.$(APP_BUNDLE_IDENTIFIER)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -338,6 +356,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				APP_BUNDLE_IDENTIFIER = dev.local.iPadMirrorPad;
+				APP_GROUP_IDENTIFIER = "group.$(APP_BUNDLE_IDENTIFIER)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -393,6 +412,7 @@
 		A90000000000000000000003 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Sources/iPadMirrorPad/iPadMirrorPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = G2ZT4J7W93;
@@ -416,6 +436,7 @@
 		A90000000000000000000004 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Sources/iPadMirrorPad/iPadMirrorPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = G2ZT4J7W93;
@@ -440,6 +461,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Sources/iPadMirrorBroadcastExtension/iPadMirrorBroadcastExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = G2ZT4J7W93;
@@ -465,6 +487,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = Sources/iPadMirrorBroadcastExtension/iPadMirrorBroadcastExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = G2ZT4J7W93;

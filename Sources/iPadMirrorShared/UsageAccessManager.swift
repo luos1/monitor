@@ -80,6 +80,35 @@ public final class UsageAccessManager: ObservableObject {
         refreshState()
     }
 
+    public var remainingTimeLabel: String {
+        Self.formatRemaining(seconds: remainingSeconds, lifetimeUnlocked: lifetimeUnlocked)
+    }
+
+    public var usageProgress: Double {
+        let limit = Double(freeLimitSeconds + bonusSeconds)
+        guard limit > 0 else { return 1 }
+        return min(1, Double(usedSeconds) / limit)
+    }
+
+    public static func formatRemaining(seconds: Int, lifetimeUnlocked: Bool) -> String {
+        if lifetimeUnlocked {
+            return "무제한"
+        }
+
+        let clamped = max(0, seconds)
+        let hours = clamped / 3600
+        let minutes = (clamped % 3600) / 60
+        let remainSeconds = clamped % 60
+
+        if hours > 0 {
+            return "\(hours)시간 \(minutes)분"
+        }
+        if minutes > 0 {
+            return "\(minutes)분 \(remainSeconds)초"
+        }
+        return "\(remainSeconds)초"
+    }
+
     private func refreshState() {
         let activeElapsed = activeSessionStartedAt.map { Int(Date().timeIntervalSince($0)) } ?? 0
         usedSeconds = storedUsedSeconds + activeElapsed
