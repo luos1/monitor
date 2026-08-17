@@ -22,7 +22,7 @@
 - [ ] App Group, 서명, Provisioning Profile
 - [ ] App Store Connect에 iPad 앱 생성
 - [ ] Mac 앱은 Mac App Store 또는 직접 배포 중 선택
-- [ ] `MonetizationConfig.swift`와 `GADApplicationIdentifier`를 실제 AdMob ID로 교체
+- [x] AdMob 실제 앱/리워드/배너 ID 연결
 - [ ] App Store Connect에 `dev.local.iPadMirror.lifetime`, `dev.local.iPadMirror.donation` 상품 등록
 - [ ] `StoreLinks.swift`에 동반 앱/개인정보 처리방침 URL 입력
 - [ ] 개인정보 처리방침을 공개 URL에 게시

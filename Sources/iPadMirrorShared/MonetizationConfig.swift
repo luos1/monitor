@@ -1,10 +1,10 @@
 import Foundation
 
 public enum MonetizationConfig {
-    /// Google 샘플 앱 ID. AdMob 등록 후 실제 `ca-app-pub-...~...` 로 교체한다.
-    public static let admobAppID = "ca-app-pub-3940256099942544~1458002511"
-    public static let rewardedAdUnitID = "ca-app-pub-3940256099942544/1712485313"
-    public static let bannerAdUnitID = "ca-app-pub-3940256099942544/2934735716"
+    /// AdMob 앱 ID (아이패드미러)
+    public static let admobAppID = "ca-app-pub-2932716467029728~6289164999"
+    public static let rewardedAdUnitID = "ca-app-pub-2932716467029728/6065803719"
+    public static let bannerAdUnitID = "ca-app-pub-2932716467029728/3303909002"
 
     public static let lifetimeProductID = "dev.local.iPadMirror.lifetime"
     public static let donationProductID = "dev.local.iPadMirror.donation"
