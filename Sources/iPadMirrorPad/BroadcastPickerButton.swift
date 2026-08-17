@@ -31,8 +31,8 @@ final class BroadcastPickerContainerView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = .systemRed
-        layer.cornerRadius = 18
+        backgroundColor = UIColor(red: 0.878, green: 0.192, blue: 0.192, alpha: 1)
+        layer.cornerRadius = 20
         layer.masksToBounds = true
 
         iconView.image = UIImage(

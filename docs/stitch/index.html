@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>아이패드미러 · Stitch Preview</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#3B5BDB",
+            live: "#E03131",
+            surface: "#F4F6FB",
+            ink: "#151923",
+            muted: "#5C6474",
+            line: "#D5DBE8",
+            warn: "#F08C00"
+          },
+          fontFamily: { display: ["Be Vietnam Pro", "sans-serif"] },
+          borderRadius: { DEFAULT: "1rem", lg: "1.5rem", xl: "2rem", full: "9999px" }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: "Be Vietnam Pro", sans-serif; }
+    .wash { background: linear-gradient(180deg, #EEF2FF 0%, #F4F6FB 42%, #F8F4F1 100%); }
+    .device { width: 390px; min-height: 844px; }
+    .wide { width: 920px; min-height: 620px; }
+  </style>
+</head>
+<body class="bg-[#10131A] text-ink">
+  <header class="px-8 py-8 text-white">
+    <p class="text-sm text-white/60">Google Stitch · DESIGN.md</p>
+    <h1 class="text-3xl font-semibold mt-1">아이패드미러 UI</h1>
+    <p class="text-white/70 mt-2 max-w-2xl">iPad는 보내고 Mac은 받습니다. 남은 시간과 동반 앱 안내를 항상 보여 주는 출시용 화면입니다.</p>
+  </header>
+
+  <main class="px-8 pb-16 grid gap-10 xl:grid-cols-2">
+    <section class="device wash rounded-[32px] p-6 shadow-2xl">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-full bg-primary text-white grid place-items-center">
+            <span class="material-symbols-outlined text-[20px]">ad_group</span>
+          </div>
+          <h2 class="text-xl font-semibold">아이패드미러</h2>
+        </div>
+        <span class="rounded-full bg-[#DBE4FF] text-primary text-sm font-semibold px-3 py-1">48분 12초</span>
+      </div>
+      <div class="mt-6 rounded-xl bg-white border border-line p-6 text-center shadow-sm">
+        <div class="mx-auto h-20 w-20 rounded-full bg-primary grid place-items-center text-white">
+          <span class="material-symbols-outlined text-[34px]">tablet_mac</span>
+        </div>
+        <h3 class="mt-4 text-2xl font-semibold">보낼 준비가 되었습니다</h3>
+        <p class="mt-2 text-muted">이 iPad는 화면을 보내는 역할입니다. Mac 앱이 함께 켜져 있어야 미러링이 보입니다.</p>
+        <p class="mt-3 font-semibold text-muted">화면 공유 대기 중</p>
+      </div>
+      <div class="mt-4 rounded-xl bg-[#FFF6E8] p-4 flex gap-3">
+        <span class="material-symbols-outlined text-warn">link</span>
+        <div>
+          <p class="font-semibold">Mac 앱이 켜져 있어야 화면이 보입니다</p>
+          <p class="text-sm text-muted">이 앱은 화면을 보내는 역할입니다.</p>
+        </div>
+      </div>
+      <button class="mt-5 w-full h-14 rounded-lg bg-live text-white font-semibold">전체 화면 방송 시작</button>
+      <button class="mt-3 w-full h-12 rounded-lg border border-line font-semibold text-muted">화면 공유 종료</button>
+    </section>
+
+    <section class="device wash rounded-[32px] p-6 shadow-2xl">
+      <div class="flex items-center gap-3">
+        <div class="h-16 w-16 rounded-full bg-primary text-white grid place-items-center">
+          <span class="material-symbols-outlined text-[28px]">ad_group</span>
+        </div>
+        <div>
+          <h2 class="text-3xl font-semibold">아이패드미러</h2>
+          <p class="text-primary font-semibold">보내는 앱</p>
+        </div>
+      </div>
+      <p class="mt-5 text-lg text-muted">iPad 화면을 Mac으로 보내는 가장 단순한 방법입니다. 두 앱을 한 세트로 사용하세요.</p>
+      <div class="mt-5 space-y-3">
+        <div class="rounded-xl bg-white border border-line p-4 flex gap-3">
+          <div class="h-8 w-8 rounded-full bg-[#DBE4FF] text-primary grid place-items-center font-semibold">1</div>
+          <div><p class="font-semibold">Mac 앱 켜기</p><p class="text-sm text-muted">받을 준비를 먼저 합니다.</p></div>
+        </div>
+        <div class="rounded-xl bg-white border border-line p-4 flex gap-3">
+          <div class="h-8 w-8 rounded-full bg-[#DBE4FF] text-primary grid place-items-center font-semibold">2</div>
+          <div><p class="font-semibold">iPad에서 방송 시작</p><p class="text-sm text-muted">아이패드미러 방송을 선택합니다.</p></div>
+        </div>
+        <div class="rounded-xl bg-white border border-line p-4 flex gap-3">
+          <div class="h-8 w-8 rounded-full bg-[#DBE4FF] text-primary grid place-items-center font-semibold">3</div>
+          <div><p class="font-semibold">Mac에서 iPad 선택</p><p class="text-sm text-muted">목록의 이름을 누르면 연결됩니다.</p></div>
+        </div>
+      </div>
+      <button class="mt-6 w-full h-14 rounded-lg bg-primary text-white font-semibold">시작하기</button>
+    </section>
+
+    <section class="device wash rounded-[32px] p-6 shadow-2xl grid place-items-center text-center">
+      <div>
+        <div class="mx-auto h-24 w-24 rounded-full bg-[#FFF6E8] text-warn grid place-items-center">
+          <span class="material-symbols-outlined text-[40px]">lock</span>
+        </div>
+        <h2 class="mt-5 text-3xl font-semibold">무료 60분이 끝났어요</h2>
+        <p class="mt-3 text-muted">광고를 보면 60분을 더 쓸 수 있습니다. 영구 사용은 $4.99, 응원은 $99.99입니다.</p>
+        <button class="mt-6 w-full h-14 rounded-lg bg-primary text-white font-semibold">광고 보고 60분 연장</button>
+        <button class="mt-3 w-full h-12 rounded-lg border border-line font-semibold text-muted">영구 사용 $4.99</button>
+        <p class="mt-4 text-sm text-muted">스토어 상품 연결은 마켓 등록 직후 활성화됩니다.</p>
+      </div>
+    </section>
+
+    <section class="wide wash rounded-[32px] p-0 shadow-2xl overflow-hidden flex">
+      <aside class="w-[300px] bg-white/80 p-5 border-r border-line">
+        <p class="font-semibold">연결된 iPad</p>
+        <p class="text-xs text-muted mt-1">같은 네트워크에서 검색 중</p>
+        <div class="mt-4 rounded-xl border border-line p-3 flex gap-3 bg-white">
+          <div class="h-9 w-9 rounded-full bg-[#DBE4FF] text-primary grid place-items-center">
+            <span class="material-symbols-outlined text-[18px]">tablet_mac</span>
+          </div>
+          <div>
+            <p class="font-semibold">Raccon iPad</p>
+            <p class="text-xs text-muted">192.168.0.24:7100</p>
+          </div>
+        </div>
+      </aside>
+      <div class="flex-1 p-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-lg font-semibold">아이패드미러</p>
+            <p class="text-sm text-[#2F9E44]">미러링 연결됨</p>
+          </div>
+          <span class="rounded-full bg-[#DBE4FF] text-primary text-sm font-semibold px-3 py-1">48분 12초</span>
+        </div>
+        <div class="mt-4 h-[430px] rounded-lg bg-[#0B0D12] grid place-items-center text-white">
+          <div class="text-center">
+            <p class="text-lg font-semibold">iPad 화면</p>
+            <p class="text-white/60 text-sm mt-1">스테이지는 검정 베젤 안에서 비율을 유지합니다.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
