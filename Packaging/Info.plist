@@ -10,6 +10,8 @@
     <string>dev.local.iPadMirrorMac</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
     <key>CFBundleDisplayName</key>
     <string>아이패드미러</string>
     <key>CFBundleName</key>
