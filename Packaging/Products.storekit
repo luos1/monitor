@@ -1,0 +1,57 @@
+{
+  "identifier" : "A91C2E44-7B1A-4F3D-9C18-6E2F0B81D4A7",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "B17E8C90-2D44-4A61-9F11-0C3A5E78B201",
+      "localizations" : [
+        {
+          "description" : "Unlock unlimited iPad mirroring time.",
+          "displayName" : "Lifetime Unlock",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "아이패드미러를 시간 제한 없이 사용합니다.",
+          "displayName" : "영구 사용",
+          "locale" : "ko"
+        }
+      ],
+      "productID" : "dev.local.iPadMirror.lifetime",
+      "referenceName" : "Lifetime Unlock",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "99.99",
+      "familyShareable" : false,
+      "internalID" : "C28F9D01-3E55-4B72-8A22-1D4B6F89C312",
+      "localizations" : [
+        {
+          "description" : "Support the developer. Also unlocks lifetime use.",
+          "displayName" : "Developer Support",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "개발자를 응원합니다. 영구 사용도 함께 해제됩니다.",
+          "displayName" : "개발자 응원",
+          "locale" : "ko"
+        }
+      ],
+      "productID" : "dev.local.iPadMirror.donation",
+      "referenceName" : "Developer Support",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingGracePeriodEnabled" : false,
+    "_failTransactionsEnabled" : false,
+    "_storeKitErrors" : []
+  },
+  "subscriptionGroups" : [],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

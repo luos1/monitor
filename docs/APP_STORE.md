@@ -14,7 +14,7 @@ iPad 앱은 화면을 보내고, Mac 앱은 그 화면을 받아 보여 줍니�
 2. iPad에서 전체 화면 공유를 시작하고 ‘아이패드미러 방송’을 선택합니다.
 3. Mac 목록에서 iPad 이름을 누릅니다.
 
-처음 60분은 무료입니다. 이후에는 광고로 60분을 연장하거나, 영구 사용($4.99)과 개발자 응원($99.99)을 선택할 수 있습니다.
+처음 60분은 무료입니다. iPad에서는 광고를 보고 60분을 연장할 수 있습니다. 영구 사용($4.99)과 개발자 응원($99.99)은 인앱 결제입니다. 응원 구매 시 영구 사용도 함께 해제됩니다.
 
 화면은 외부 서버로 올라가지 않습니다. 같은 네트워크 또는 USB로만 Mac에 전달됩니다.
 
@@ -29,7 +29,7 @@ How to use
 2. Start full-screen sharing on iPad and choose iPad Mirror Broadcast.
 3. Select your iPad in the Mac sidebar.
 
-The first 60 minutes are free. After that you can watch an ad for another 60 minutes, unlock lifetime use for $4.99, or support the developer for $99.99.
+The first 60 minutes are free. On iPad you can watch an ad for another 60 minutes. Lifetime unlock is $4.99. Developer support is $99.99 and also unlocks lifetime use.
 
 Frames stay on your devices. They travel over the local network or USB only.
 

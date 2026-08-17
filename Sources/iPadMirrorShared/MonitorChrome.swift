@@ -235,7 +235,7 @@ public struct MonitorOnboardingView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("무료와 유료")
                             .font(.headline)
-                        Text("처음 \(MonitorTheme.freeMinutes)분은 무료입니다. 이후에는 광고로 \(MonitorTheme.freeMinutes)분을 연장하거나, 영구 사용 \(MonitorTheme.lifetimePrice) / 응원 \(MonitorTheme.donationPrice)를 선택할 수 있습니다.")
+                        Text("처음 \(MonitorTheme.freeMinutes)분은 무료입니다. iPad에서는 AdMob 광고로 \(MonitorTheme.freeMinutes)분을 연장할 수 있고, 양쪽 앱에서 영구 사용 \(MonitorTheme.lifetimePrice) 또는 응원 \(MonitorTheme.donationPrice)을 구매할 수 있습니다.")
                             .font(.subheadline)
                             .foregroundStyle(Color.monitorOnSurfaceVariant)
                     }
@@ -257,92 +257,130 @@ public struct MonitorOnboardingView: View {
 }
 
 public struct MonitorPaywallView: View {
+    @ObservedObject public var store: StorePurchaseManager
     public let remainingLabel: String
+    public let title: String
+    public let adsSupported: Bool
+    public let adReady: Bool
+    public let adPresenting: Bool
+    public let adStatus: String
     public let onWatchAd: () -> Void
     public let onShowGuide: () -> Void
 
-    public init(remainingLabel: String, onWatchAd: @escaping () -> Void, onShowGuide: @escaping () -> Void) {
+    public init(
+        store: StorePurchaseManager,
+        remainingLabel: String,
+        title: String = "무료 \(MonitorTheme.freeMinutes)분이 끝났어요",
+        adsSupported: Bool,
+        adReady: Bool,
+        adPresenting: Bool,
+        adStatus: String,
+        onWatchAd: @escaping () -> Void,
+        onShowGuide: @escaping () -> Void
+    ) {
+        self.store = store
         self.remainingLabel = remainingLabel
+        self.title = title
+        self.adsSupported = adsSupported
+        self.adReady = adReady
+        self.adPresenting = adPresenting
+        self.adStatus = adStatus
         self.onWatchAd = onWatchAd
         self.onShowGuide = onShowGuide
     }
 
     public var body: some View {
-        VStack(spacing: 20) {
-            Spacer(minLength: 12)
-
-            ZStack {
-                Circle()
-                    .fill(Color.monitorWarning.opacity(0.14))
-                    .frame(width: 112, height: 112)
-                Image(systemName: "lock.fill")
-                    .font(.system(size: 40, weight: .semibold))
-                    .foregroundStyle(Color.monitorWarning)
-            }
-
-            VStack(spacing: 8) {
-                Text("무료 \(MonitorTheme.freeMinutes)분이 끝났어요")
-                    .font(.largeTitle.weight(.semibold))
-                    .multilineTextAlignment(.center)
-                Text("광고를 보면 \(MonitorTheme.freeMinutes)분을 더 쓸 수 있습니다. 영구 사용은 \(MonitorTheme.lifetimePrice), 개발자 응원은 \(MonitorTheme.donationPrice)입니다.")
-                    .font(.title3)
-                    .foregroundStyle(Color.monitorOnSurfaceVariant)
-                    .multilineTextAlignment(.center)
-            }
-
-            VStack(spacing: 12) {
-                Button(action: onWatchAd) {
-                    Label("광고 보고 \(MonitorTheme.freeMinutes)분 연장", systemImage: "play.rectangle.fill")
-                        .font(.title3.weight(.semibold))
-                        .frame(maxWidth: 400)
-                        .frame(height: MonitorTheme.primaryButtonHeight)
+        ScrollView {
+            VStack(spacing: 20) {
+                ZStack {
+                    Circle()
+                        .fill(Color.monitorWarning.opacity(0.14))
+                        .frame(width: 112, height: 112)
+                    Image(systemName: store.hasLifetimeEntitlement ? "checkmark.seal.fill" : "lock.fill")
+                        .font(.system(size: 40, weight: .semibold))
+                        .foregroundStyle(store.hasLifetimeEntitlement ? Color.monitorSuccess : Color.monitorWarning)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(Color.monitorPrimary)
 
-                Button {
-                    StoreLinks.open(StoreLinks.lifetimePurchaseURL)
-                } label: {
-                    Label("영구 사용 \(MonitorTheme.lifetimePrice)", systemImage: "cart.fill")
-                        .font(.title3.weight(.semibold))
-                        .frame(maxWidth: 400)
-                        .frame(height: MonitorTheme.secondaryButtonHeight)
-                }
-                .buttonStyle(.bordered)
-                .disabled(!StoreLinks.hasLifetimePurchase)
-                .opacity(StoreLinks.hasLifetimePurchase ? 1 : 0.55)
-
-                Button {
-                    StoreLinks.open(StoreLinks.donationURL)
-                } label: {
-                    Label("개발자 응원 \(MonitorTheme.donationPrice)", systemImage: "heart.fill")
-                        .font(.title3.weight(.semibold))
-                        .frame(maxWidth: 400)
-                        .frame(height: MonitorTheme.secondaryButtonHeight)
-                }
-                .buttonStyle(.bordered)
-                .disabled(!StoreLinks.hasDonation)
-                .opacity(StoreLinks.hasDonation ? 1 : 0.55)
-
-                if !StoreLinks.hasLifetimePurchase || !StoreLinks.hasDonation {
-                    Text("스토어 상품 연결은 마켓 등록 직후 이 화면에 활성화됩니다.")
-                        .font(.footnote)
+                VStack(spacing: 8) {
+                    Text(title)
+                        .font(.largeTitle.weight(.semibold))
+                        .multilineTextAlignment(.center)
+                    Text("AdMob 리워드 광고를 보면 \(MonitorTheme.freeMinutes)분을 더 쓸 수 있습니다. 영구 사용은 \(store.lifetimePriceLabel), 개발자 응원은 \(store.donationPriceLabel)입니다. 응원 구매 시 영구 사용도 함께 해제됩니다.")
+                        .font(.title3)
                         .foregroundStyle(Color.monitorOnSurfaceVariant)
                         .multilineTextAlignment(.center)
                 }
-            }
 
-            Button("사용법 다시 보기", action: onShowGuide)
-                .padding(.top, 4)
+                VStack(spacing: 12) {
+                    Button(action: onWatchAd) {
+                        Label(
+                            adPresenting ? "광고 재생 중…" : "광고 보고 \(MonitorTheme.freeMinutes)분 연장",
+                            systemImage: "play.rectangle.fill"
+                        )
+                        .font(.title3.weight(.semibold))
+                        .frame(maxWidth: 420)
+                        .frame(height: MonitorTheme.primaryButtonHeight)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.monitorPrimary)
+                    .disabled(!adsSupported || adPresenting || store.isPurchasing)
 
-            Text("남은 시간: \(remainingLabel)")
-                .font(.headline)
+                    Button {
+                        Task { _ = await store.purchaseLifetime() }
+                    } label: {
+                        Label(
+                            store.hasLifetimeEntitlement ? "영구 사용 해제됨" : "영구 사용 \(store.lifetimePriceLabel)",
+                            systemImage: "cart.fill"
+                        )
+                        .font(.title3.weight(.semibold))
+                        .frame(maxWidth: 420)
+                        .frame(height: MonitorTheme.secondaryButtonHeight)
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(!store.canPurchaseLifetime)
+
+                    Button {
+                        Task { _ = await store.purchaseDonation() }
+                    } label: {
+                        Label("개발자 응원 \(store.donationPriceLabel)", systemImage: "heart.fill")
+                            .font(.title3.weight(.semibold))
+                            .frame(maxWidth: 420)
+                            .frame(height: MonitorTheme.secondaryButtonHeight)
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(!store.canPurchaseDonation)
+
+                    Button {
+                        Task { await store.restore() }
+                    } label: {
+                        Text(store.isRestoring ? "복원 중…" : "구매 복원")
+                    }
+                    .disabled(store.isRestoring || store.isPurchasing)
+                }
+
+                VStack(spacing: 6) {
+                    Text(adsSupported ? adStatus : "광고 연장은 iPad 앱에서 사용할 수 있습니다. Mac에서는 인앱 결제로 잠금을 해제하세요.")
+                    if let statusMessage = store.statusMessage {
+                        Text(statusMessage)
+                    }
+                    if MonetizationConfig.usesGoogleSampleAds && adsSupported {
+                        Text("지금은 Google 테스트 광고 ID를 사용합니다. AdMob 앱을 등록한 뒤 MonetizationConfig의 ID를 바꾸세요.")
+                    }
+                }
+                .font(.footnote)
                 .foregroundStyle(Color.monitorOnSurfaceVariant)
+                .multilineTextAlignment(.center)
 
-            Spacer(minLength: 12)
+                Button("사용법 다시 보기", action: onShowGuide)
+                    .padding(.top, 4)
+
+                Text("남은 시간: \(remainingLabel)")
+                    .font(.headline)
+                    .foregroundStyle(Color.monitorOnSurfaceVariant)
+            }
+            .padding(MonitorTheme.pagePadding)
+            .frame(maxWidth: .infinity)
         }
-        .padding(MonitorTheme.pagePadding)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(MonitorBackground())
     }
 }

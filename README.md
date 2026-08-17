@@ -20,8 +20,9 @@ iPad 현재 화면을 같은 네트워크(또는 USB)의 Mac으로 보내는 미
 ## 무료 / 유료
 
 - 기본 사용 60분
-- 전면 광고를 보면 60분 연장
-- 영구 사용 `$4.99`, 개발자 응원 `$99.99` (스토어 URL은 `StoreLinks.swift`에 연결)
+- iPad에서 AdMob 리워드 광고를 보면 60분 연장, 홈 화면에 배너 표시
+- 영구 사용 `$4.99`, 개발자 응원 `$99.99` (StoreKit, 응원 시 영구 사용도 해제)
+- 설정: `Sources/iPadMirrorShared/MonetizationConfig.swift`, 안내: `docs/MONETIZATION.md`
 
 ## 빌드
 

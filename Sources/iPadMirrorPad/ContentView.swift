@@ -3,8 +3,11 @@ import SwiftUI
 struct ContentView: View {
     @AppStorage("monitor.pad.didShowUsageGuide") private var didShowUsageGuide = false
     @State private var showingUsageGuide = false
+    @State private var showingUpgrade = false
     @StateObject private var usageAccess = UsageAccessManager(namespace: "monitor.pad")
     @StateObject private var broadcast = BroadcastControllerModel()
+    @StateObject private var store = StorePurchaseManager()
+    @StateObject private var ads = AdRewardController()
 
     private var broadcastExtensionIdentifier: String {
         "\(Bundle.main.bundleIdentifier ?? "dev.local.iPadMirrorPad").BroadcastExtension"
@@ -13,11 +16,7 @@ struct ContentView: View {
     var body: some View {
         Group {
             if usageAccess.isLocked {
-                MonitorPaywallView(
-                    remainingLabel: usageAccess.remainingTimeLabel,
-                    onWatchAd: { usageAccess.grantAdExtension(minutes: MonitorTheme.freeMinutes) },
-                    onShowGuide: { showingUsageGuide = true }
-                )
+                paywall(title: "무료 \(MonitorTheme.freeMinutes)분이 끝났어요")
             } else if didShowUsageGuide {
                 mainContent
             } else {
@@ -33,12 +32,38 @@ struct ContentView: View {
             }
             .frame(minWidth: 640, minHeight: 720)
         }
+        .sheet(isPresented: $showingUpgrade) {
+            paywall(title: "유료 기능")
+                .frame(minWidth: 640, minHeight: 720)
+        }
         .onAppear {
             usageAccess.startTracking()
+            store.start()
+            ads.start()
+            syncPurchaseState()
         }
         .onDisappear {
             usageAccess.stopTracking()
         }
+        .onChange(of: store.hasLifetimeEntitlement) { _, unlocked in
+            if unlocked {
+                MonetizationApplier.apply(.lifetimeUnlocked, to: usageAccess)
+            }
+        }
+    }
+
+    private func paywall(title: String) -> some View {
+        MonitorPaywallView(
+            store: store,
+            remainingLabel: usageAccess.remainingTimeLabel,
+            title: title,
+            adsSupported: ads.isSupported,
+            adReady: ads.isReady,
+            adPresenting: ads.isPresenting,
+            adStatus: ads.status,
+            onWatchAd: watchAd,
+            onShowGuide: { showingUsageGuide = true }
+        )
     }
 
     private var mainContent: some View {
@@ -96,6 +121,19 @@ struct ContentView: View {
                     }
                     .buttonStyle(.bordered)
                     .tint(Color.monitorOnSurfaceVariant)
+
+                    if !usageAccess.lifetimeUnlocked {
+                        Button {
+                            showingUpgrade = true
+                        } label: {
+                            Label("광고 연장 / 영구 사용", systemImage: "sparkles")
+                                .font(.title3.weight(.semibold))
+                                .frame(maxWidth: 420)
+                                .frame(height: MonitorTheme.secondaryButtonHeight)
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(Color.monitorPrimary)
+                    }
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
@@ -104,6 +142,10 @@ struct ContentView: View {
                     ForEach(MonitorRole.pad.steps, id: \.0) { step in
                         MonitorGuideStep(number: step.0, title: step.1, detail: step.2)
                     }
+                }
+
+                if !usageAccess.lifetimeUnlocked {
+                    BannerAdView()
                 }
 
                 HStack {
@@ -117,5 +159,23 @@ struct ContentView: View {
             .padding(MonitorTheme.pagePadding)
         }
         .background(MonitorBackground())
+    }
+
+    private func watchAd() {
+        Task {
+            do {
+                try await ads.showRewarded()
+                MonetizationApplier.apply(.rewardedAdFinished, to: usageAccess)
+                showingUpgrade = false
+            } catch {
+                ads.status = error.localizedDescription
+            }
+        }
+    }
+
+    private func syncPurchaseState() {
+        if store.hasLifetimeEntitlement {
+            MonetizationApplier.apply(.lifetimeUnlocked, to: usageAccess)
+        }
     }
 }

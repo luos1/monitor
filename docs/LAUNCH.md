@@ -13,6 +13,8 @@
 - [x] 스토어 문구, 개인정보 처리방침 초안, 출시 체크리스트
 - [x] Mac 버전을 1.0.0으로 맞춤
 - [x] Privacy Manifest, Export Compliance, App Group 서명 설정
+- [x] AdMob 리워드/배너 (iPad, 테스트 ID)
+- [x] StoreKit 2 영구 사용 $4.99 / 응원 $99.99
 
 ## 출시 직전 필수 (코드 밖)
 
@@ -20,12 +22,9 @@
 - [ ] App Group, 서명, Provisioning Profile
 - [ ] App Store Connect에 iPad 앱 생성
 - [ ] Mac 앱은 Mac App Store 또는 직접 배포 중 선택
-- [ ] `Sources/iPadMirrorShared/StoreLinks.swift`에 실제 URL 입력
-  - 동반 앱 설치
-  - 영구 사용 `$4.99`
-  - 도네이션 `$99.99`
-  - 개인정보 처리방침
-- [ ] StoreKit / 광고 SDK 실연동 (지금은 연장 버튼이 로컬 보너스만 부여)
+- [ ] `MonetizationConfig.swift`와 `GADApplicationIdentifier`를 실제 AdMob ID로 교체
+- [ ] App Store Connect에 `dev.local.iPadMirror.lifetime`, `dev.local.iPadMirror.donation` 상품 등록
+- [ ] `StoreLinks.swift`에 동반 앱/개인정보 처리방침 URL 입력
 - [ ] 개인정보 처리방침을 공개 URL에 게시
 - [ ] iPad와 Mac 실기기 페어 테스트 (Wi-Fi, USB, 방송 종료)
 - [ ] 스토어 스크린샷 6장 이상 (온보딩, 홈, 방송 중, Mac 수신, 잠금)
@@ -38,7 +37,7 @@
 ## 심사에서 막히기 쉬운 지점
 
 - 로컬 네트워크 사용 설명이 Info.plist와 실제 동작과 같아야 합니다.
-- 광고/IAP 버튼이 보이면 실제로 동작하거나, 연결 전에는 비활성 + 안내 문구를 유지하세요. 현재 UI는 URL이 없으면 구매 버튼을 비활성으로 둡니다.
+- 광고/IAP 버튼은 실제 StoreKit·AdMob 흐름에 연결되어 있습니다. 로컬에서는 `Packaging/Products.storekit` 과 Google 테스트 광고 ID를 사용하세요.
 - Broadcast Extension 표시 이름은 `아이패드미러 방송`입니다. 사용법 문구와 같아야 합니다.
 - 번들 ID `dev.local.*`는 스토어 제출에 적합하지 않습니다.
 

@@ -9,19 +9,18 @@ private final class ReceiverDisplayMode: ObservableObject {
 struct ReceiverView: View {
     @AppStorage("monitor.mac.didShowUsageGuide") private var didShowUsageGuide = false
     @State private var showingUsageGuide = false
+    @State private var showingUpgrade = false
     @StateObject private var usageAccess = UsageAccessManager(namespace: "monitor.mac")
     @StateObject private var browser = BonjourBrowser()
     @StateObject private var receiver = FrameReceiver()
     @StateObject private var displayMode = ReceiverDisplayMode()
+    @StateObject private var store = StorePurchaseManager()
+    @StateObject private var ads = MacAdRewardController()
 
     var body: some View {
         Group {
             if usageAccess.isLocked {
-                MonitorPaywallView(
-                    remainingLabel: usageAccess.remainingTimeLabel,
-                    onWatchAd: { usageAccess.grantAdExtension(minutes: MonitorTheme.freeMinutes) },
-                    onShowGuide: { showingUsageGuide = true }
-                )
+                paywall(title: "무료 \(MonitorTheme.freeMinutes)분이 끝났어요")
             } else if didShowUsageGuide {
                 mainContent
             } else {
@@ -39,12 +38,26 @@ struct ReceiverView: View {
             }
             .frame(minWidth: 720, minHeight: 740)
         }
+        .sheet(isPresented: $showingUpgrade) {
+            paywall(title: "유료 기능")
+                .frame(minWidth: 720, minHeight: 740)
+        }
         .onReceive(NotificationCenter.default.publisher(for: .monitorShowUsageGuide)) { _ in
             showingUsageGuide = true
+        }
+        .onChange(of: store.hasLifetimeEntitlement) { _, unlocked in
+            if unlocked {
+                MonetizationApplier.apply(.lifetimeUnlocked, to: usageAccess)
+            }
         }
         .onAppear {
             browser.startSearching()
             usageAccess.startTracking()
+            store.start()
+            ads.start()
+            if store.hasLifetimeEntitlement {
+                MonetizationApplier.apply(.lifetimeUnlocked, to: usageAccess)
+            }
         }
         .onDisappear {
             receiver.disconnect()
@@ -115,6 +128,12 @@ struct ReceiverView: View {
 
             Button("사용법") {
                 showingUsageGuide = true
+            }
+
+            if !usageAccess.lifetimeUnlocked {
+                Button("유료 기능") {
+                    showingUpgrade = true
+                }
             }
 
             Button("앱 전체 크기로 보기") {
@@ -272,5 +291,27 @@ struct ReceiverView: View {
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             .padding()
         }
+    }
+
+    private func paywall(title: String) -> some View {
+        MonitorPaywallView(
+            store: store,
+            remainingLabel: usageAccess.remainingTimeLabel,
+            title: title,
+            adsSupported: ads.isSupported,
+            adReady: ads.isReady,
+            adPresenting: ads.isPresenting,
+            adStatus: ads.status,
+            onWatchAd: {
+                Task {
+                    do {
+                        try await ads.showRewarded()
+                    } catch {
+                        ads.status = error.localizedDescription
+                    }
+                }
+            },
+            onShowGuide: { showingUsageGuide = true }
+        )
     }
 }
