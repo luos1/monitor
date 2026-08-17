@@ -15,20 +15,21 @@
 ## 로컬 테스트
 
 1. Xcode scheme의 StoreKit Configuration에 `Packaging/Products.storekit` 를 연결합니다.
-2. iPad 앱은 Google 샘플 AdMob ID로 테스트 광고가 나옵니다.
-3. 실제 수익을 내려면 아래 ID를 교체합니다.
+2. iPad 앱은 아래 실제 AdMob ID로 광고가 나갑니다. 개발 중에는 AdMob 콘솔에서 테스트 기기를 등록하세요.
 
-## 출시 시 교체
+## 연결된 AdMob ID
 
-`Sources/iPadMirrorShared/MonetizationConfig.swift`
+| 항목 | ID |
+| --- | --- |
+| 앱 | `ca-app-pub-2932716467029728~6289164999` |
+| 리워드 (아이패드미러 리워드) | `ca-app-pub-2932716467029728/6065803719` |
+| 배너 (아이패드미러 배너) | `ca-app-pub-2932716467029728/3303909002` |
 
-- `admobAppID`
-- `rewardedAdUnitID`
-- `bannerAdUnitID`
-- `lifetimeProductID`
-- `donationProductID`
+코드 위치: `Sources/iPadMirrorShared/MonetizationConfig.swift`, `Sources/iPadMirrorPad/Info.plist` (`GADApplicationIdentifier`)
 
-`Sources/iPadMirrorPad/Info.plist` 의 `GADApplicationIdentifier` 도 같은 앱 ID로 맞춥니다.
+## 기타 출시 설정
+
+`MonetizationConfig.swift` 에서 IAP 상품 ID도 배포용 번들 ID에 맞게 바꿉니다.
 
 ## App Store Connect 상품
 
@@ -39,7 +40,6 @@
 
 ## AdMob
 
-1. https://apps.admob.com 에서 iOS 앱 등록
-2. 리워드 광고 단위, 배너 광고 단위 생성
-3. 테스트 기기 등록 후 샘플 ID를 실제 ID로 교체
-4. 스토어 개인정보 설문에 광고 항목 표시
+1. iOS 앱과 리워드/배너 단위는 등록 완료
+2. 개발 기기는 AdMob 콘솔 → 설정 → 테스트 기기에 등록
+3. 스토어 개인정보 설문에 광고 항목 표시
