@@ -29,12 +29,16 @@
 
 ## 기타 출시 설정
 
-`MonetizationConfig.swift` 에서 IAP 상품 ID도 배포용 번들 ID에 맞게 바꿉니다.
+코드와 로컬 StoreKit 구성은 App Store Connect 상품 ID와 동일하게 유지합니다.
 
 ## App Store Connect 상품
 
-- `dev.local.iPadMirror.lifetime` : Non-Consumable, $4.99
-- `dev.local.iPadMirror.donation` : Consumable, $99.99
+- `ipadmirror.lifetime` : Non-Consumable, $4.99
+- `ipadmirror.donation` : Non-Consumable, $99.99
+
+응원 상품도 영구 사용 권한을 제공하므로 반드시 **Non-Consumable**로 등록해야
+복원·환불·기기 변경 시 StoreKit entitlement를 정확히 반영할 수 있습니다.
+Consumable로 등록하면 영구 권한의 복원과 검증이 불가능합니다.
 
 번들 ID를 바꾸면 상품 ID prefix도 같이 바꾸는 것을 권장합니다.
 

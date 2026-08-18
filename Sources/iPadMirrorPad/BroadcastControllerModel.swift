@@ -39,6 +39,7 @@ final class BroadcastControllerModel: NSObject, ObservableObject {
     }
 
     func stopBroadcast() {
+        BroadcastSharedSettings.requestStop()
         Self.postStopBroadcastNotification()
 
         guard let broadcastController else {

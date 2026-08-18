@@ -10,6 +10,7 @@ struct ReceiverView: View {
     @AppStorage("monitor.mac.didShowUsageGuide") private var didShowUsageGuide = false
     @State private var showingUsageGuide = false
     @State private var showingUpgrade = false
+    @State private var pairingCode = ""
     @StateObject private var usageAccess = UsageAccessManager(namespace: "monitor.mac")
     @StateObject private var browser = BonjourBrowser()
     @StateObject private var receiver = FrameReceiver()
@@ -46,18 +47,14 @@ struct ReceiverView: View {
             showingUsageGuide = true
         }
         .onChange(of: store.hasLifetimeEntitlement) { _, unlocked in
-            if unlocked {
-                MonetizationApplier.apply(.lifetimeUnlocked, to: usageAccess)
-            }
+            usageAccess.setLifetimeEntitlement(unlocked)
         }
         .onAppear {
             browser.startSearching()
             usageAccess.startTracking()
             store.start()
             ads.start()
-            if store.hasLifetimeEntitlement {
-                MonetizationApplier.apply(.lifetimeUnlocked, to: usageAccess)
-            }
+            usageAccess.setLifetimeEntitlement(store.hasLifetimeEntitlement)
         }
         .onDisappear {
             receiver.disconnect()
@@ -165,6 +162,10 @@ struct ReceiverView: View {
                 .help("새로고침")
             }
 
+            TextField("iPad 연결 코드 (예: ABCD-2345)", text: $pairingCode)
+                .textFieldStyle(.roundedBorder)
+                .help("iPad 앱 홈 화면에 표시된 8자리 코드를 입력하세요.")
+
             if browser.devices.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "ipad.and.arrow.forward")
@@ -184,7 +185,7 @@ struct ReceiverView: View {
                     VStack(spacing: 10) {
                         ForEach(browser.devices) { device in
                             Button {
-                                receiver.connect(to: device)
+                                receiver.connect(to: device, pairingCode: pairingCode)
                             } label: {
                                 HStack(spacing: 12) {
                                     Image(systemName: "ipad")

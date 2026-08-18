@@ -23,4 +23,13 @@ cp Packaging/PrivacyInfo.xcprivacy "$BUNDLE_DIR/Contents/Resources/PrivacyInfo.x
 cp "$EXECUTABLE_PATH" "$BUNDLE_DIR/Contents/MacOS/$PRODUCT"
 chmod +x "$BUNDLE_DIR/Contents/MacOS/$PRODUCT"
 
+if [[ -n "${CODESIGN_IDENTITY:-}" ]]; then
+  codesign \
+    --force \
+    --options runtime \
+    --timestamp \
+    --sign "$CODESIGN_IDENTITY" \
+    "$BUNDLE_DIR"
+fi
+
 printf '%s\n' "$BUNDLE_DIR"

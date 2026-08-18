@@ -10,7 +10,6 @@
 		A10000000000000000000001 /* iPadMirrorPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* iPadMirrorPadApp.swift */; };
 		A10000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* ContentView.swift */; };
 		A10000000000000000000003 /* BonjourAdvertiser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* BonjourAdvertiser.swift */; };
-		A10000000000000000000004 /* FrameSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000004 /* FrameSender.swift */; };
 		A10000000000000000000005 /* BroadcastPickerButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000007 /* BroadcastPickerButton.swift */; };
 		A10000000000000000000006 /* SampleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000008 /* SampleHandler.swift */; };
 		A10000000000000000000007 /* BroadcastFrameServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000009 /* BroadcastFrameServer.swift */; };
@@ -36,7 +35,6 @@
 		A20000000000000000000001 /* iPadMirrorPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadMirrorPadApp.swift; sourceTree = "<group>"; };
 		A20000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A20000000000000000000003 /* BonjourAdvertiser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourAdvertiser.swift; sourceTree = "<group>"; };
-		A20000000000000000000004 /* FrameSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameSender.swift; sourceTree = "<group>"; };
 		A20000000000000000000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A20000000000000000000006 /* iPadMirrorPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iPadMirrorPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20000000000000000000007 /* BroadcastPickerButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BroadcastPickerButton.swift; sourceTree = "<group>"; };
@@ -97,7 +95,6 @@
 				A20000000000000000000001 /* iPadMirrorPadApp.swift */,
 				A20000000000000000000002 /* ContentView.swift */,
 				A20000000000000000000003 /* BonjourAdvertiser.swift */,
-				A20000000000000000000004 /* FrameSender.swift */,
 				A20000000000000000000007 /* BroadcastPickerButton.swift */,
 				A20000000000000000000012 /* BroadcastControllerModel.swift */,
 				A20000000000000000000024 /* AdRewardController.swift */,
@@ -279,7 +276,6 @@
 				A10000000000000000000001 /* iPadMirrorPadApp.swift in Sources */,
 				A10000000000000000000002 /* ContentView.swift in Sources */,
 				A10000000000000000000003 /* BonjourAdvertiser.swift in Sources */,
-				A10000000000000000000004 /* FrameSender.swift in Sources */,
 				A10000000000000000000005 /* BroadcastPickerButton.swift in Sources */,
 				A10000000000000000000009 /* BroadcastControllerModel.swift in Sources */,
 				A10000000000000000000010 /* BroadcastSharedSettings.swift in Sources */,
@@ -576,8 +572,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.0.0;
+				kind = exactVersion;
+				version = 12.14.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

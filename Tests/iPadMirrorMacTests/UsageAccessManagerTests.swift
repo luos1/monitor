@@ -36,4 +36,14 @@ final class UsageAccessManagerTests: XCTestCase {
         XCTAssertEqual(UsageAccessManager.formatRemaining(seconds: 3720, lifetimeUnlocked: false), "1시간 2분")
         XCTAssertEqual(UsageAccessManager.formatRemaining(seconds: 0, lifetimeUnlocked: true), "무제한")
     }
+
+    func testPersistedDefaultsCannotForgeLifetimeEntitlement() {
+        let namespace = "test.entitlement.\(UUID().uuidString)"
+        UserDefaults.standard.set(true, forKey: "\(namespace).usage.lifetimeUnlocked")
+
+        let manager = UsageAccessManager(namespace: namespace, freeLimitMinutes: 1)
+
+        XCTAssertFalse(manager.lifetimeUnlocked)
+        XCTAssertNil(UserDefaults.standard.object(forKey: "\(namespace).usage.lifetimeUnlocked"))
+    }
 }

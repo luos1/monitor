@@ -31,6 +31,10 @@ iPad 현재 화면을 같은 네트워크(또는 USB)의 Mac으로 보내는 미
 swift test
 ./scripts/package-mac-app.sh release
 
+# 직접 배포용 Developer ID 서명 + Hardened Runtime
+CODESIGN_IDENTITY="Developer ID Application: 이름 (TEAMID)" \
+  ./scripts/package-mac-app.sh release
+
 # iPad 앱
 # Xcode에서 iPadMirrorPad.xcodeproj 를 열고 iPad에 설치
 ```

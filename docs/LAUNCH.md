@@ -23,7 +23,7 @@
 - [ ] App Store Connect에 iPad 앱 생성
 - [ ] Mac 앱은 Mac App Store 또는 직접 배포 중 선택
 - [x] AdMob 실제 앱/리워드/배너 ID 연결
-- [ ] App Store Connect에 `dev.local.iPadMirror.lifetime`, `dev.local.iPadMirror.donation` 상품 등록
+- [ ] App Store Connect에 `ipadmirror.lifetime`, `ipadmirror.donation`을 Non-Consumable 상품으로 등록
 - [ ] `StoreLinks.swift`에 동반 앱/개인정보 처리방침 URL 입력
 - [ ] 개인정보 처리방침을 공개 URL에 게시
 - [ ] iPad와 Mac 실기기 페어 테스트 (Wi-Fi, USB, 방송 종료)
@@ -32,7 +32,7 @@
 
 ## 권장 심사 메모
 
-이 앱은 ReplayKit Broadcast Upload Extension으로 iPad 화면을 같은 사용자의 Mac에만 보냅니다. 화면 내용은 서버로 업로드되지 않고 로컬 네트워크 또는 USB로만 전달됩니다.
+이 앱은 ReplayKit Broadcast Upload Extension으로 iPad 화면을 같은 사용자의 Mac에만 보냅니다. 화면 내용은 서버로 업로드되지 않고 로컬 네트워크 또는 USB로만 전달됩니다. Mac은 iPad에 표시된 8자리 연결 코드로 인증되며, 프레임은 ChaCha20-Poly1305로 암호화·무결성 검증됩니다.
 
 ## 심사에서 막히기 쉬운 지점
 

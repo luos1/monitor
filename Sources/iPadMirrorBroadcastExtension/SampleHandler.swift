@@ -8,11 +8,14 @@ import ReplayKit
 final class SampleHandler: RPBroadcastSampleHandler {
     private let frameServer = BroadcastFrameServer()
     private let ciContext = CIContext(options: [.cacheIntermediates: false])
+    private let stopLock = NSLock()
     private var lastEncodedFrameTime = CMTime.zero
     private var stopRequested = false
+    private var lastStopRequestToken: String?
 
     override func broadcastStarted(withSetupInfo setupInfo: [String: NSObject]?) {
-        stopRequested = false
+        setStopRequested(false)
+        lastStopRequestToken = BroadcastSharedSettings.currentStopRequestToken()
         addStopObserver()
         frameServer.start()
     }
@@ -77,7 +80,15 @@ final class SampleHandler: RPBroadcastSampleHandler {
     }
 
     private func shouldStopBroadcast() -> Bool {
-        stopRequested
+        stopLock.lock()
+        defer { stopLock.unlock() }
+        return stopRequested
+    }
+
+    private func setStopRequested(_ requested: Bool) {
+        stopLock.lock()
+        stopRequested = requested
+        stopLock.unlock()
     }
 
     private func scaledCIImage(_ image: CIImage, maxEncodedDimension: CGFloat) -> CIImage {
@@ -114,7 +125,10 @@ final class SampleHandler: RPBroadcastSampleHandler {
     private static let stopNotificationCallback: CFNotificationCallback = { _, observer, _, _, _ in
         guard let observer else { return }
         let handler = Unmanaged<SampleHandler>.fromOpaque(observer).takeUnretainedValue()
-        handler.stopRequested = true
+        let token = BroadcastSharedSettings.currentStopRequestToken()
+        guard token != nil, token != handler.lastStopRequestToken else { return }
+        handler.lastStopRequestToken = token
+        handler.setStopRequested(true)
     }
     private static let userStoppedBroadcastError = NSError(
         domain: "dev.local.iPadMirrorPad.broadcast",

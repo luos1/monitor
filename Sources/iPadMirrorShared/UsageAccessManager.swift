@@ -22,12 +22,12 @@ public final class UsageAccessManager: ObservableObject {
         self.freeLimitSeconds = freeLimitMinutes * 60
         self.defaults = UserDefaults.standard
         let loadedBonusSeconds = defaults.integer(forKey: "\(namespace).usage.bonusSeconds")
-        let loadedLifetimeUnlocked = defaults.bool(forKey: "\(namespace).usage.lifetimeUnlocked")
         self.storedUsedSeconds = defaults.integer(forKey: "\(namespace).usage.usedSeconds")
         self.bonusSeconds = loadedBonusSeconds
-        self.lifetimeUnlocked = loadedLifetimeUnlocked
+        self.lifetimeUnlocked = false
         self.usedSeconds = storedUsedSeconds
         self.remainingSeconds = max(0, freeLimitSeconds + loadedBonusSeconds - storedUsedSeconds)
+        defaults.removeObject(forKey: "\(namespace).usage.lifetimeUnlocked")
         refreshState()
     }
 
@@ -58,8 +58,12 @@ public final class UsageAccessManager: ObservableObject {
     }
 
     public func unlockLifetime() {
-        lifetimeUnlocked = true
-        defaults.set(true, forKey: "\(namespace).usage.lifetimeUnlocked")
+        setLifetimeEntitlement(true)
+    }
+
+    public func setLifetimeEntitlement(_ isUnlocked: Bool) {
+        lifetimeUnlocked = isUnlocked
+        defaults.removeObject(forKey: "\(namespace).usage.lifetimeUnlocked")
         refreshState()
     }
 
@@ -69,7 +73,7 @@ public final class UsageAccessManager: ObservableObject {
         lifetimeUnlocked = false
         defaults.set(0, forKey: "\(namespace).usage.usedSeconds")
         defaults.set(0, forKey: "\(namespace).usage.bonusSeconds")
-        defaults.set(false, forKey: "\(namespace).usage.lifetimeUnlocked")
+        defaults.removeObject(forKey: "\(namespace).usage.lifetimeUnlocked")
         activeSessionStartedAt = Date()
         refreshState()
     }

@@ -6,12 +6,6 @@ import GoogleMobileAds
 
 @main
 struct iPadMirrorPadApp: App {
-    init() {
-        #if canImport(GoogleMobileAds)
-        MobileAds.shared.start()
-        #endif
-    }
-
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -21,7 +15,26 @@ struct iPadMirrorPadApp: App {
 
     private func requestTrackingIfNeeded() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
-            ATTrackingManager.requestTrackingAuthorization { _ in }
+            if ATTrackingManager.trackingAuthorizationStatus == .notDetermined {
+                ATTrackingManager.requestTrackingAuthorization { _ in
+                    Self.startAdsAfterPrivacyChoice()
+                }
+            } else {
+                Self.startAdsAfterPrivacyChoice()
+            }
         }
     }
+
+    private static func startAdsAfterPrivacyChoice() {
+        DispatchQueue.main.async {
+            #if canImport(GoogleMobileAds)
+            MobileAds.shared.start()
+            #endif
+            NotificationCenter.default.post(name: .monitorAdsMayLoad, object: nil)
+        }
+    }
+}
+
+extension Notification.Name {
+    static let monitorAdsMayLoad = Notification.Name("dev.local.iPadMirrorPad.adsMayLoad")
 }

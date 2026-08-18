@@ -4,6 +4,7 @@ struct ContentView: View {
     @AppStorage("monitor.pad.didShowUsageGuide") private var didShowUsageGuide = false
     @State private var showingUsageGuide = false
     @State private var showingUpgrade = false
+    @State private var adsMayLoad = false
     @StateObject private var usageAccess = UsageAccessManager(namespace: "monitor.pad")
     @StateObject private var broadcast = BroadcastControllerModel()
     @StateObject private var store = StorePurchaseManager()
@@ -39,16 +40,17 @@ struct ContentView: View {
         .onAppear {
             usageAccess.startTracking()
             store.start()
-            ads.start()
             syncPurchaseState()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .monitorAdsMayLoad)) { _ in
+            adsMayLoad = true
+            ads.start()
         }
         .onDisappear {
             usageAccess.stopTracking()
         }
         .onChange(of: store.hasLifetimeEntitlement) { _, unlocked in
-            if unlocked {
-                MonetizationApplier.apply(.lifetimeUnlocked, to: usageAccess)
-            }
+            usageAccess.setLifetimeEntitlement(unlocked)
         }
     }
 
@@ -104,6 +106,25 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity)
                 }
 
+                MonitorCard {
+                    HStack(spacing: 14) {
+                        Image(systemName: "lock.shield.fill")
+                            .font(.title2)
+                            .foregroundStyle(Color.monitorPrimary)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Mac 연결 코드")
+                                .font(.headline)
+                            Text(BroadcastSharedSettings.formattedPairingCode())
+                                .font(.system(.title2, design: .monospaced, weight: .bold))
+                                .textSelection(.enabled)
+                            Text("Mac 앱에 이 코드를 입력해야 화면을 받을 수 있습니다.")
+                                .font(.caption)
+                                .foregroundStyle(Color.monitorOnSurfaceVariant)
+                        }
+                        Spacer()
+                    }
+                }
+
                 MonitorCompanionBanner(role: .pad)
 
                 VStack(spacing: 12) {
@@ -144,7 +165,7 @@ struct ContentView: View {
                     }
                 }
 
-                if !usageAccess.lifetimeUnlocked {
+                if !usageAccess.lifetimeUnlocked && adsMayLoad {
                     BannerAdView()
                 }
 
@@ -174,8 +195,6 @@ struct ContentView: View {
     }
 
     private func syncPurchaseState() {
-        if store.hasLifetimeEntitlement {
-            MonetizationApplier.apply(.lifetimeUnlocked, to: usageAccess)
-        }
+        usageAccess.setLifetimeEntitlement(store.hasLifetimeEntitlement)
     }
 }

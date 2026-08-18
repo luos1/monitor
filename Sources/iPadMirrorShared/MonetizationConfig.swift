@@ -6,8 +6,8 @@ public enum MonetizationConfig {
     public static let rewardedAdUnitID = "ca-app-pub-2932716467029728/6065803719"
     public static let bannerAdUnitID = "ca-app-pub-2932716467029728/3303909002"
 
-    public static let lifetimeProductID = "dev.local.iPadMirror.lifetime"
-    public static let donationProductID = "dev.local.iPadMirror.donation"
+    public static let lifetimeProductID = "ipadmirror.lifetime"
+    public static let donationProductID = "ipadmirror.donation"
 
     public static var productIDs: Set<String> {
         [lifetimeProductID, donationProductID]

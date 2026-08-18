@@ -38,6 +38,7 @@ public final class StorePurchaseManager: ObservableObject {
         updatesTask = Task { [weak self] in
             for await result in Transaction.updates {
                 await self?.handle(result)
+                await self?.refreshEntitlements()
             }
         }
         Task {
@@ -87,7 +88,8 @@ public final class StorePurchaseManager: ObservableObject {
         var unlocked = false
         for await result in Transaction.currentEntitlements {
             guard case .verified(let transaction) = result else { continue }
-            if transaction.productID == MonetizationConfig.lifetimeProductID {
+            if transaction.productID == MonetizationConfig.lifetimeProductID
+                || transaction.productID == MonetizationConfig.donationProductID {
                 unlocked = true
             }
         }
@@ -137,7 +139,8 @@ public final class StorePurchaseManager: ObservableObject {
             return
         }
 
-        if transaction.productID == MonetizationConfig.lifetimeProductID {
+        if transaction.productID == MonetizationConfig.lifetimeProductID
+            || transaction.productID == MonetizationConfig.donationProductID {
             hasLifetimeEntitlement = true
         }
 

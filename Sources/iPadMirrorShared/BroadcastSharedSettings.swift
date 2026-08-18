@@ -4,6 +4,8 @@ enum BroadcastSharedSettings {
     private static let extensionSuffix = ".BroadcastExtension"
     private static let stopRequestTokenKey = "stopRequestToken"
     private static let deviceNameKey = "deviceName"
+    private static let pairingCodeKey = "pairingCode"
+    private static let pairingAlphabet = Array("23456789ABCDEFGHJKLMNPQRSTUVWXYZ")
 
     static var defaults: UserDefaults? {
         UserDefaults(suiteName: appGroupIdentifier())
@@ -27,6 +29,27 @@ enum BroadcastSharedSettings {
 
     static func deviceName(fallback: String = "iPad") -> String {
         defaults?.string(forKey: deviceNameKey).flatMap { $0.isEmpty ? nil : $0 } ?? fallback
+    }
+
+    static func pairingCode() -> String {
+        if let existing = defaults?.string(forKey: pairingCodeKey),
+           normalizedPairingCode(existing).count == 8 {
+            return normalizedPairingCode(existing)
+        }
+
+        let code = String((0..<8).compactMap { _ in pairingAlphabet.randomElement() })
+        defaults?.set(code, forKey: pairingCodeKey)
+        return code
+    }
+
+    static func formattedPairingCode() -> String {
+        let code = pairingCode()
+        let middle = code.index(code.startIndex, offsetBy: 4)
+        return "\(code[..<middle])-\(code[middle...])"
+    }
+
+    static func normalizedPairingCode(_ code: String) -> String {
+        code.uppercased().filter { $0.isASCII && ($0.isLetter || $0.isNumber) }
     }
 
     static func requestStop() {

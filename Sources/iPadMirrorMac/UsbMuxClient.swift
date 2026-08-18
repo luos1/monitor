@@ -40,6 +40,7 @@ enum UsbMuxClient {
     private static let socketPath = "/var/run/usbmuxd"
     private static let protocolVersion: UInt32 = 1
     private static let plistMessageType: UInt32 = 8
+    private static let maximumPlistResponseSize = 4 * 1024 * 1024
 
     static func listDevices() throws -> [Device] {
         let socket = try openMuxSocket()
@@ -139,6 +140,9 @@ enum UsbMuxClient {
 
             while offset < data.count {
                 let count = Darwin.write(socket, baseAddress.advanced(by: offset), data.count - offset)
+                if count == 0 {
+                    throw UsbMuxError.writeFailed
+                }
                 if count < 0 {
                     if errno == EINTR { continue }
                     throw UsbMuxError.writeFailed
@@ -206,7 +210,9 @@ enum UsbMuxClient {
 
         let header = try readExact(from: socket, byteCount: 16)
         let responseLength = Int(readUInt32LittleEndian(header, offset: 0))
-        guard responseLength >= 16 else { throw UsbMuxError.invalidResponse }
+        guard responseLength >= 16, responseLength <= maximumPlistResponseSize else {
+            throw UsbMuxError.invalidResponse
+        }
 
         let responsePayload = try readExact(from: socket, byteCount: responseLength - 16)
         guard let response = try PropertyListSerialization.propertyList(from: responsePayload, options: [], format: nil) as? [String: Any] else {
@@ -225,6 +231,9 @@ enum UsbMuxClient {
 
         let header = try readExact(from: socket, byteCount: 4)
         let responseLength = Int(readUInt32BigEndian(header, offset: 0))
+        guard responseLength > 0, responseLength <= maximumPlistResponseSize else {
+            throw UsbMuxError.invalidResponse
+        }
         let responsePayload = try readExact(from: socket, byteCount: responseLength)
 
         guard let response = try PropertyListSerialization.propertyList(from: responsePayload, options: [], format: nil) as? [String: Any] else {
@@ -244,14 +253,18 @@ enum UsbMuxClient {
     }
 
     private static func readUInt32LittleEndian(_ data: Data, offset: Int) -> UInt32 {
-        data.withUnsafeBytes { rawBuffer in
-            rawBuffer.load(fromByteOffset: offset, as: UInt32.self).littleEndian
-        }
+        guard data.count >= offset + 4 else { return 0 }
+        return UInt32(data[offset])
+            | (UInt32(data[offset + 1]) << 8)
+            | (UInt32(data[offset + 2]) << 16)
+            | (UInt32(data[offset + 3]) << 24)
     }
 
     private static func readUInt32BigEndian(_ data: Data, offset: Int) -> UInt32 {
-        data.withUnsafeBytes { rawBuffer in
-            rawBuffer.load(fromByteOffset: offset, as: UInt32.self).bigEndian
-        }
+        guard data.count >= offset + 4 else { return 0 }
+        return (UInt32(data[offset]) << 24)
+            | (UInt32(data[offset + 1]) << 16)
+            | (UInt32(data[offset + 2]) << 8)
+            | UInt32(data[offset + 3])
     }
 }

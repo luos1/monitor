@@ -1,5 +1,6 @@
 import AppKit
 import Combine
+import CryptoKit
 import Foundation
 import Network
 
@@ -12,19 +13,31 @@ final class FrameReceiver: ObservableObject {
     private let maxFrameSize = 20 * 1024 * 1024
     private var connection: NWConnection?
     private var usbSocket: Int32?
+    private var decryptionKey: SymmetricKey?
     private var receivedFrameCount = 0
     private var transportLabel = "네트워크"
 
-    func connect(to device: BonjourBrowser.Device) {
+    func connect(to device: BonjourBrowser.Device, pairingCode: String) {
+        let normalizedCode = Self.normalizedPairingCode(pairingCode)
+        guard normalizedCode.count == 8 else {
+            status = "iPad에 표시된 8자리 연결 코드를 입력하세요"
+            return
+        }
         if let usbDeviceID = device.usbDeviceID {
-            connectUSB(deviceID: usbDeviceID, port: device.port, displayName: device.name)
+            connectUSB(
+                deviceID: usbDeviceID,
+                port: device.port,
+                displayName: device.name,
+                pairingCode: normalizedCode
+            )
         } else {
-            connect(host: device.host, port: device.port)
+            connect(host: device.host, port: device.port, pairingCode: normalizedCode)
         }
     }
 
-    func connect(host: String, port: Int) {
+    func connect(host: String, port: Int, pairingCode: String) {
         disconnect(keepImage: true)
+        decryptionKey = Self.pairingKey(for: pairingCode)
 
         guard let rawPort = UInt16(exactly: port), let nwPort = NWEndpoint.Port(rawValue: rawPort) else {
             status = "잘못된 포트: \(port)"
@@ -42,7 +55,7 @@ final class FrameReceiver: ObservableObject {
 
         connection.stateUpdateHandler = { [weak self, weak connection] state in
             guard let self, let connection else { return }
-            self.handleConnectionState(state, connection: connection)
+            self.handleConnectionState(state, connection: connection, pairingCode: pairingCode)
         }
         connection.start(queue: queue)
     }
@@ -54,6 +67,7 @@ final class FrameReceiver: ObservableObject {
     private func disconnect(keepImage: Bool) {
         connection?.cancel()
         connection = nil
+        decryptionKey = nil
 
         if let usbSocket {
             close(usbSocket)
@@ -68,8 +82,9 @@ final class FrameReceiver: ObservableObject {
         status = "연결 해제"
     }
 
-    private func connectUSB(deviceID: Int, port: Int, displayName: String) {
+    private func connectUSB(deviceID: Int, port: Int, displayName: String, pairingCode: String) {
         disconnect(keepImage: true)
+        decryptionKey = Self.pairingKey(for: pairingCode)
         receivedFrameCount = 0
         transportLabel = "USB 직접 연결"
         status = "\(displayName) USB 연결 중…"
@@ -80,7 +95,13 @@ final class FrameReceiver: ObservableObject {
             do {
                 let socket = try UsbMuxClient.connectToDevice(deviceID: deviceID, port: UInt16(port))
                 self.usbSocket = socket
-                try UsbMuxClient.writeAll(Data("PROFILE wired\n".utf8), to: socket)
+                let challenge = try self.readChallenge(from: socket)
+                let authentication = self.authenticationMessage(
+                    challenge: challenge,
+                    pairingCode: pairingCode,
+                    profile: "wired"
+                )
+                try UsbMuxClient.writeAll(authentication, to: socket)
 
                 DispatchQueue.main.async {
                     self.status = "연결됨 (USB 직접 연결). 프레임 수신 중…"
@@ -95,14 +116,16 @@ final class FrameReceiver: ObservableObject {
         }
     }
 
-    private func handleConnectionState(_ state: NWConnection.State, connection: NWConnection) {
+    private func handleConnectionState(
+        _ state: NWConnection.State,
+        connection: NWConnection,
+        pairingCode: String
+    ) {
         switch state {
         case .ready:
             let actualTransport = connection.currentPath.map(Self.transportLabel(for:)) ?? "네트워크"
             transportLabel = actualTransport == "유선 최적화" ? actualTransport : "\(actualTransport) · 고성능 요청"
-            requestHighPerformanceProfile(on: connection)
-            updateStatus("연결됨 (\(transportLabel)). 프레임 수신 중…")
-            receiveHeader(from: connection)
+            receiveChallenge(from: connection, pairingCode: pairingCode)
         case .waiting(let error):
             updateStatus("연결 대기 중: \(error.localizedDescription)")
         case .failed(let error):
@@ -167,7 +190,7 @@ final class FrameReceiver: ObservableObject {
                 return
             }
 
-            if let image = NSImage(data: data) {
+            if let decrypted = decryptFrame(data), let image = NSImage(data: decrypted) {
                 DispatchQueue.main.async {
                     self.image = image
                     self.receivedFrameCount += 1
@@ -176,7 +199,9 @@ final class FrameReceiver: ObservableObject {
                     }
                 }
             } else {
-                updateStatus("이미지 디코딩 실패")
+                updateStatus("프레임 인증 또는 이미지 디코딩 실패")
+                connection.cancel()
+                return
             }
 
             receiveHeader(from: connection)
@@ -196,7 +221,10 @@ final class FrameReceiver: ObservableObject {
                 }
 
                 let data = try UsbMuxClient.readExact(from: socket, byteCount: length)
-                displayFrame(data, length: length)
+                guard displayFrame(data, length: length) else {
+                    close(socket)
+                    return
+                }
             } catch {
                 if usbSocket == socket {
                     updateStatus("USB 수신 종료: \(error.localizedDescription)")
@@ -207,8 +235,8 @@ final class FrameReceiver: ObservableObject {
         }
     }
 
-    private func displayFrame(_ data: Data, length: Int) {
-        if let image = NSImage(data: data) {
+    private func displayFrame(_ data: Data, length: Int) -> Bool {
+        if let decrypted = decryptFrame(data), let image = NSImage(data: decrypted) {
             DispatchQueue.main.async {
                 self.image = image
                 self.receivedFrameCount += 1
@@ -216,8 +244,10 @@ final class FrameReceiver: ObservableObject {
                     self.status = "수신 중 · \(self.transportLabel) (\(length) bytes)"
                 }
             }
+            return true
         } else {
-            updateStatus("이미지 디코딩 실패")
+            updateStatus("USB 프레임 인증 또는 이미지 디코딩 실패")
+            return false
         }
     }
 
@@ -233,9 +263,108 @@ final class FrameReceiver: ObservableObject {
         }
     }
 
-    private func requestHighPerformanceProfile(on connection: NWConnection) {
-        let command = Data("PROFILE wired\n".utf8)
-        connection.send(content: command, completion: .contentProcessed { _ in })
+    private func receiveChallenge(
+        from connection: NWConnection,
+        pairingCode: String,
+        buffer: Data = Data()
+    ) {
+        connection.receive(minimumIncompleteLength: 1, maximumLength: 128) { [weak self, weak connection] data, _, isComplete, error in
+            guard let self, let connection else { return }
+            guard error == nil, !isComplete, let data else {
+                self.updateStatus("iPad 연결 인증 요청이 올바르지 않습니다")
+                connection.cancel()
+                return
+            }
+
+            var received = buffer
+            received.append(data)
+            guard received.count <= 128 else {
+                self.updateStatus("iPad 연결 인증 요청이 너무 깁니다")
+                connection.cancel()
+                return
+            }
+            guard received.contains(0x0A) else {
+                self.receiveChallenge(
+                    from: connection,
+                    pairingCode: pairingCode,
+                    buffer: received
+                )
+                return
+            }
+            guard let challenge = self.parseChallenge(received) else {
+                self.updateStatus("iPad 연결 인증 요청이 올바르지 않습니다")
+                connection.cancel()
+                return
+            }
+
+            let message = self.authenticationMessage(
+                challenge: challenge,
+                pairingCode: pairingCode,
+                profile: "wired"
+            )
+            connection.send(content: message, completion: .contentProcessed { [weak self, weak connection] error in
+                guard let self, let connection else { return }
+                if let error {
+                    self.updateStatus("연결 인증 전송 실패: \(error.localizedDescription)")
+                    connection.cancel()
+                    return
+                }
+                self.updateStatus("인증됨 (\(self.transportLabel)). 암호화된 프레임 수신 중…")
+                self.receiveHeader(from: connection)
+            })
+        }
+    }
+
+    private func readChallenge(from socket: Int32) throws -> Data {
+        var line = Data()
+        while line.count < 128 {
+            let byte = try UsbMuxClient.readExact(from: socket, byteCount: 1)
+            if byte.first == 0x0A {
+                guard let challenge = parseChallenge(line) else {
+                    throw UsbMuxClient.UsbMuxError.invalidResponse
+                }
+                return challenge
+            }
+            line.append(byte)
+        }
+        throw UsbMuxClient.UsbMuxError.invalidResponse
+    }
+
+    private func parseChallenge(_ data: Data) -> Data? {
+        let line = String(decoding: data, as: UTF8.self)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard line.hasPrefix("CHALLENGE "),
+              let challenge = Data(base64Encoded: String(line.dropFirst(10))),
+              challenge.count == 32 else {
+            return nil
+        }
+        return challenge
+    }
+
+    private func authenticationMessage(
+        challenge: Data,
+        pairingCode: String,
+        profile: String
+    ) -> Data {
+        let key = Self.pairingKey(for: pairingCode)
+        let authentication = Data(HMAC<SHA256>.authenticationCode(for: challenge, using: key))
+        return Data("AUTH \(authentication.base64EncodedString())\nPROFILE \(profile)\n".utf8)
+    }
+
+    private func decryptFrame(_ data: Data) -> Data? {
+        guard let decryptionKey,
+              let box = try? ChaChaPoly.SealedBox(combined: data) else {
+            return nil
+        }
+        return try? ChaChaPoly.open(box, using: decryptionKey)
+    }
+
+    private static func pairingKey(for pairingCode: String) -> SymmetricKey {
+        SymmetricKey(data: SHA256.hash(data: Data(pairingCode.utf8)))
+    }
+
+    private static func normalizedPairingCode(_ code: String) -> String {
+        code.uppercased().filter { $0.isASCII && ($0.isLetter || $0.isNumber) }
     }
 
     private static func transportLabel(for path: NWPath) -> String {

@@ -34,8 +34,8 @@ final class MonetizationApplierTests: XCTestCase {
     }
 
     func testProductIdentifiers() {
-        XCTAssertEqual(MonetizationConfig.lifetimeProductID, "dev.local.iPadMirror.lifetime")
-        XCTAssertEqual(MonetizationConfig.donationProductID, "dev.local.iPadMirror.donation")
+        XCTAssertEqual(MonetizationConfig.lifetimeProductID, "ipadmirror.lifetime")
+        XCTAssertEqual(MonetizationConfig.donationProductID, "ipadmirror.donation")
         XCTAssertTrue(MonetizationConfig.productIDs.contains(MonetizationConfig.lifetimeProductID))
         XCTAssertFalse(MonetizationConfig.usesGoogleSampleAds)
     }

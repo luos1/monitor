@@ -1,4 +1,5 @@
 import CoreGraphics
+import CryptoKit
 import Foundation
 import ImageIO
 import Network
@@ -22,7 +23,7 @@ struct BroadcastCaptureProfile {
         maxEncodedDimension: 1920,
         jpegQuality: 0.52,
         queueFramesWhenBusy: true,
-        maxQueuedFrames: 90
+        maxQueuedFrames: 3
     )
 
     static let wireless = BroadcastCaptureProfile(
@@ -38,7 +39,11 @@ struct BroadcastCaptureProfile {
 final class BroadcastFrameServer: NSObject {
     private final class Session {
         let connection: NWConnection
+        let challenge = Data((0..<32).map { _ in UInt8.random(in: .min ... .max) })
         var profile = BroadcastCaptureProfile.wireless
+        var isAuthenticated = false
+        var encryptionKey: SymmetricKey?
+        var controlBuffer = Data()
         var isSending = false
         var queuedFrames: [Data] = []
 
@@ -51,6 +56,8 @@ final class BroadcastFrameServer: NSObject {
     private let clientCountLock = NSLock()
     private let port: UInt16 = 12_346
     private let serviceType = "_ipadmirror._tcp."
+    private let maximumSessions = 4
+    private let authenticationTimeout: TimeInterval = 10
 
     private var listener: NWListener?
     private var service: NetService?
@@ -66,18 +73,20 @@ final class BroadcastFrameServer: NSObject {
 
     var captureProfile: BroadcastCaptureProfile {
         queue.sync {
-            guard !sessions.isEmpty else { return .wireless }
-            return sessions.values.contains { $0.profile.name == BroadcastCaptureProfile.wired.name } ? .wired : .wireless
+            let authenticated = sessions.values.filter(\.isAuthenticated)
+            guard !authenticated.isEmpty else { return .wireless }
+            return authenticated.contains { $0.profile.name == BroadcastCaptureProfile.wired.name } ? .wired : .wireless
         }
     }
 
     var canAcceptFrame: Bool {
         queue.sync {
-            guard !sessions.isEmpty else { return false }
-            if sessions.values.contains(where: { $0.profile.queueFramesWhenBusy }) {
+            let authenticated = sessions.values.filter(\.isAuthenticated)
+            guard !authenticated.isEmpty else { return false }
+            if authenticated.contains(where: { $0.profile.queueFramesWhenBusy }) {
                 return true
             }
-            return sessions.values.contains { !$0.isSending }
+            return authenticated.contains { !$0.isSending }
         }
     }
 
@@ -136,6 +145,7 @@ final class BroadcastFrameServer: NSObject {
             self.lastFrameTime = capturedAt
 
             for (id, session) in self.sessions {
+                guard session.isAuthenticated else { continue }
                 if session.isSending {
                     if session.profile.queueFramesWhenBusy {
                         self.enqueue(frame, for: session)
@@ -159,6 +169,11 @@ final class BroadcastFrameServer: NSObject {
     }
 
     private func accept(_ connection: NWConnection) {
+        guard sessions.count < maximumSessions else {
+            connection.cancel()
+            return
+        }
+
         let id = ObjectIdentifier(connection)
         let session = Session(connection: connection)
         sessions[id] = session
@@ -171,14 +186,14 @@ final class BroadcastFrameServer: NSObject {
                 self.queue.async {
                     if let session = self.sessions[id] {
                         session.profile = connection.currentPath.map(Self.profile(for:)) ?? .wireless
-                        self.receiveControlMessages(for: session, id: id)
+                        self.sendChallenge(for: session, id: id)
+                        self.scheduleAuthenticationTimeout(for: session, id: id)
                     }
-                    self.setActiveClientCount(self.sessions.count)
                 }
             case .failed, .cancelled:
                 self.queue.async {
                     self.sessions.removeValue(forKey: id)
-                    self.setActiveClientCount(self.sessions.count)
+                    self.setActiveClientCount(self.sessions.values.filter(\.isAuthenticated).count)
                     connection.cancel()
                 }
             default:
@@ -208,13 +223,71 @@ final class BroadcastFrameServer: NSObject {
         }
     }
 
-    private func applyControlMessage(_ data: Data, to session: Session) {
-        let message = String(decoding: data, as: UTF8.self).lowercased()
+    private func sendChallenge(for session: Session, id: ObjectIdentifier) {
+        let message = Data("CHALLENGE \(session.challenge.base64EncodedString())\n".utf8)
+        session.connection.send(content: message, completion: .contentProcessed { [weak self, weak session] error in
+            guard let self, let session else { return }
+            self.queue.async {
+                guard self.sessions[id] === session else { return }
+                if error != nil {
+                    session.connection.cancel()
+                    self.sessions.removeValue(forKey: id)
+                    return
+                }
+                self.receiveControlMessages(for: session, id: id)
+            }
+        })
+    }
 
-        if message.contains("profile wired") {
-            session.profile = .wired
-        } else if message.contains("profile wireless") {
-            session.profile = .wireless
+    private func applyControlMessage(_ data: Data, to session: Session) {
+        session.controlBuffer.append(data)
+        guard session.controlBuffer.count <= 256 else {
+            session.connection.cancel()
+            return
+        }
+
+        while let newline = session.controlBuffer.firstIndex(of: 0x0A) {
+            let lineData = session.controlBuffer[..<newline]
+            session.controlBuffer.removeSubrange(...newline)
+            let message = String(decoding: lineData, as: UTF8.self)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+
+            if !session.isAuthenticated {
+                guard message.hasPrefix("AUTH ") else {
+                    session.connection.cancel()
+                    return
+                }
+                let key = Self.pairingKey()
+                let expected = Data(HMAC<SHA256>.authenticationCode(for: session.challenge, using: key))
+                guard let supplied = Data(base64Encoded: String(message.dropFirst(5))),
+                      Self.constantTimeEqual(supplied, expected) else {
+                    session.connection.cancel()
+                    return
+                }
+                session.isAuthenticated = true
+                session.encryptionKey = key
+                setActiveClientCount(sessions.values.filter(\.isAuthenticated).count)
+                continue
+            }
+
+            switch message.lowercased() {
+            case "profile wired":
+                session.profile = .wired
+            case "profile wireless":
+                session.profile = .wireless
+            default:
+                break
+            }
+        }
+    }
+
+    private func scheduleAuthenticationTimeout(for session: Session, id: ObjectIdentifier) {
+        queue.asyncAfter(deadline: .now() + authenticationTimeout) { [weak self, weak session] in
+            guard let self, let session, self.sessions[id] === session else { return }
+            if !session.isAuthenticated {
+                session.connection.cancel()
+                self.sessions.removeValue(forKey: id)
+            }
         }
     }
 
@@ -226,13 +299,20 @@ final class BroadcastFrameServer: NSObject {
     }
 
     private func send(_ frame: Data, session: Session, id: ObjectIdentifier) {
-        guard frame.count <= UInt32.max else { return }
+        guard let encryptionKey = session.encryptionKey,
+              let sealedFrame = try? ChaChaPoly.seal(frame, using: encryptionKey).combined,
+              sealedFrame.count <= UInt32.max else {
+            session.connection.cancel()
+            sessions.removeValue(forKey: id)
+            setActiveClientCount(sessions.values.filter(\.isAuthenticated).count)
+            return
+        }
 
         session.isSending = true
 
-        var length = UInt32(frame.count).bigEndian
+        var length = UInt32(sealedFrame.count).bigEndian
         var payload = Data(bytes: &length, count: MemoryLayout<UInt32>.size)
-        payload.append(frame)
+        payload.append(sealedFrame)
 
         session.connection.send(content: payload, completion: .contentProcessed { [weak self, weak session] error in
             guard let self, let session else { return }
@@ -243,7 +323,7 @@ final class BroadcastFrameServer: NSObject {
                     session.queuedFrames.removeAll()
                     session.connection.cancel()
                     self.sessions.removeValue(forKey: id)
-                    self.setActiveClientCount(self.sessions.count)
+                    self.setActiveClientCount(self.sessions.values.filter(\.isAuthenticated).count)
                     return
                 }
 
@@ -258,8 +338,9 @@ final class BroadcastFrameServer: NSObject {
     }
 
     private func currentCaptureProfileOnQueue() -> BroadcastCaptureProfile {
-        guard !sessions.isEmpty else { return .wireless }
-        return sessions.values.contains { $0.profile.name == BroadcastCaptureProfile.wired.name } ? .wired : .wireless
+        let authenticated = sessions.values.filter(\.isAuthenticated)
+        guard !authenticated.isEmpty else { return .wireless }
+        return authenticated.contains { $0.profile.name == BroadcastCaptureProfile.wired.name } ? .wired : .wireless
     }
 
     private static func profile(for path: NWPath) -> BroadcastCaptureProfile {
@@ -267,6 +348,24 @@ final class BroadcastFrameServer: NSObject {
             return .wired
         }
         return .wireless
+    }
+
+    private static func pairingKey() -> SymmetricKey {
+        let code = Data(BroadcastSharedSettings.pairingCode().utf8)
+        return SymmetricKey(data: SHA256.hash(data: code))
+    }
+
+    private static func constantTimeEqual(_ lhs: Data, _ rhs: Data) -> Bool {
+        let left = Array(lhs)
+        let right = Array(rhs)
+        var difference = UInt8(left.count ^ right.count)
+        let count = max(left.count, right.count)
+        for index in 0..<count {
+            let leftByte = index < left.count ? left[index] : 0
+            let rightByte = index < right.count ? right[index] : 0
+            difference |= leftByte ^ rightByte
+        }
+        return difference == 0
     }
 
     private func setActiveClientCount(_ count: Int) {
