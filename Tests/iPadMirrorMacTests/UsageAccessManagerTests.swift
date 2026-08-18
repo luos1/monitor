@@ -24,7 +24,7 @@ final class UsageAccessManagerTests: XCTestCase {
         XCTAssertTrue(manager.isLocked)
         XCTAssertEqual(manager.remainingSeconds, 0)
 
-        manager.unlockLifetime()
+        manager.setLifetimeEntitlement(true)
         XCTAssertFalse(manager.isLocked)
         XCTAssertEqual(manager.remainingTimeLabel, "무제한")
     }

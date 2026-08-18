@@ -11,17 +11,31 @@ public final class UsageAccessManager: ObservableObject {
 
     public let namespace: String
     public let freeLimitSeconds: Int
+    public let maximumBonusSeconds: Int
 
     private let defaults: UserDefaults
     private var activeSessionStartedAt: Date?
     private var timer: Timer?
     private var storedUsedSeconds: Int
 
-    public init(namespace: String, freeLimitMinutes: Int = 60) {
+    public init(
+        namespace: String,
+        freeLimitMinutes: Int = 60,
+        maximumBonusHours: Int = 24,
+        suiteName: String? = nil
+    ) {
         self.namespace = namespace
         self.freeLimitSeconds = freeLimitMinutes * 60
-        self.defaults = UserDefaults.standard
-        let loadedBonusSeconds = defaults.integer(forKey: "\(namespace).usage.bonusSeconds")
+        self.maximumBonusSeconds = max(0, maximumBonusHours) * 60 * 60
+        if let suiteName, let suiteDefaults = UserDefaults(suiteName: suiteName) {
+            self.defaults = suiteDefaults
+        } else {
+            self.defaults = .standard
+        }
+        let loadedBonusSeconds = min(
+            maximumBonusSeconds,
+            max(0, defaults.integer(forKey: "\(namespace).usage.bonusSeconds"))
+        )
         self.storedUsedSeconds = defaults.integer(forKey: "\(namespace).usage.usedSeconds")
         self.bonusSeconds = loadedBonusSeconds
         self.lifetimeUnlocked = false
@@ -36,6 +50,7 @@ public final class UsageAccessManager: ObservableObject {
         activeSessionStartedAt = Date()
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             Task { @MainActor in
+                self?.persistActiveSessionIfNeeded()
                 self?.refreshState()
             }
         }
@@ -51,13 +66,13 @@ public final class UsageAccessManager: ObservableObject {
         refreshState()
     }
 
-    public func grantAdExtension(minutes: Int = 60) {
-        bonusSeconds += max(0, minutes) * 60
+    func grantAdExtension(minutes: Int = 60) {
+        bonusSeconds = min(maximumBonusSeconds, bonusSeconds + max(0, minutes) * 60)
         defaults.set(bonusSeconds, forKey: "\(namespace).usage.bonusSeconds")
         refreshState()
     }
 
-    public func unlockLifetime() {
+    func unlockLifetime() {
         setLifetimeEntitlement(true)
     }
 
@@ -67,6 +82,18 @@ public final class UsageAccessManager: ObservableObject {
         refreshState()
     }
 
+    public func reloadStoredUsage() {
+        persistActiveSessionIfNeeded()
+        storedUsedSeconds = defaults.integer(forKey: "\(namespace).usage.usedSeconds")
+        bonusSeconds = min(
+            maximumBonusSeconds,
+            max(0, defaults.integer(forKey: "\(namespace).usage.bonusSeconds"))
+        )
+        activeSessionStartedAt = timer == nil ? nil : Date()
+        refreshState()
+    }
+
+    #if DEBUG
     public func resetForTesting() {
         storedUsedSeconds = 0
         bonusSeconds = 0
@@ -83,6 +110,7 @@ public final class UsageAccessManager: ObservableObject {
         defaults.set(storedUsedSeconds, forKey: "\(namespace).usage.usedSeconds")
         refreshState()
     }
+    #endif
 
     public var remainingTimeLabel: String {
         Self.formatRemaining(seconds: remainingSeconds, lifetimeUnlocked: lifetimeUnlocked)
@@ -126,5 +154,6 @@ public final class UsageAccessManager: ObservableObject {
         let activeElapsed = Int(Date().timeIntervalSince(activeSessionStartedAt))
         storedUsedSeconds += max(0, activeElapsed)
         defaults.set(storedUsedSeconds, forKey: "\(namespace).usage.usedSeconds")
+        self.activeSessionStartedAt = Date()
     }
 }

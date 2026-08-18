@@ -9,6 +9,7 @@ public final class StorePurchaseManager: ObservableObject {
     @Published public private(set) var isPurchasing = false
     @Published public private(set) var isRestoring = false
     @Published public private(set) var hasLifetimeEntitlement = false
+    @Published public private(set) var didRefreshEntitlements = false
     @Published public var statusMessage: String?
 
     private var updatesTask: Task<Void, Never>?
@@ -94,6 +95,7 @@ public final class StorePurchaseManager: ObservableObject {
             }
         }
         hasLifetimeEntitlement = unlocked
+        didRefreshEntitlements = true
     }
 
     private func purchase(_ product: Product?, outcome: MonetizationOutcome) async -> Bool {
@@ -109,9 +111,10 @@ public final class StorePurchaseManager: ObservableObject {
             let result = try await product.purchase()
             switch result {
             case .success(let verification):
-                await handle(verification)
+                guard await handle(verification) else {
+                    return false
+                }
                 if outcome == .donationCompleted {
-                    hasLifetimeEntitlement = true
                     statusMessage = "후원해 주셔서 감사합니다. 영구 사용이 해제되었습니다."
                 } else {
                     statusMessage = "영구 사용이 해제되었습니다."
@@ -133,17 +136,20 @@ public final class StorePurchaseManager: ObservableObject {
         }
     }
 
-    private func handle(_ result: VerificationResult<Transaction>) async {
+    @discardableResult
+    private func handle(_ result: VerificationResult<Transaction>) async -> Bool {
         guard case .verified(let transaction) = result else {
             statusMessage = "구매 검증에 실패했습니다."
-            return
+            return false
         }
 
-        if transaction.productID == MonetizationConfig.lifetimeProductID
-            || transaction.productID == MonetizationConfig.donationProductID {
-            hasLifetimeEntitlement = true
+        guard MonetizationConfig.productIDs.contains(transaction.productID) else {
+            statusMessage = "알 수 없는 상품의 구매 결과입니다."
+            return false
         }
 
+        hasLifetimeEntitlement = true
         await transaction.finish()
+        return true
     }
 }

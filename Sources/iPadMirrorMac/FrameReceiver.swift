@@ -2,6 +2,7 @@ import AppKit
 import Combine
 import CryptoKit
 import Foundation
+import ImageIO
 import Network
 
 final class FrameReceiver: ObservableObject {
@@ -11,6 +12,8 @@ final class FrameReceiver: ObservableObject {
     private let queue = DispatchQueue(label: "dev.local.iPadMirrorMac.FrameReceiver", qos: .userInitiated)
     private let usbQueue = DispatchQueue(label: "dev.local.iPadMirrorMac.USBFrameReceiver", qos: .userInitiated)
     private let maxFrameSize = 20 * 1024 * 1024
+    private let maxImageDimension = 4_096
+    private let maxImagePixelCount = 16_777_216
     private var connection: NWConnection?
     private var usbSocket: Int32?
     private var decryptionKey: SymmetricKey?
@@ -144,6 +147,7 @@ final class FrameReceiver: ObservableObject {
 
             if let error {
                 self.updateStatus("헤더 수신 오류: \(error.localizedDescription)")
+                connection.cancel()
                 return
             }
 
@@ -176,6 +180,7 @@ final class FrameReceiver: ObservableObject {
 
             if let error {
                 self.updateStatus("프레임 수신 오류: \(error.localizedDescription)")
+                connection.cancel()
                 return
             }
 
@@ -190,7 +195,7 @@ final class FrameReceiver: ObservableObject {
                 return
             }
 
-            if let decrypted = decryptFrame(data), let image = NSImage(data: decrypted) {
+            if let decrypted = decryptFrame(data), let image = decodeValidatedImage(decrypted) {
                 DispatchQueue.main.async {
                     self.image = image
                     self.receivedFrameCount += 1
@@ -236,7 +241,7 @@ final class FrameReceiver: ObservableObject {
     }
 
     private func displayFrame(_ data: Data, length: Int) -> Bool {
-        if let decrypted = decryptFrame(data), let image = NSImage(data: decrypted) {
+        if let decrypted = decryptFrame(data), let image = decodeValidatedImage(decrypted) {
             DispatchQueue.main.async {
                 self.image = image
                 self.receivedFrameCount += 1
@@ -357,6 +362,32 @@ final class FrameReceiver: ObservableObject {
             return nil
         }
         return try? ChaChaPoly.open(box, using: decryptionKey)
+    }
+
+    private func decodeValidatedImage(_ data: Data) -> NSImage? {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+              CGImageSourceGetType(source) as String? == "public.jpeg",
+              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+              let width = properties[kCGImagePropertyPixelWidth] as? Int,
+              let height = properties[kCGImagePropertyPixelHeight] as? Int,
+              width > 0,
+              height > 0,
+              width <= maxImageDimension,
+              height <= maxImageDimension,
+              width <= maxImagePixelCount / height else {
+            return nil
+        }
+
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: maxImageDimension,
+            kCGImageSourceShouldCacheImmediately: true,
+        ]
+        guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            return nil
+        }
+        return NSImage(cgImage: image, size: .zero)
     }
 
     private static func pairingKey(for pairingCode: String) -> SymmetricKey {

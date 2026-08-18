@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		A10000000000000000000001 /* iPadMirrorPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* iPadMirrorPadApp.swift */; };
 		A10000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* ContentView.swift */; };
-		A10000000000000000000003 /* BonjourAdvertiser.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* BonjourAdvertiser.swift */; };
 		A10000000000000000000005 /* BroadcastPickerButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000007 /* BroadcastPickerButton.swift */; };
 		A10000000000000000000006 /* SampleHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000008 /* SampleHandler.swift */; };
 		A10000000000000000000007 /* BroadcastFrameServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000009 /* BroadcastFrameServer.swift */; };
@@ -28,13 +27,12 @@
 		A10000000000000000000020 /* AdRewardController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000024 /* AdRewardController.swift */; };
 		A10000000000000000000021 /* BannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000025 /* BannerAdView.swift */; };
 		A10000000000000000000022 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = B20000000000000000000001 /* GoogleMobileAds */; };
-		A10000000000000000000023 /* Products.storekit in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000026 /* Products.storekit */; };
+		A10000000000000000000024 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000027 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		A20000000000000000000001 /* iPadMirrorPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadMirrorPadApp.swift; sourceTree = "<group>"; };
 		A20000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		A20000000000000000000003 /* BonjourAdvertiser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BonjourAdvertiser.swift; sourceTree = "<group>"; };
 		A20000000000000000000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A20000000000000000000006 /* iPadMirrorPad.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iPadMirrorPad.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20000000000000000000007 /* BroadcastPickerButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BroadcastPickerButton.swift; sourceTree = "<group>"; };
@@ -57,6 +55,7 @@
 		A20000000000000000000024 /* AdRewardController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdRewardController.swift; sourceTree = "<group>"; };
 		A20000000000000000000025 /* BannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdView.swift; sourceTree = "<group>"; };
 		A20000000000000000000026 /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; name = Products.storekit; path = Packaging/Products.storekit; sourceTree = "<group>"; };
+		A20000000000000000000027 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,7 +93,6 @@
 			children = (
 				A20000000000000000000001 /* iPadMirrorPadApp.swift */,
 				A20000000000000000000002 /* ContentView.swift */,
-				A20000000000000000000003 /* BonjourAdvertiser.swift */,
 				A20000000000000000000007 /* BroadcastPickerButton.swift */,
 				A20000000000000000000012 /* BroadcastControllerModel.swift */,
 				A20000000000000000000024 /* AdRewardController.swift */,
@@ -112,6 +110,7 @@
 			children = (
 				A20000000000000000000008 /* SampleHandler.swift */,
 				A20000000000000000000009 /* BroadcastFrameServer.swift */,
+				A20000000000000000000027 /* PrivacyInfo.xcprivacy */,
 				A20000000000000000000011 /* Info.plist */,
 				A20000000000000000000015 /* iPadMirrorBroadcastExtension.entitlements */,
 			);
@@ -255,7 +254,6 @@
 			files = (
 				A10000000000000000000012 /* Assets.xcassets in Resources */,
 				A10000000000000000000017 /* PrivacyInfo.xcprivacy in Resources */,
-				A10000000000000000000023 /* Products.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -263,6 +261,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A10000000000000000000024 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,7 +274,6 @@
 			files = (
 				A10000000000000000000001 /* iPadMirrorPadApp.swift in Sources */,
 				A10000000000000000000002 /* ContentView.swift in Sources */,
-				A10000000000000000000003 /* BonjourAdvertiser.swift in Sources */,
 				A10000000000000000000005 /* BroadcastPickerButton.swift in Sources */,
 				A10000000000000000000009 /* BroadcastControllerModel.swift in Sources */,
 				A10000000000000000000010 /* BroadcastSharedSettings.swift in Sources */,

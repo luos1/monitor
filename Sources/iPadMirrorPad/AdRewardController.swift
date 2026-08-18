@@ -19,10 +19,8 @@ final class AdRewardController: NSObject, ObservableObject {
 
     func start() {
         #if canImport(GoogleMobileAds)
-        MobileAds.shared.start { [weak self] _ in
-            Task { @MainActor in
-                await self?.load()
-            }
+        Task { @MainActor [weak self] in
+            await self?.load()
         }
         #else
         status = "Xcode에서 Google Mobile Ads 패키지를 받으면 광고가 활성화됩니다."

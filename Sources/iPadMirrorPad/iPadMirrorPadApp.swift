@@ -28,9 +28,14 @@ struct iPadMirrorPadApp: App {
     private static func startAdsAfterPrivacyChoice() {
         DispatchQueue.main.async {
             #if canImport(GoogleMobileAds)
-            MobileAds.shared.start()
-            #endif
+            MobileAds.shared.start { _ in
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: .monitorAdsMayLoad, object: nil)
+                }
+            }
+            #else
             NotificationCenter.default.post(name: .monitorAdsMayLoad, object: nil)
+            #endif
         }
     }
 }

@@ -3,8 +3,13 @@ import Foundation
 public enum MonetizationConfig {
     /// AdMob 앱 ID (아이패드미러)
     public static let admobAppID = "ca-app-pub-2932716467029728~6289164999"
+    #if DEBUG
+    public static let rewardedAdUnitID = "ca-app-pub-3940256099942544/1712485313"
+    public static let bannerAdUnitID = "ca-app-pub-3940256099942544/2934735716"
+    #else
     public static let rewardedAdUnitID = "ca-app-pub-2932716467029728/6065803719"
     public static let bannerAdUnitID = "ca-app-pub-2932716467029728/3303909002"
+    #endif
 
     public static let lifetimeProductID = "ipadmirror.lifetime"
     public static let donationProductID = "ipadmirror.donation"

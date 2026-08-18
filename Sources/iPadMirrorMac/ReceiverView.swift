@@ -11,7 +11,10 @@ struct ReceiverView: View {
     @State private var showingUsageGuide = false
     @State private var showingUpgrade = false
     @State private var pairingCode = ""
-    @StateObject private var usageAccess = UsageAccessManager(namespace: "monitor.mac")
+    @StateObject private var usageAccess = UsageAccessManager(
+        namespace: "monitor.mac",
+        maximumBonusHours: 0
+    )
     @StateObject private var browser = BonjourBrowser()
     @StateObject private var receiver = FrameReceiver()
     @StateObject private var displayMode = ReceiverDisplayMode()

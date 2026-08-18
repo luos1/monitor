@@ -101,7 +101,7 @@ final class BroadcastFrameServer: NSObject {
 
             let parameters = NWParameters(tls: nil, tcp: tcpOptions)
             parameters.allowLocalEndpointReuse = true
-            parameters.includePeerToPeer = true
+            parameters.includePeerToPeer = false
 
             let listener = try NWListener(using: parameters, on: nwPort)
             listener.newConnectionHandler = { [weak self] connection in
@@ -160,9 +160,9 @@ final class BroadcastFrameServer: NSObject {
     private func publishService(port: UInt16) {
         service?.stop()
 
-        let name = UIDevice.current.name
+        let name = "iPad-\(BroadcastSharedSettings.pairingCode().suffix(4))"
         let service = NetService(domain: "local.", type: serviceType, name: name, port: Int32(port))
-        service.includesPeerToPeer = true
+        service.includesPeerToPeer = false
         service.publish()
 
         self.service = service

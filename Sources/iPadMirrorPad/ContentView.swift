@@ -1,11 +1,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @AppStorage("monitor.pad.didShowUsageGuide") private var didShowUsageGuide = false
     @State private var showingUsageGuide = false
     @State private var showingUpgrade = false
     @State private var adsMayLoad = false
-    @StateObject private var usageAccess = UsageAccessManager(namespace: "monitor.pad")
+    @StateObject private var usageAccess = UsageAccessManager(
+        namespace: "monitor.pad",
+        suiteName: BroadcastSharedSettings.appGroupIdentifier()
+    )
     @StateObject private var broadcast = BroadcastControllerModel()
     @StateObject private var store = StorePurchaseManager()
     @StateObject private var ads = AdRewardController()
@@ -38,7 +42,7 @@ struct ContentView: View {
                 .frame(minWidth: 640, minHeight: 720)
         }
         .onAppear {
-            usageAccess.startTracking()
+            usageAccess.reloadStoredUsage()
             store.start()
             syncPurchaseState()
         }
@@ -46,11 +50,21 @@ struct ContentView: View {
             adsMayLoad = true
             ads.start()
         }
-        .onDisappear {
-            usageAccess.stopTracking()
-        }
         .onChange(of: store.hasLifetimeEntitlement) { _, unlocked in
             usageAccess.setLifetimeEntitlement(unlocked)
+            BroadcastSharedSettings.cacheVerifiedLifetimeEntitlement(unlocked)
+        }
+        .onChange(of: store.didRefreshEntitlements) { _, didRefresh in
+            if didRefresh {
+                syncPurchaseState()
+            }
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else { return }
+            usageAccess.reloadStoredUsage()
+            Task {
+                await store.refreshEntitlements()
+            }
         }
     }
 
@@ -195,6 +209,8 @@ struct ContentView: View {
     }
 
     private func syncPurchaseState() {
+        guard store.didRefreshEntitlements else { return }
         usageAccess.setLifetimeEntitlement(store.hasLifetimeEntitlement)
+        BroadcastSharedSettings.cacheVerifiedLifetimeEntitlement(store.hasLifetimeEntitlement)
     }
 }

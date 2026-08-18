@@ -17,9 +17,9 @@ final class BonjourBrowser: NSObject, ObservableObject {
         var endpointDescription: String {
             switch transport {
             case .network:
-                return "Wi‑Fi · \(host):\(port)"
-            case .usb(_, let serialNumber):
-                return "USB · \(serialNumber.suffix(8))"
+                return "Wi‑Fi · 암호화 연결"
+            case .usb:
+                return "USB 직접 연결"
             }
         }
 
@@ -63,7 +63,7 @@ final class BonjourBrowser: NSObject, ObservableObject {
 
         let browser = NetServiceBrowser()
         browser.delegate = self
-        browser.includesPeerToPeer = true
+        browser.includesPeerToPeer = false
         browser.searchForServices(ofType: serviceType, inDomain: "local.")
 
         self.browser = browser
@@ -131,7 +131,7 @@ final class BonjourBrowser: NSObject, ObservableObject {
 extension BonjourBrowser: NetServiceBrowserDelegate {
     func netServiceBrowser(_ browser: NetServiceBrowser, didFind service: NetService, moreComing: Bool) {
         service.delegate = self
-        service.includesPeerToPeer = true
+        service.includesPeerToPeer = false
         foundServices.append(service)
         service.resolve(withTimeout: 5)
 

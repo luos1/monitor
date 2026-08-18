@@ -13,7 +13,7 @@
 - [x] 스토어 문구, 개인정보 처리방침 초안, 출시 체크리스트
 - [x] Mac 버전을 1.0.0으로 맞춤
 - [x] Privacy Manifest, Export Compliance, App Group 서명 설정
-- [x] AdMob 리워드/배너 (iPad, 테스트 ID)
+- [x] AdMob 리워드/배너 (Debug 테스트 ID / Release 운영 ID)
 - [x] StoreKit 2 영구 사용 $4.99 / 응원 $99.99
 
 ## 출시 직전 필수 (코드 밖)
@@ -37,7 +37,7 @@
 ## 심사에서 막히기 쉬운 지점
 
 - 로컬 네트워크 사용 설명이 Info.plist와 실제 동작과 같아야 합니다.
-- 광고/IAP 버튼은 실제 StoreKit·AdMob 흐름에 연결되어 있습니다. 로컬에서는 `Packaging/Products.storekit` 과 Google 테스트 광고 ID를 사용하세요.
+- 광고/IAP 버튼은 실제 StoreKit·AdMob 흐름에 연결되어 있습니다. Debug에서는 `Packaging/Products.storekit`과 Google 테스트 광고 단위를 사용하고, Release에서는 StoreKit 구성을 번들에 포함하지 않고 운영 광고 ID를 사용합니다.
 - Broadcast Extension 표시 이름은 `아이패드미러 방송`입니다. 사용법 문구와 같아야 합니다.
 - 번들 ID `dev.local.*`는 스토어 제출에 적합하지 않습니다.
 

@@ -5,6 +5,8 @@ enum BroadcastSharedSettings {
     private static let stopRequestTokenKey = "stopRequestToken"
     private static let deviceNameKey = "deviceName"
     private static let pairingCodeKey = "pairingCode"
+    private static let verifiedLifetimeKey = "verifiedLifetime"
+    private static let entitlementVerifiedAtKey = "entitlementVerifiedAt"
     private static let pairingAlphabet = Array("23456789ABCDEFGHJKLMNPQRSTUVWXYZ")
 
     static var defaults: UserDefaults? {
@@ -50,6 +52,20 @@ enum BroadcastSharedSettings {
 
     static func normalizedPairingCode(_ code: String) -> String {
         code.uppercased().filter { $0.isASCII && ($0.isLetter || $0.isNumber) }
+    }
+
+    static func cacheVerifiedLifetimeEntitlement(_ isUnlocked: Bool) {
+        defaults?.set(isUnlocked, forKey: verifiedLifetimeKey)
+        defaults?.set(Date().timeIntervalSince1970, forKey: entitlementVerifiedAtKey)
+    }
+
+    static func hasRecentVerifiedLifetimeEntitlement(
+        now: Date = Date(),
+        maximumAge: TimeInterval = 24 * 60 * 60
+    ) -> Bool {
+        guard defaults?.bool(forKey: verifiedLifetimeKey) == true else { return false }
+        let verifiedAt = defaults?.double(forKey: entitlementVerifiedAtKey) ?? 0
+        return verifiedAt > 0 && now.timeIntervalSince1970 - verifiedAt <= maximumAge
     }
 
     static func requestStop() {
