@@ -8,13 +8,9 @@ import UIKit
 
 public enum StoreLinks {
     public static let companionInstallURL: URL? = nil
-    public static let lifetimePurchaseURL: URL? = nil
-    public static let donationURL: URL? = nil
     public static let privacyPolicyURL: URL? = nil
     public static let supportEmail = "intheluos@gmail.com"
 
-    public static var hasLifetimePurchase: Bool { lifetimePurchaseURL != nil }
-    public static var hasDonation: Bool { donationURL != nil }
     public static var hasCompanionInstall: Bool { companionInstallURL != nil }
 
     public static func open(_ url: URL?) {
