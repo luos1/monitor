@@ -165,7 +165,7 @@ struct ReceiverView: View {
                 .help("새로고침")
             }
 
-            TextField("iPad 연결 코드 (예: ABCD-2345)", text: $pairingCode)
+            SecureField("iPad 연결 코드 (예: ABCD-2345)", text: $pairingCode)
                 .textFieldStyle(.roundedBorder)
                 .help("iPad 앱 홈 화면에 표시된 8자리 코드를 입력하세요.")
 

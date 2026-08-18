@@ -19,7 +19,7 @@ final class AdRewardController: NSObject, ObservableObject {
 
     func start() {
         #if canImport(GoogleMobileAds)
-        Task { @MainActor [weak self] in
+        Task { [weak self] in
             await self?.load()
         }
         #else
