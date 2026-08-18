@@ -1,6 +1,6 @@
 import XCTest
 @testable import iPadMirrorMac
-import iPadMirrorShared
+@testable import iPadMirrorShared
 
 @MainActor
 final class UsageAccessManagerTests: XCTestCase {
