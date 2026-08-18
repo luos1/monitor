@@ -58,8 +58,12 @@ public final class UsageAccessManager: ObservableObject {
     }
 
     public func unlockLifetime() {
-        lifetimeUnlocked = true
-        defaults.set(true, forKey: "\(namespace).usage.lifetimeUnlocked")
+        setLifetimeUnlocked(true)
+    }
+
+    public func setLifetimeUnlocked(_ unlocked: Bool) {
+        lifetimeUnlocked = unlocked
+        defaults.set(unlocked, forKey: "\(namespace).usage.lifetimeUnlocked")
         refreshState()
     }
 

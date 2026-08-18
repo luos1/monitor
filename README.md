@@ -21,7 +21,9 @@ iPad 현재 화면을 같은 네트워크(또는 USB)의 Mac으로 보내는 미
 
 - 기본 사용 60분
 - 전면 광고를 보면 60분 연장
-- 영구 사용 `$4.99`, 개발자 응원 `$99.99` (스토어 URL은 `StoreLinks.swift`에 연결)
+- 영구 사용 `$4.99` (`ipadmirror.lifetime`), 개발자 응원 `$99.99` (`ipadmirror.donation`)
+- 둘 다 Non-Consumable이며, 하나만 구매해도 평생 사용이 해제됩니다.
+- 로컬 StoreKit 테스트: `Configuration/Products.storekit`
 
 ## 빌드
 
@@ -47,6 +49,7 @@ UI는 Google Stitch 워크플로로 정리했습니다.
 ## 출시 전 필수
 
 - App Store Connect / Mac 배포용 번들 ID와 서명
-- `StoreLinks.swift`에 동반 앱, IAP, 도네이션, 개인정보 처리방침 URL
+- `StoreLinks.swift`에 동반 앱·개인정보 처리방침 URL
+- App Store Connect에 `ipadmirror.lifetime`, `ipadmirror.donation` 등록 (코드와 동일)
 - 실제 기기에서 iPad+Mac 페어 테스트
 - 스크린샷과 개인정보 처리방침 호스팅

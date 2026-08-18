@@ -260,9 +260,16 @@ public struct MonitorPaywallView: View {
     public let remainingLabel: String
     public let onWatchAd: () -> Void
     public let onShowGuide: () -> Void
+    @ObservedObject private var store: StorePurchaseManager
 
-    public init(remainingLabel: String, onWatchAd: @escaping () -> Void, onShowGuide: @escaping () -> Void) {
+    public init(
+        remainingLabel: String,
+        store: StorePurchaseManager,
+        onWatchAd: @escaping () -> Void,
+        onShowGuide: @escaping () -> Void
+    ) {
         self.remainingLabel = remainingLabel
+        self._store = ObservedObject(wrappedValue: store)
         self.onWatchAd = onWatchAd
         self.onShowGuide = onShowGuide
     }
@@ -284,7 +291,7 @@ public struct MonitorPaywallView: View {
                 Text("무료 \(MonitorTheme.freeMinutes)분이 끝났어요")
                     .font(.largeTitle.weight(.semibold))
                     .multilineTextAlignment(.center)
-                Text("광고를 보면 \(MonitorTheme.freeMinutes)분을 더 쓸 수 있습니다. 영구 사용은 \(MonitorTheme.lifetimePrice), 개발자 응원은 \(MonitorTheme.donationPrice)입니다.")
+                Text("광고를 보면 \(MonitorTheme.freeMinutes)분을 더 쓸 수 있습니다. 영구 사용은 \(store.displayPrice(for: .lifetime)), 개발자 응원은 \(store.displayPrice(for: .donation))입니다.")
                     .font(.title3)
                     .foregroundStyle(Color.monitorOnSurfaceVariant)
                     .multilineTextAlignment(.center)
@@ -301,31 +308,51 @@ public struct MonitorPaywallView: View {
                 .tint(Color.monitorPrimary)
 
                 Button {
-                    StoreLinks.open(StoreLinks.lifetimePurchaseURL)
+                    Task { await store.purchase(.lifetime) }
                 } label: {
-                    Label("영구 사용 \(MonitorTheme.lifetimePrice)", systemImage: "cart.fill")
-                        .font(.title3.weight(.semibold))
-                        .frame(maxWidth: 400)
-                        .frame(height: MonitorTheme.secondaryButtonHeight)
+                    Label(
+                        "\(store.displayName(for: .lifetime)) \(store.displayPrice(for: .lifetime))",
+                        systemImage: "cart.fill"
+                    )
+                    .font(.title3.weight(.semibold))
+                    .frame(maxWidth: 400)
+                    .frame(height: MonitorTheme.secondaryButtonHeight)
                 }
                 .buttonStyle(.bordered)
-                .disabled(!StoreLinks.hasLifetimePurchase)
-                .opacity(StoreLinks.hasLifetimePurchase ? 1 : 0.55)
+                .disabled(store.isBusy)
 
                 Button {
-                    StoreLinks.open(StoreLinks.donationURL)
+                    Task { await store.purchase(.donation) }
                 } label: {
-                    Label("개발자 응원 \(MonitorTheme.donationPrice)", systemImage: "heart.fill")
-                        .font(.title3.weight(.semibold))
+                    Label(
+                        "\(store.displayName(for: .donation)) \(store.displayPrice(for: .donation))",
+                        systemImage: "heart.fill"
+                    )
+                    .font(.title3.weight(.semibold))
+                    .frame(maxWidth: 400)
+                    .frame(height: MonitorTheme.secondaryButtonHeight)
+                }
+                .buttonStyle(.bordered)
+                .disabled(store.isBusy)
+
+                Button {
+                    Task { await store.restorePurchases() }
+                } label: {
+                    Label("구매 복원", systemImage: "arrow.clockwise")
+                        .font(.body.weight(.semibold))
                         .frame(maxWidth: 400)
                         .frame(height: MonitorTheme.secondaryButtonHeight)
                 }
                 .buttonStyle(.bordered)
-                .disabled(!StoreLinks.hasDonation)
-                .opacity(StoreLinks.hasDonation ? 1 : 0.55)
+                .disabled(store.isBusy)
 
-                if !StoreLinks.hasLifetimePurchase || !StoreLinks.hasDonation {
-                    Text("스토어 상품 연결은 마켓 등록 직후 이 화면에 활성화됩니다.")
+                if store.isBusy {
+                    ProgressView()
+                        .padding(.top, 4)
+                }
+
+                if let statusMessage = store.statusMessage {
+                    Text(statusMessage)
                         .font(.footnote)
                         .foregroundStyle(Color.monitorOnSurfaceVariant)
                         .multilineTextAlignment(.center)

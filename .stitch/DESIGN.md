@@ -65,7 +65,7 @@ Dark wash: `linear-gradient(180deg, #161B2C 0%, #10131A 50%, #17120F 100%)`.
 - **Step card**: 원형 번호 + 제목 + 한 줄 설명.
 - **Device row**: 이름, 전송 경로, 선택 시 primary-container.
 - **Mirror bezel**: 16 radius 검정 스테이지, 안쪽 여백 8.
-- **Paywall**: 잠금 마크, 광고 연장 primary, 구매/도네이션은 URL이 있을 때만 활성.
+- **Paywall**: 잠금 마크, 광고 연장 primary, StoreKit 평생 해제/응원 구매와 복원.
 
 ## Screens
 

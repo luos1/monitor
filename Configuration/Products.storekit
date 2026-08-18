@@ -1,0 +1,68 @@
+{
+  "identifier" : "8F3A1C2E-9B74-4D5A-A1E6-2C8B9D0E4F11",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "1A2B3C4D-5E6F-7890-ABCD-EF1234567890",
+      "localizations" : [
+        {
+          "description" : "Permanently unlock iPad Mirror after the free 60-minute limit.",
+          "displayName" : "Lifetime Unlock",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "무료 60분 이후에도 광고 없이 계속 사용할 수 있습니다.",
+          "displayName" : "평생 사용",
+          "locale" : "ko"
+        }
+      ],
+      "productID" : "ipadmirror.lifetime",
+      "referenceName" : "Lifetime Unlock",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "99.99",
+      "familyShareable" : false,
+      "internalID" : "4D5E6F70-8192-0123-DEF0-234567890123",
+      "localizations" : [
+        {
+          "description" : "Support the developer. Also permanently unlocks iPad Mirror.",
+          "displayName" : "Developer Support",
+          "locale" : "en_US"
+        },
+        {
+          "description" : "개발자를 응원하고 평생 사용도 함께 해제됩니다.",
+          "displayName" : "개발자 응원",
+          "locale" : "ko"
+        }
+      ],
+      "productID" : "ipadmirror.donation",
+      "referenceName" : "Developer Support",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_askToBuyEnabled" : false,
+    "_billingIssuesEnabled" : false,
+    "_failTransactionsEnabled" : false,
+    "_localePolicy" : {
+      "type" : "system"
+    },
+    "_storeKitErrors" : [
+
+    ],
+    "_storefront" : "USA",
+    "_timeRate" : 0
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
