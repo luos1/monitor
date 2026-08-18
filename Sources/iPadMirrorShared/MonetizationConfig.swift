@@ -19,7 +19,8 @@ public enum MonetizationConfig {
     }
 
     public static var usesGoogleSampleAds: Bool {
-        admobAppID.contains("3940256099942544")
+        rewardedAdUnitID.contains("3940256099942544")
+            || bannerAdUnitID.contains("3940256099942544")
     }
 }
 

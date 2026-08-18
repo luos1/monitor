@@ -13,7 +13,7 @@ final class MonetizationApplierTests: XCTestCase {
         MonetizationApplier.apply(.rewardedAdFinished, to: usage)
 
         XCTAssertFalse(usage.isLocked)
-        XCTAssertEqual(usage.remainingSeconds, 60)
+        XCTAssertEqual(usage.remainingSeconds, 60 * 60)
     }
 
     func testLifetimeAndDonationUnlock() {
