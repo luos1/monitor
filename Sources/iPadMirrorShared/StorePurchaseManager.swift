@@ -37,7 +37,7 @@ public final class StorePurchaseManager: ObservableObject {
         guard !didStart else { return }
         didStart = true
         updatesTask = Task { [weak self] in
-            for await result in Transaction.updates {
+            for await result in StoreKit.Transaction.updates {
                 await self?.handle(result)
                 await self?.refreshEntitlements()
             }
@@ -87,7 +87,7 @@ public final class StorePurchaseManager: ObservableObject {
 
     public func refreshEntitlements() async {
         var unlocked = false
-        for await result in Transaction.currentEntitlements {
+        for await result in StoreKit.Transaction.currentEntitlements {
             guard case .verified(let transaction) = result else { continue }
             if transaction.productID == MonetizationConfig.lifetimeProductID
                 || transaction.productID == MonetizationConfig.donationProductID {
@@ -137,7 +137,9 @@ public final class StorePurchaseManager: ObservableObject {
     }
 
     @discardableResult
-    private func handle(_ result: VerificationResult<Transaction>) async -> Bool {
+    private func handle(
+        _ result: VerificationResult<StoreKit.Transaction>
+    ) async -> Bool {
         guard case .verified(let transaction) = result else {
             statusMessage = "구매 검증에 실패했습니다."
             return false
