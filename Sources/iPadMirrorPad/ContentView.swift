@@ -15,7 +15,7 @@ struct ContentView: View {
     @StateObject private var ads = AdRewardController()
 
     private var broadcastExtensionIdentifier: String {
-        "\(Bundle.main.bundleIdentifier ?? "dev.local.iPadMirrorPad").BroadcastExtension"
+        "\(Bundle.main.bundleIdentifier ?? "com.raccoonmerchant.ipadmirror").BroadcastExtension"
     }
 
     var body: some View {

@@ -41,5 +41,5 @@ struct iPadMirrorPadApp: App {
 }
 
 extension Notification.Name {
-    static let monitorAdsMayLoad = Notification.Name("dev.local.iPadMirrorPad.adsMayLoad")
+    static let monitorAdsMayLoad = Notification.Name("com.raccoonmerchant.ipadmirror.adsMayLoad")
 }

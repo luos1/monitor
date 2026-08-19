@@ -18,7 +18,7 @@ enum BroadcastSharedSettings {
     }
 
     static func baseBundleIdentifier(bundleIdentifier: String? = Bundle.main.bundleIdentifier) -> String {
-        var identifier = bundleIdentifier ?? "dev.local.iPadMirrorPad"
+        var identifier = bundleIdentifier ?? "com.raccoonmerchant.ipadmirror"
         if identifier.hasSuffix(extensionSuffix) {
             identifier.removeLast(extensionSuffix.count)
         }

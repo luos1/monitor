@@ -8,7 +8,7 @@ import UIKit
 
 public enum StoreLinks {
     public static let companionInstallURL: URL? = nil
-    public static let privacyPolicyURL: URL? = nil
+    public static let privacyPolicyURL = URL(string: "https://github.com/luos1/monitor/blob/main/docs/PRIVACY.md")
     public static let supportEmail = "intheluos@gmail.com"
 
     public static var hasCompanionInstall: Bool { companionInstallURL != nil }

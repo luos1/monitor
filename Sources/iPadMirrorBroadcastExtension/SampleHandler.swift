@@ -204,7 +204,7 @@ final class SampleHandler: RPBroadcastSampleHandler {
         )
     }
 
-    private static let stopNotificationName = CFNotificationName("dev.local.iPadMirrorPad.stopBroadcast" as CFString)
+    private static let stopNotificationName = CFNotificationName("com.raccoonmerchant.ipadmirror.stopBroadcast" as CFString)
 
     private static let stopNotificationCallback: CFNotificationCallback = { _, observer, _, _, _ in
         guard let observer else { return }
@@ -215,12 +215,12 @@ final class SampleHandler: RPBroadcastSampleHandler {
         handler.setStopRequested(true)
     }
     private static let userStoppedBroadcastError = NSError(
-        domain: "dev.local.iPadMirrorPad.broadcast",
+        domain: "com.raccoonmerchant.ipadmirror.broadcast",
         code: 1,
         userInfo: [NSLocalizedDescriptionKey: "사용자가 iPad 앱에서 화면 공유를 종료했습니다."]
     )
     private static let usageLimitReachedError = NSError(
-        domain: "dev.local.iPadMirrorPad.usage",
+        domain: "com.raccoonmerchant.ipadmirror.usage",
         code: 2,
         userInfo: [NSLocalizedDescriptionKey: "무료 사용 시간이 끝났습니다. iPad 앱에서 시간을 연장하거나 영구 사용을 구매하세요."]
     )

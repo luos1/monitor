@@ -77,7 +77,7 @@ final class BroadcastControllerModel: NSObject, ObservableObject {
     }
 
     private static func postStopBroadcastNotification() {
-        let notificationName = CFNotificationName("dev.local.iPadMirrorPad.stopBroadcast" as CFString)
+        let notificationName = CFNotificationName("com.raccoonmerchant.ipadmirror.stopBroadcast" as CFString)
         CFNotificationCenterPostNotification(
             CFNotificationCenterGetDarwinNotifyCenter(),
             notificationName,
