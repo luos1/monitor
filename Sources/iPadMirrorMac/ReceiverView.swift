@@ -23,18 +23,13 @@ struct ReceiverView: View {
             if didShowUsageGuide {
                 mainContent
             } else {
-                MonitorOnboardingView(role: .mac) {
-                    didShowUsageGuide = true
-                }
+                usageGuide
             }
         }
         .frame(minWidth: 960, minHeight: 640)
         .background(MonitorBackground())
         .sheet(isPresented: $showingUsageGuide) {
-            MonitorOnboardingView(role: .mac) {
-                didShowUsageGuide = true
-                showingUsageGuide = false
-            }
+            usageGuide
             .frame(minWidth: 720, minHeight: 740)
         }
         .onReceive(NotificationCenter.default.publisher(for: .monitorShowUsageGuide)) { _ in
@@ -59,12 +54,32 @@ struct ReceiverView: View {
         }
     }
 
+    @ViewBuilder
+    private var usageGuide: some View {
+        #if IPADMIRROR_MAC_APP_STORE
+        MacStoreNetworkGuide {
+            didShowUsageGuide = true
+            showingUsageGuide = false
+        }
+        #else
+        MonitorOnboardingView(role: .mac) {
+            didShowUsageGuide = true
+            showingUsageGuide = false
+        }
+        #endif
+    }
+
     #if DEBUG
     // Local QA only. Release has no automatic connection or file output.
     private var qaConfiguration: [String: String]? {
         let arguments = ProcessInfo.processInfo.arguments
-        guard let index = arguments.firstIndex(of: "-PhysicalQAConfig"), index + 1 < arguments.count,
-              let data = try? Data(contentsOf: URL(fileURLWithPath: arguments[index + 1])),
+        let configurationURL: URL?
+        if let index = arguments.firstIndex(of: "-PhysicalQAConfig"), index + 1 < arguments.count {
+            configurationURL = URL(fileURLWithPath: arguments[index + 1])
+        } else {
+            configurationURL = Bundle.main.url(forResource: "PhysicalQAConfig", withExtension: "json")
+        }
+        guard let configurationURL, let data = try? Data(contentsOf: configurationURL),
               let configuration = try? JSONDecoder().decode([String: String].self, from: data),
               configuration["pairingCode"]?.count == 8 else { return nil }
         return configuration
@@ -80,11 +95,19 @@ struct ReceiverView: View {
                 guard !Task.isCancelled, receiver.image == nil else { return }
                 if let host = configuration["host"], let port = Int(configuration["port"] ?? "12346") {
                     receiver.connect(host: host, port: port, pairingCode: pairingCode)
-                } else if let serial = configuration["deviceSerial"] {
-                    let devices = await Task.detached { (try? UsbMuxClient.listDevices()) ?? [] }.value
-                    if let device = devices.first(where: { $0.serialNumber.replacingOccurrences(of: "-", with: "") == serial.replacingOccurrences(of: "-", with: "") }) {
-                        receiver.connect(to: BonjourBrowser.Device(usb: device, port: 12346), pairingCode: pairingCode)
+                } else {
+                    #if IPADMIRROR_MAC_APP_STORE
+                    if let device = browser.devices.first {
+                        receiver.connect(to: device, pairingCode: pairingCode)
                     }
+                    #else
+                    if let serial = configuration["deviceSerial"] {
+                        let devices = await Task.detached { (try? UsbMuxClient.listDevices()) ?? [] }.value
+                        if let device = devices.first(where: { $0.serialNumber.replacingOccurrences(of: "-", with: "") == serial.replacingOccurrences(of: "-", with: "") }) {
+                            receiver.connect(to: BonjourBrowser.Device(usb: device, port: 12346), pairingCode: pairingCode)
+                        }
+                    }
+                    #endif
                 }
                 try? await Task.sleep(for: .seconds(2))
             }
@@ -93,19 +116,29 @@ struct ReceiverView: View {
 
     private func recordPhysicalQAFrame(_ image: NSImage?) {
         guard let image, let configuration = qaConfiguration,
-              let output = configuration["evidencePath"],
               let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
+        let output: URL
+        if let name = configuration["evidenceName"], !name.contains("/"), !name.contains("..") {
+            let documents = URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Documents", isDirectory: true)
+            try? FileManager.default.createDirectory(at: documents, withIntermediateDirectories: true)
+            output = documents.appendingPathComponent(name)
+        } else if let path = configuration["evidencePath"] {
+            output = URL(fileURLWithPath: path)
+        } else { return }
         qaFrameCount += 1
         let record: [String: Any] = [
             "checked_at_utc": ISO8601DateFormatter().string(from: Date()),
-            "transport": configuration["host"] == nil ? "USB" : "network",
+            "transport": MacDistribution.isNetworkOnly || configuration["host"] != nil ? "network" : "USB",
+            "network_interface": receiver.networkInterfaceType ?? "unknown",
+            "network_only_build": MacDistribution.isNetworkOnly,
+            "sandbox_container_home": NSHomeDirectory().contains("/Library/Containers/"),
             "authenticated_decoded_frames": qaFrameCount,
             "width": cgImage.width, "height": cgImage.height,
             "screen_image_saved": false, "pairing_code_exposed": false,
             "scope": "actual Debug Mac receiver view; encrypted JPEG decoded from physical iPad"
         ]
         if let data = try? JSONSerialization.data(withJSONObject: record, options: [.prettyPrinted, .sortedKeys]) {
-            try? data.write(to: URL(fileURLWithPath: output), options: .atomic)
+            try? data.write(to: output, options: .atomic)
         }
     }
     #endif
@@ -214,7 +247,7 @@ struct ReceiverView: View {
                         .foregroundStyle(Color.monitorPrimary)
                     Text(MirrorL10n.text("방송 중인 iPad 없음"))
                         .font(.headline)
-                    Text(MirrorL10n.text("iPad 앱에서 방송을 시작하면 여기에 나타납니다."))
+                    Text(MacDistribution.isNetworkOnly ? MacStoreCopy.emptyInstructions : MirrorL10n.text("iPad 앱에서 방송을 시작하면 여기에 나타납니다."))
                         .font(.subheadline)
                         .foregroundStyle(Color.monitorOnSurfaceVariant)
                         .multilineTextAlignment(.center)

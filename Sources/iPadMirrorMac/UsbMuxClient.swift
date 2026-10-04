@@ -1,3 +1,4 @@
+#if !IPADMIRROR_MAC_APP_STORE
 import iPadMirrorShared
 import Darwin
 import Foundation
@@ -285,3 +286,5 @@ enum UsbMuxClient {
             | UInt32(data[offset + 3])
     }
 }
+
+#endif

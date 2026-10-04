@@ -51,6 +51,7 @@ def main():
     parser.add_argument("mode", choices=["qa", "store"])
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--profile", type=Path)
+    parser.add_argument("--qa-config", type=Path, help="Debug-only local physical QA configuration; never included in store mode")
     parser.add_argument("--app-identity")
     parser.add_argument("--installer-identity")
     args = parser.parse_args()
@@ -63,6 +64,8 @@ def main():
     if any(key.startswith("com.apple.security.temporary-exception") for key in entitlements):
         raise ValueError("No broad sandbox exception is permitted in this store configuration")
     if args.mode == "store":
+        if args.qa_config:
+            parser.error("Physical QA configuration is forbidden in store mode")
         if not all((args.profile, args.app_identity, args.installer_identity)):
             parser.error("store requires existing --profile, --app-identity and --installer-identity; nothing will be created")
         if not args.app_identity.startswith(("Apple Distribution:", "3rd Party Mac Developer Application:")):
@@ -81,7 +84,7 @@ def main():
     output.mkdir(parents=True)
     scratch = output / "swift-build"
     configuration = "release" if args.mode == "store" else "debug"
-    build_args = ["swift", "build", "--configuration", configuration, "--arch", "arm64", "--arch", "x86_64", "--scratch-path", str(scratch)]
+    build_args = ["swift", "build", "--configuration", configuration, "--arch", "arm64", "--arch", "x86_64", "--scratch-path", str(scratch), "-Xswiftc", "-DIPADMIRROR_MAC_APP_STORE"]
     run(*build_args, cwd=ROOT)
     binary_dir = Path(subprocess.check_output(build_args + ["--show-bin-path"], cwd=ROOT, text=True).strip())
     app = output / "iPad Mirror.app"
@@ -89,6 +92,8 @@ def main():
     (contents / "MacOS").mkdir(parents=True)
     resources = contents / "Resources"
     resources.mkdir()
+    if args.mode == "qa" and args.qa_config:
+        shutil.copy2(args.qa_config, resources / "PhysicalQAConfig.json")
     if args.mode == "qa":
         info["CFBundleIdentifier"] = expected_bundle + ".qa.task8.store"
     (contents / "Info.plist").write_bytes(plistlib.dumps(info, sort_keys=False))
@@ -100,7 +105,7 @@ def main():
     for locale in ("en", "ko"):
         shutil.copytree(ROOT / f"Packaging/{locale}.lproj", resources / f"{locale}.lproj")
     contains_usbmuxd = b"/var/run/usbmuxd" in executable.read_bytes()
-    if args.mode == "store" and contains_usbmuxd:
+    if contains_usbmuxd:
         raise ValueError("Store signing blocked: current direct USB transport is denied by App Sandbox. Resolve transport scope and verify it first.")
     if args.mode == "store":
         shutil.copy2(args.profile, contents / "embedded.provisionprofile")
@@ -117,7 +122,7 @@ def main():
         package = output / "iPadMirrorMac-AppStore.pkg"
         run("productbuild", "--component", str(app), "/Applications", "--sign", args.installer_identity, str(package))
         run("pkgutil", "--check-signature", str(package))
-    receipt = {"mode": args.mode, "bundle": info["CFBundleIdentifier"], "version": info["CFBundleShortVersionString"], "build": info["CFBundleVersion"], "app": str(app), "sandbox_enabled": True, "contains_direct_usbmuxd_transport": contains_usbmuxd, "USB_sandbox_compatible": False if contains_usbmuxd else None, "Mac_App_Store_ready": args.mode == "store", "new_credentials_profiles_or_uploads": False, "binary_sha256": hashlib.sha256(executable.read_bytes()).hexdigest(), "package": str(package) if package else None}
+    receipt = {"mode": args.mode, "bundle": info["CFBundleIdentifier"], "version": info["CFBundleShortVersionString"], "build": info["CFBundleVersion"], "app": str(app), "sandbox_enabled": True, "contains_direct_usbmuxd_transport": contains_usbmuxd, "transport_scope": "local-network-only", "physical_network_verified_by_packaging": False, "USB_sandbox_compatible": False if contains_usbmuxd else None, "Mac_App_Store_ready": False, "store_package_signed": args.mode == "store", "new_credentials_profiles_or_uploads": False, "binary_sha256": hashlib.sha256(executable.read_bytes()).hexdigest(), "package": str(package) if package else None}
     (output / "receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
     print(json.dumps(receipt))
 

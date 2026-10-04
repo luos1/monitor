@@ -1,6 +1,6 @@
 # Mac App Store preparation
 
-The native receiver retains `com.raccoonmerchant.ipadmirror.mac`, version 1.0.0, macOS 14+, Korean/English resources, and free unlimited receiving. The iOS app uses `com.raccoonmerchant.ipadmirror` and remains a separate submitted app. Do not change the receiver bundle ID to reuse the iOS record: doing so changes the existing Mac app identity and preferences domain.
+The native receiver retains `com.raccoonmerchant.ipadmirror.mac`, store version 1.0, macOS 14+, Korean/English resources, and free unlimited receiving. The iOS app uses `com.raccoonmerchant.ipadmirror` and remains a separate submitted app. Do not change the receiver bundle ID to reuse the iOS record: doing so changes the existing Mac app identity and preferences domain.
 
 The existing notarized Developer ID ZIP is direct distribution. It is not a Mac App Store package. A separate Mac App Store record and registered Mac bundle ID are required for the current receiver identity. The existing Apple Distribution signing identity can be reused with a matching Mac App Store profile; a Mac Installer Distribution identity is also needed for the installer package. No certificate, key or profile is committed or automatically created.
 
@@ -8,6 +8,10 @@ The existing notarized Developer ID ZIP is direct distribution. It is not a Mac 
 
 Actual baseline testing showed `/var/run/usbmuxd` connection succeeds without Sandbox and fails with EPERM in an App Sandbox container, even with network client/server and USB entitlements. TCP loopback communication succeeds in that same sandbox. This is an actual functional blocker for the current direct USB implementation, not just a missing certificate. No broad sandbox exception or privileged helper is added.
 
-Store signing is therefore blocked while the binary includes that direct USB transport. A Wi-Fi store flavor may be viable, preserving the existing notarized USB-capable app, but that feature scope must be decided before calling it the final store product. A public supported USB route would need implementation and verification. Existing marketing images showing Direct USB Connection must not be uploaded for an unverified or Wi-Fi-only store build. Take matching genuine connected images after the final transport has passed verification.
+The approved Store build uses the compile-time flag `IPADMIRROR_MAC_APP_STORE`. It excludes USB discovery, the entire usbmuxd client, direct USB receiving and Debug USB auto-connection. The default build retains those paths. Store onboarding and empty-state copy explain the same reachable local network and local-network permission requirement in Korean/English. The authentication handshake requests the existing sender wireless capture profile; no iOS source change is needed.
+
+Both QA and Store packaging use the flag and reject a binary containing the internal socket path. Debug QA may include a private local configuration for physical testing and record frame counts/interface type in its own sandbox container; Store mode forbids that configuration and Release excludes the QA hooks. Existing marketing images showing Direct USB Connection must not be uploaded for the network-only Store build. Take genuine connected Korean/English images after physical mirroring passes.
+
+A successfully signed package proves packaging/signing only. The receipt keeps `Mac_App_Store_ready=false`; physical network mirroring, final matching screenshots and web listing/review checks are separate release gates.
 
 Keep the already submitted iOS 1.0 build 6 and existing notarized Mac release unchanged. Store package creation and web registration are separate operations; a signed QA app does not prove App Store acceptance.

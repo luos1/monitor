@@ -11,12 +11,15 @@ import Network
 // frame counts are written only on the main queue; decoding uses serial workers.
 final class FrameReceiver: ObservableObject, @unchecked Sendable {
     @Published private(set) var image: NSImage?
+    private(set) var networkInterfaceType: String?
     @Published private(set) var status = MirrorL10n.text("iPad를 선택하세요")
 
     private final class Session: @unchecked Sendable {
         let key: SymmetricKey
         var connection: NWConnection?
+        #if !IPADMIRROR_MAC_APP_STORE
         var socket: Int32?
+        #endif
         var transportLabel: String
         // Image/count updates only run on the main queue.
         var frameCount = 0
@@ -27,7 +30,9 @@ final class FrameReceiver: ObservableObject, @unchecked Sendable {
     }
 
     private let queue = DispatchQueue(label: "dev.local.iPadMirrorMac.FrameReceiver", qos: .userInitiated)
+    #if !IPADMIRROR_MAC_APP_STORE
     private let usbQueue = DispatchQueue(label: "dev.local.iPadMirrorMac.USBFrameReceiver", qos: .userInitiated)
+    #endif
     private let sessionLock = NSLock()
     private var currentSession: Session?
     private let maxFrameSize = 20 * 1024 * 1024
@@ -36,11 +41,15 @@ final class FrameReceiver: ObservableObject, @unchecked Sendable {
 
     @MainActor
     func connect(to device: BonjourBrowser.Device, pairingCode: String) {
+        #if !IPADMIRROR_MAC_APP_STORE
         if let deviceID = device.usbDeviceID {
             connectUSB(deviceID: deviceID, port: device.port, displayName: device.name, pairingCode: pairingCode)
         } else {
             connect(host: device.host, port: device.port, pairingCode: pairingCode)
         }
+        #else
+        connect(host: device.host, port: device.port, pairingCode: pairingCode)
+        #endif
     }
 
     @MainActor
@@ -76,6 +85,7 @@ final class FrameReceiver: ObservableObject, @unchecked Sendable {
     func disconnect() {
         abortCurrentSession()
         image = nil
+        networkInterfaceType = nil
         status = MirrorL10n.text("연결 해제")
     }
 
@@ -86,12 +96,14 @@ final class FrameReceiver: ObservableObject, @unchecked Sendable {
         let previous = currentSession
         currentSession = nil
         let connection = previous?.connection
+        #if !IPADMIRROR_MAC_APP_STORE
         let socket = previous?.socket
         if let socket {
             // The read worker owns close(). Shutdown interrupts a blocked read
             // without letting a stale worker close a reused file descriptor.
             Darwin.shutdown(socket, SHUT_RDWR)
         }
+        #endif
         sessionLock.unlock()
         connection?.cancel()
     }
@@ -102,6 +114,7 @@ final class FrameReceiver: ObservableObject, @unchecked Sendable {
         return currentSession === session
     }
 
+    #if !IPADMIRROR_MAC_APP_STORE
     @MainActor
     private func connectUSB(deviceID: Int, port: Int, displayName: String, pairingCode: String) {
         disconnect()
@@ -147,9 +160,16 @@ final class FrameReceiver: ObservableObject, @unchecked Sendable {
         }
     }
 
+    #endif
+
     private func handle(_ state: NWConnection.State, connection: NWConnection, session: Session) {
         switch state {
         case .ready:
+            let interface = connection.currentPath.map(Self.interfaceType(for:)) ?? "unknown"
+            DispatchQueue.main.async { [weak self, weak session] in
+                guard let self, let session, self.isCurrent(session) else { return }
+                self.networkInterfaceType = interface
+            }
             let actual = connection.currentPath.map(Self.transportLabel(for:)) ?? MirrorL10n.text("네트워크")
             sessionLock.lock()
             session.transportLabel = actual
@@ -236,6 +256,7 @@ final class FrameReceiver: ObservableObject, @unchecked Sendable {
         }
     }
 
+    #if !IPADMIRROR_MAC_APP_STORE
     private func receiveUSBFrames(from socket: Int32, session: Session) {
         while isCurrent(session) {
             do {
@@ -256,6 +277,8 @@ final class FrameReceiver: ObservableObject, @unchecked Sendable {
             }
         }
     }
+
+    #endif
 
     private func displayFrame(_ data: Data, session: Session) -> Bool {
         guard let box = try? ChaChaPoly.SealedBox(combined: data),
@@ -291,6 +314,7 @@ final class FrameReceiver: ObservableObject, @unchecked Sendable {
         }
     }
 
+    #if !IPADMIRROR_MAC_APP_STORE
     private func readChallenge(from socket: Int32) throws -> Data {
         var line = Data()
         while line.count < 128 {
@@ -304,6 +328,8 @@ final class FrameReceiver: ObservableObject, @unchecked Sendable {
         throw UsbMuxClient.UsbMuxError.invalidResponse
     }
 
+    #endif
+
     private func parseChallenge(_ data: Data) -> Data? {
         let line = String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
         guard line.hasPrefix("CHALLENGE "),
@@ -314,7 +340,8 @@ final class FrameReceiver: ObservableObject, @unchecked Sendable {
 
     private func authenticationMessage(challenge: Data, key: SymmetricKey) -> Data {
         let authentication = Data(HMAC<SHA256>.authenticationCode(for: challenge, using: key))
-        return Data("AUTH \(authentication.base64EncodedString())\nPROFILE wired\n".utf8)
+        let profile = MacDistribution.isNetworkOnly ? "wireless" : "wired"
+        return Data("AUTH \(authentication.base64EncodedString())\nPROFILE \(profile)\n".utf8)
     }
 
     private func decodeFrameLength(_ data: Data) -> Int {
@@ -348,7 +375,16 @@ final class FrameReceiver: ObservableObject, @unchecked Sendable {
         code.uppercased().filter { $0.isASCII && ($0.isLetter || $0.isNumber) }
     }
 
+    private static func interfaceType(for path: NWPath) -> String {
+        if path.usesInterfaceType(.loopback) { return "loopback" }
+        if path.usesInterfaceType(.wifi) { return "wifi" }
+        if path.usesInterfaceType(.wiredEthernet) { return "ethernet" }
+        if path.usesInterfaceType(.cellular) { return "cellular" }
+        return "other"
+    }
+
     private static func transportLabel(for path: NWPath) -> String {
+        if MacDistribution.isNetworkOnly { return path.usesInterfaceType(.wifi) ? "Wi‑Fi" : MirrorL10n.text("네트워크") }
         if path.usesInterfaceType(.wiredEthernet) || path.usesInterfaceType(.loopback) || path.usesInterfaceType(.other) {
             return MirrorL10n.text("유선 최적화")
         }

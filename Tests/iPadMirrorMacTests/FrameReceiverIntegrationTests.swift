@@ -16,7 +16,7 @@ final class FrameReceiverIntegrationTests: XCTestCase {
         receiver.connect(host: "127.0.0.1", port: port, pairingCode: "abcd-2345")
         try await wait { receiver.image != nil }
         XCTAssertTrue(first.authenticated)
-        XCTAssertTrue(receiver.status.contains(MirrorL10n.text("유선 최적화")))
+        XCTAssertTrue(receiver.status.contains(MirrorL10n.text(MacDistribution.isNetworkOnly ? "네트워크" : "유선 최적화")))
         XCTAssertEqual(try dimensions(receiver.image!).width, 120)
         receiver.disconnect()
         XCTAssertNil(receiver.image)
@@ -72,7 +72,7 @@ final class FrameReceiverIntegrationTests: XCTestCase {
         try await wait { receiver.image != nil }
         try await Task.sleep(for: .milliseconds(650))
         XCTAssertEqual(try dimensions(receiver.image!).width, 80)
-        XCTAssertTrue(receiver.status.contains(MirrorL10n.text("유선 최적화")))
+        XCTAssertTrue(receiver.status.contains(MirrorL10n.text(MacDistribution.isNetworkOnly ? "네트워크" : "유선 최적화")))
         receiver.disconnect()
     }
 
@@ -166,7 +166,8 @@ private final class LoopbackBroadcast: @unchecked Sendable {
         connection.receive(minimumIncompleteLength: 1, maximumLength: 256) { [weak self, weak connection] data, _, isComplete, error in
             guard let self, let connection, error == nil, let data else { return }
             var received = buffer; received.append(data)
-            if !received.contains(Data("\nPROFILE wired\n".utf8)) {
+            let expectedProfile = MacDistribution.isNetworkOnly ? "wireless" : "wired"
+            if !received.contains(Data("\nPROFILE \(expectedProfile)\n".utf8)) {
                 if !isComplete { self.readAuthentication(connection, buffer: received) }
                 return
             }

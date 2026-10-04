@@ -6,7 +6,9 @@ final class BonjourBrowser: NSObject, ObservableObject {
     struct Device: Identifiable, Hashable {
         enum Transport: Hashable {
             case network
+            #if !IPADMIRROR_MAC_APP_STORE
             case usb(deviceID: Int, serialNumber: String)
+            #endif
         }
 
         let id: String
@@ -18,18 +20,23 @@ final class BonjourBrowser: NSObject, ObservableObject {
         var endpointDescription: String {
             switch transport {
             case .network:
-                return MirrorL10n.text("Wi‑Fi · 암호화 연결")
+                return MacDistribution.isNetworkOnly ? MacStoreCopy.encryptedConnection : MirrorL10n.text("Wi‑Fi · 암호화 연결")
+            #if !IPADMIRROR_MAC_APP_STORE
             case .usb:
                 return MirrorL10n.text("USB 직접 연결")
+            #endif
             }
         }
 
+    #if !IPADMIRROR_MAC_APP_STORE
         var usbDeviceID: Int? {
             if case .usb(let deviceID, _) = transport {
                 return deviceID
             }
             return nil
         }
+
+    #endif
 
         init(name: String, host: String, port: Int) {
             self.name = name
@@ -39,6 +46,7 @@ final class BonjourBrowser: NSObject, ObservableObject {
             self.id = "network-\(name)-\(host)-\(port)"
         }
 
+    #if !IPADMIRROR_MAC_APP_STORE
         init(usb device: UsbMuxClient.Device, port: Int) {
             self.name = device.name
             self.host = "USB"
@@ -46,6 +54,8 @@ final class BonjourBrowser: NSObject, ObservableObject {
             self.transport = .usb(deviceID: device.deviceID, serialNumber: device.serialNumber)
             self.id = "usb-\(device.deviceID)-\(device.serialNumber)-\(port)"
         }
+    #endif
+
     }
 
     @Published private(set) var devices: [Device] = []
@@ -54,11 +64,17 @@ final class BonjourBrowser: NSObject, ObservableObject {
     private var browser: NetServiceBrowser?
     private var foundServices: [NetService] = []
     private let serviceType = "_ipadmirror._tcp."
+    #if !IPADMIRROR_MAC_APP_STORE
     private let mirrorPort = 12_346
+    #endif
+
+    private var searchingStatus: String { MacDistribution.isNetworkOnly ? MacStoreCopy.searching : MirrorL10n.text("USB와 네트워크에서 iPad 화면 방송 검색 중…") }
 
     func startSearching() {
         guard browser == nil else {
+            #if !IPADMIRROR_MAC_APP_STORE
             refreshUSBDevices()
+            #endif
             return
         }
 
@@ -68,8 +84,10 @@ final class BonjourBrowser: NSObject, ObservableObject {
         browser.searchForServices(ofType: serviceType, inDomain: "local.")
 
         self.browser = browser
-        status = MirrorL10n.text("USB와 네트워크에서 iPad 화면 방송 검색 중…")
+        status = searchingStatus
+        #if !IPADMIRROR_MAC_APP_STORE
         refreshUSBDevices()
+        #endif
     }
 
     func restartSearching() {
@@ -89,6 +107,7 @@ final class BonjourBrowser: NSObject, ObservableObject {
         status = MirrorL10n.text("iPad 화면 방송 검색 중지")
     }
 
+    #if !IPADMIRROR_MAC_APP_STORE
     private func refreshUSBDevices() {
         DispatchQueue.global(qos: .userInitiated).async {
             let usbDevices = (try? UsbMuxClient.listDevices()) ?? []
@@ -101,10 +120,12 @@ final class BonjourBrowser: NSObject, ObservableObject {
                 }
                 self.devices.append(contentsOf: mirrorDevices)
                 self.sortDevices()
-                self.status = self.devices.isEmpty ? MirrorL10n.text("USB와 네트워크에서 iPad 화면 방송 검색 중…") : MirrorL10n.format("{0}개 화면 방송 발견", String(describing: self.devices.count))
+                self.status = self.devices.isEmpty ? self.searchingStatus : MirrorL10n.format("{0}개 화면 방송 발견", String(describing: self.devices.count))
             }
         }
     }
+
+    #endif
 
     private func upsert(_ device: Device) {
         if let index = devices.firstIndex(where: { $0.id == device.id }) {
@@ -117,6 +138,7 @@ final class BonjourBrowser: NSObject, ObservableObject {
 
     private func sortDevices() {
         devices.sort { lhs, rhs in
+            #if !IPADMIRROR_MAC_APP_STORE
             switch (lhs.transport, rhs.transport) {
             case (.usb, .network):
                 return true
@@ -125,6 +147,9 @@ final class BonjourBrowser: NSObject, ObservableObject {
             default:
                 return lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
             }
+            #else
+            return lhs.name.localizedStandardCompare(rhs.name) == .orderedAscending
+            #endif
         }
     }
 }
@@ -149,7 +174,7 @@ extension BonjourBrowser: NetServiceBrowserDelegate {
                 }
                 return false
             }
-            self.status = self.devices.isEmpty ? MirrorL10n.text("USB와 네트워크에서 iPad 화면 방송 검색 중…") : MirrorL10n.format("{0}개 화면 방송 발견", String(describing: self.devices.count))
+            self.status = self.devices.isEmpty ? self.searchingStatus : MirrorL10n.format("{0}개 화면 방송 발견", String(describing: self.devices.count))
         }
     }
 
