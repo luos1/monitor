@@ -109,6 +109,7 @@ def main():
         raise ValueError("Store signing blocked: current direct USB transport is denied by App Sandbox. Resolve transport scope and verify it first.")
     if args.mode == "store":
         shutil.copy2(args.profile, contents / "embedded.provisionprofile")
+        (contents / "embedded.provisionprofile").chmod(0o644)
     entitlement_path = output / "signing.entitlements"
     entitlement_path.write_bytes(plistlib.dumps(entitlements))
     signing_args = ["codesign", "--force", "--options", "runtime", "--sign", args.app_identity if args.mode == "store" else "-", "--entitlements", str(entitlement_path)]
