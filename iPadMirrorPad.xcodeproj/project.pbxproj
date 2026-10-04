@@ -28,6 +28,7 @@
 		A10000000000000000000021 /* BannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000025 /* BannerAdView.swift */; };
 		A10000000000000000000022 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = B20000000000000000000001 /* GoogleMobileAds */; };
 		A10000000000000000000024 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000027 /* PrivacyInfo.xcprivacy */; };
+		A10000000000000000000025 /* ScreenshotMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000028 /* ScreenshotMode.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +57,7 @@
 		A20000000000000000000025 /* BannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdView.swift; sourceTree = "<group>"; };
 		A20000000000000000000026 /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; name = Products.storekit; path = Packaging/Products.storekit; sourceTree = "<group>"; };
 		A20000000000000000000027 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		A20000000000000000000028 /* ScreenshotMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotMode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,6 +123,7 @@
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000013 /* BroadcastSharedSettings.swift */,
+				A20000000000000000000028 /* ScreenshotMode.swift */,
 				A20000000000000000000017 /* UsageAccessManager.swift */,
 				A20000000000000000000018 /* MonitorTheme.swift */,
 				A20000000000000000000019 /* MonitorChrome.swift */,
@@ -285,6 +288,7 @@
 				A10000000000000000000019 /* StorePurchaseManager.swift in Sources */,
 				A10000000000000000000020 /* AdRewardController.swift in Sources */,
 				A10000000000000000000021 /* BannerAdView.swift in Sources */,
+				A10000000000000000000025 /* ScreenshotMode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -437,7 +441,7 @@
 				CODE_SIGN_ENTITLEMENTS = Sources/iPadMirrorPad/iPadMirrorPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				OTHER_LDFLAGS = "-ObjC";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 2YRYWKZ3M3;
 				GENERATE_INFOPLIST_FILE = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -463,7 +467,7 @@
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
 				OTHER_LDFLAGS = "-ObjC";
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 2YRYWKZ3M3;
 				GENERATE_INFOPLIST_FILE = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -489,7 +493,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = Sources/iPadMirrorBroadcastExtension/iPadMirrorBroadcastExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 2YRYWKZ3M3;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/iPadMirrorBroadcastExtension/Info.plist;
@@ -516,7 +520,7 @@
 				CODE_SIGN_ENTITLEMENTS = Sources/iPadMirrorBroadcastExtension/iPadMirrorBroadcastExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = 2YRYWKZ3M3;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/iPadMirrorBroadcastExtension/Info.plist;

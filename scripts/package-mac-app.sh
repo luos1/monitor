@@ -2,12 +2,25 @@
 set -euo pipefail
 
 CONFIGURATION="${1:-debug}"
+case "$CONFIGURATION" in
+  debug|release) ;;
+  *) printf 'Usage: %s [debug|release]\n' "$0" >&2; exit 2 ;;
+esac
+
+cd "$(cd -- "$(dirname -- "$0")/.." && pwd)"
+BUILD_ARGS=(--configuration "$CONFIGURATION")
+if [[ -n "${IPADMIRROR_BUILD_ROOT:-}" ]]; then
+  BUILD_ARGS+=(--scratch-path "$IPADMIRROR_BUILD_ROOT")
+fi
 PRODUCT="iPadMirrorMac"
 APP_NAME="아이패드미러.app"
-BUNDLE_DIR=".build/${CONFIGURATION}/${APP_NAME}"
-EXECUTABLE_PATH=".build/${CONFIGURATION}/${PRODUCT}"
 
-swift build --configuration "$CONFIGURATION"
+swift build "${BUILD_ARGS[@]}"
+BIN_DIR="$(swift build "${BUILD_ARGS[@]}" --show-bin-path)"
+BUNDLE_DIR="$BIN_DIR/$APP_NAME"
+EXECUTABLE_PATH="$BIN_DIR/$PRODUCT"
+
+[[ -f "$EXECUTABLE_PATH" ]] || { printf 'Missing executable: %s\n' "$EXECUTABLE_PATH" >&2; exit 1; }
 
 rm -rf "$BUNDLE_DIR"
 mkdir -p "$BUNDLE_DIR/Contents/MacOS"

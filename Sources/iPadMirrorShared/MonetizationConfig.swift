@@ -30,6 +30,21 @@ public enum MonetizationOutcome: String, Equatable {
     case donationCompleted
 }
 
+public enum StoreEntitlementPolicy {
+    public static func grantsLifetime(
+        productID: String,
+        revocationDate: Date?,
+        expirationDate: Date?,
+        isUpgraded: Bool,
+        now: Date = Date()
+    ) -> Bool {
+        MonetizationConfig.productIDs.contains(productID)
+            && revocationDate == nil
+            && !isUpgraded
+            && (expirationDate.map { $0 > now } ?? true)
+    }
+}
+
 public enum MonetizationApplier {
     @MainActor
     public static func apply(_ outcome: MonetizationOutcome, to usage: UsageAccessManager) {

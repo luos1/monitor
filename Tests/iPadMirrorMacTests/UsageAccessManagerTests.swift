@@ -37,6 +37,24 @@ final class UsageAccessManagerTests: XCTestCase {
         XCTAssertEqual(UsageAccessManager.formatRemaining(seconds: 0, lifetimeUnlocked: true), "무제한")
     }
 
+    func testRewardSurvivesRelaunchAndIsCapped() {
+        let suite = "test.reward.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let manager = UsageAccessManager(namespace: "reward", maximumBonusHours: 2, suiteName: suite)
+        manager.simulateConsumed(seconds: 3600)
+        XCTAssertTrue(manager.isLocked)
+        manager.grantAdExtension(minutes: 60)
+        manager.grantAdExtension(minutes: 60)
+        manager.grantAdExtension(minutes: 60)
+        XCTAssertEqual(manager.bonusSeconds, 7200)
+        let relaunched = UsageAccessManager(namespace: "reward", maximumBonusHours: 2, suiteName: suite)
+        XCTAssertFalse(relaunched.isLocked)
+        XCTAssertEqual(relaunched.remainingSeconds, 7200)
+        XCTAssertEqual(relaunched.usedSeconds, 3600)
+        XCTAssertFalse(relaunched.lifetimeUnlocked)
+    }
+
     func testPersistedDefaultsCannotForgeLifetimeEntitlement() {
         let namespace = "test.entitlement.\(UUID().uuidString)"
         UserDefaults.standard.set(true, forKey: "\(namespace).usage.lifetimeUnlocked")

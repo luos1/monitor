@@ -15,6 +15,7 @@ final class AdRewardController: NSObject, ObservableObject {
     #if canImport(GoogleMobileAds)
     private var rewardedAd: RewardedAd?
     private var presentation: AdPresentation?
+    private var loadID: UUID?
     #endif
 
     func start() {
@@ -29,12 +30,21 @@ final class AdRewardController: NSObject, ObservableObject {
 
     func load() async {
         #if canImport(GoogleMobileAds)
+        guard AdPrivacyController.shared.canLoadAds, !ScreenshotMode.skipAds,
+              !BroadcastSharedSettings.hasRecentVerifiedLifetimeEntitlement(),
+              loadID == nil, !isPresenting, rewardedAd == nil else { return }
+        let requestID = UUID()
+        loadID = requestID
+        defer { if loadID == requestID { loadID = nil } }
         do {
             let ad = try await RewardedAd.load(with: MonetizationConfig.rewardedAdUnitID, request: Request())
+            guard loadID == requestID, AdPrivacyController.shared.canLoadAds,
+                  !BroadcastSharedSettings.hasRecentVerifiedLifetimeEntitlement() else { return }
             rewardedAd = ad
             isReady = true
             status = MonetizationConfig.usesGoogleSampleAds ? "테스트 광고 준비됨" : "광고 준비됨"
         } catch {
+            guard loadID == requestID else { return }
             rewardedAd = nil
             isReady = false
             status = "광고 로드 실패: \(error.localizedDescription)"
@@ -44,6 +54,8 @@ final class AdRewardController: NSObject, ObservableObject {
 
     func showRewarded() async throws {
         #if canImport(GoogleMobileAds)
+        guard !isPresenting, AdPrivacyController.shared.canLoadAds,
+              !ScreenshotMode.skipAds else { throw AdRewardError.notReady }
         guard let rewardedAd, let presenter = Self.topViewController() else {
             throw AdRewardError.notReady
         }
@@ -51,6 +63,13 @@ final class AdRewardController: NSObject, ObservableObject {
         isPresenting = true
         isReady = false
         self.rewardedAd = nil
+
+        // Restore the button even when the SDK fails to present the ad.
+        defer {
+            isPresenting = false
+            presentation = nil
+            start()
+        }
 
         let earned = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Bool, Error>) in
             let presentation = AdPresentation { result in
@@ -63,10 +82,6 @@ final class AdRewardController: NSObject, ObservableObject {
             }
         }
 
-        isPresenting = false
-        presentation = nil
-        await load()
-
         if earned {
             status = "광고를 보고 \(MonitorTheme.freeMinutes)분이 연장되었습니다."
         } else {
@@ -75,6 +90,14 @@ final class AdRewardController: NSObject, ObservableObject {
         #else
         throw AdRewardError.failed("Google Mobile Ads SDK가 연결되어 있지 않습니다.")
         #endif
+    }
+
+    func invalidate() {
+        #if canImport(GoogleMobileAds)
+        loadID = nil
+        rewardedAd = nil
+        #endif
+        isReady = false
     }
 
     private static func topViewController() -> UIViewController? {

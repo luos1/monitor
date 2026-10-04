@@ -5,7 +5,7 @@ struct ContentView: View {
     @AppStorage("monitor.pad.didShowUsageGuide") private var didShowUsageGuide = false
     @State private var showingUsageGuide = false
     @State private var showingUpgrade = false
-    @State private var adsMayLoad = false
+    @StateObject private var adPrivacy = AdPrivacyController.shared
     @StateObject private var usageAccess = UsageAccessManager(
         namespace: "monitor.pad",
         suiteName: BroadcastSharedSettings.appGroupIdentifier()
@@ -41,18 +41,35 @@ struct ContentView: View {
             paywall(title: "유료 기능")
                 .frame(minWidth: 640, minHeight: 720)
         }
+        .safeAreaInset(edge: .bottom) {
+            if adPrivacy.privacyOptionsRequired {
+                Button("광고 개인정보 설정") {
+                    adPrivacy.presentPrivacyOptions()
+                }
+                .disabled(adPrivacy.isPreparing)
+                .padding(12)
+                .frame(maxWidth: .infinity)
+                .background(Color.monitorSurfaceContainer)
+            }
+        }
         .onAppear {
             usageAccess.reloadStoredUsage()
             store.start()
             syncPurchaseState()
+            adPrivacy.prepareIfNeeded()
+            if adPrivacy.canLoadAds { ads.start() }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .monitorAdsMayLoad)) { _ in
-            adsMayLoad = true
-            ads.start()
+        .onChange(of: adPrivacy.canLoadAds) { _, allowed in
+            if allowed {
+                ads.start()
+            } else {
+                ads.invalidate()
+            }
         }
         .onChange(of: store.hasLifetimeEntitlement) { _, unlocked in
             usageAccess.setLifetimeEntitlement(unlocked)
             BroadcastSharedSettings.cacheVerifiedLifetimeEntitlement(unlocked)
+            if unlocked { ads.invalidate() }
         }
         .onChange(of: store.didRefreshEntitlements) { _, didRefresh in
             if didRefresh {
@@ -61,6 +78,7 @@ struct ContentView: View {
         }
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
+            adPrivacy.prepareIfNeeded()
             usageAccess.reloadStoredUsage()
             Task {
                 await store.refreshEntitlements()
@@ -76,7 +94,7 @@ struct ContentView: View {
             adsSupported: ads.isSupported,
             adReady: ads.isReady,
             adPresenting: ads.isPresenting,
-            adStatus: ads.status,
+            adStatus: adPrivacy.canLoadAds ? ads.status : adPrivacy.status,
             onWatchAd: watchAd,
             onShowGuide: { showingUsageGuide = true }
         )
@@ -179,7 +197,7 @@ struct ContentView: View {
                     }
                 }
 
-                if !usageAccess.lifetimeUnlocked && adsMayLoad {
+                if !usageAccess.lifetimeUnlocked && adPrivacy.canLoadAds {
                     BannerAdView()
                 }
 

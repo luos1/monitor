@@ -32,7 +32,9 @@ private struct AdMobBannerRepresentable: UIViewRepresentable {
         let banner = BannerView(adSize: AdSizeLargeBanner)
         banner.adUnitID = MonetizationConfig.bannerAdUnitID
         banner.rootViewController = Self.topViewController()
-        banner.load(Request())
+        if AdPrivacyController.shared.canLoadAds {
+            banner.load(Request())
+        }
         return banner
     }
 

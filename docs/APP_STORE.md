@@ -20,18 +20,18 @@ iPad 앱은 화면을 보내고, Mac 앱은 그 화면을 받아 보여 줍니�
 
 ## English description
 
-iPad Mirror sends the current iPad screen to your Mac.
+iPad Mirror sends your iPad screen to your Mac.
 
-The iPad app broadcasts the screen. The Mac app receives it. Both apps must be open. You can share the Home Screen and other apps through the broadcast extension.
+The iPad app broadcasts the screen, and the companion Mac app receives it. Both apps are required. Use the broadcast extension to share the Home Screen and other apps.
 
 How to use
 1. Open iPad Mirror on your Mac.
-2. Start full-screen sharing on iPad and choose iPad Mirror Broadcast.
-3. Select your iPad in the Mac sidebar.
+2. Start full-screen sharing on iPad and select the iPad Mirror broadcast extension (아이패드미러 방송).
+3. Enter the connection code shown on iPad in the Mac app, then select your iPad.
 
-The first 60 minutes are free. On iPad you can watch an ad for another 60 minutes. Lifetime unlock is $4.99. Developer support is $99.99 and also unlocks lifetime use.
+The first 60 minutes are free. On iPad, a rewarded ad can add 60 minutes to the iPad usage allowance. Lifetime access and Developer Support are non-consumable in-app purchases. Developer Support also includes lifetime access. The Mac companion currently has its own usage allowance and purchase entitlement.
 
-Frames stay on your devices. They travel over the local network or USB only.
+Screen frames are encrypted and sent over your local network or USB. Screen frames are not uploaded to an external server.
 
 ## 키워드
 

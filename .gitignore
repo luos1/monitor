@@ -8,3 +8,12 @@ xcuserdata/
 .swiftpm/
 .env
 .env.*
+.secrets/
+private_keys/
+.swarm/
+.ruflo/
+.claude-flow/
+.claude/
+ruvector.db
+ruvector.db-shm
+ruvector.db-wal

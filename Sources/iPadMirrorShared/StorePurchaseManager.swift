@@ -89,8 +89,7 @@ public final class StorePurchaseManager: ObservableObject {
         var unlocked = false
         for await result in StoreKit.Transaction.currentEntitlements {
             guard case .verified(let transaction) = result else { continue }
-            if transaction.productID == MonetizationConfig.lifetimeProductID
-                || transaction.productID == MonetizationConfig.donationProductID {
+            if grantsLifetime(transaction) {
                 unlocked = true
             }
         }
@@ -150,8 +149,21 @@ public final class StorePurchaseManager: ObservableObject {
             return false
         }
 
-        hasLifetimeEntitlement = true
         await transaction.finish()
+        await refreshEntitlements()
+        guard grantsLifetime(transaction) else {
+            statusMessage = "이 구매는 현재 영구 사용 권한을 제공하지 않습니다."
+            return false
+        }
         return true
+    }
+
+    private func grantsLifetime(_ transaction: StoreKit.Transaction) -> Bool {
+        StoreEntitlementPolicy.grantsLifetime(
+            productID: transaction.productID,
+            revocationDate: transaction.revocationDate,
+            expirationDate: transaction.expirationDate,
+            isUpgraded: transaction.isUpgraded
+        )
     }
 }
