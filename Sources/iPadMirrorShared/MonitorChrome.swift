@@ -99,21 +99,23 @@ public struct MonitorUsageChip: View {
 
 public struct MonitorStatusOrb: View {
     public let isLive: Bool
+    public let size: CGFloat
 
-    public init(isLive: Bool) {
+    public init(isLive: Bool, size: CGFloat = 112) {
         self.isLive = isLive
+        self.size = size
     }
 
     public var body: some View {
         ZStack {
             Circle()
                 .fill((isLive ? Color.monitorLive : Color.monitorPrimary).opacity(0.12))
-                .frame(width: 112, height: 112)
+                .frame(width: size, height: size)
             Circle()
                 .fill(isLive ? Color.monitorLive : Color.monitorPrimary)
-                .frame(width: 88, height: 88)
+                .frame(width: size * 88 / 112, height: size * 88 / 112)
             Image(systemName: isLive ? "dot.radiowaves.left.and.right" : "ipad.and.iphone")
-                .font(.system(size: 34, weight: .semibold))
+                .font(.system(size: size * 34 / 112, weight: .semibold))
                 .foregroundStyle(.white)
         }
         .accessibilityHidden(true)

@@ -8,6 +8,8 @@ final class StoreScreenshotTests: XCTestCase {
 
     func testKoreanScreensAndPurchaseOptions() { capture(language: "ko-KR", korean: true) }
     func testEnglishScreensAndPurchaseOptions() { capture(language: "en-US", korean: false) }
+    func testKoreanHome() { capture(language: "ko-KR", korean: true, homeOnly: true) }
+    func testEnglishHome() { capture(language: "en-US", korean: false, homeOnly: true) }
     func testJapaneseFallsBackToEnglish() { capture(language: "ja-JP", korean: false, homeOnly: true) }
     func testFrenchFallsBackToEnglish() { capture(language: "fr-FR", korean: false, homeOnly: true) }
 
@@ -27,6 +29,13 @@ final class StoreScreenshotTests: XCTestCase {
         let upgrade = app.buttons[korean ? "광고 연장 / 영구 사용" : "Add Time / Lifetime Access"]
         XCTAssertTrue(upgrade.waitForExistence(timeout: 10))
         XCTAssertTrue(app.staticTexts["••••-••••"].exists, "Pairing code must be hidden in store screenshots.")
+        let sender = korean ? "이 기기는 화면을 보내는 역할입니다. Mac 앱이 함께 켜져 있어야 미러링이 보입니다." : "This device sends the screen. Keep the companion Mac app open to receive it."
+        XCTAssertTrue(app.staticTexts[sender].exists, "Sender description must work for iPhone as well as iPad.")
+        let window = app.windows.firstMatch
+        if window.frame.width < 600 {
+            XCTAssertTrue(upgrade.isHittable)
+            XCTAssertLessThanOrEqual(upgrade.frame.maxY, window.frame.maxY - 20, "Phone home must show the entire Add Time button.")
+        }
         if !korean { assertNoKorean(in: app) }
         if homeOnly {
             attach("\(language)-fallback-home")

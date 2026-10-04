@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @AppStorage("monitor.pad.didShowUsageGuide") private var didShowUsageGuide = false
     @State private var showingUsageGuide = false
     @State private var showingUpgrade = false
@@ -112,7 +113,7 @@ struct ContentView: View {
 
     private var mainContent: some View {
         ScrollView {
-            VStack(spacing: 20) {
+            VStack(spacing: horizontalSizeClass == .compact ? 14 : 20) {
                 HStack {
                     HStack(spacing: 10) {
                         MonitorBrandMark(size: 40)
@@ -128,14 +129,14 @@ struct ContentView: View {
                 }
 
                 MonitorCard {
-                    VStack(spacing: 16) {
-                        MonitorStatusOrb(isLive: broadcast.isBroadcasting)
+                    VStack(spacing: horizontalSizeClass == .compact ? 12 : 16) {
+                        MonitorStatusOrb(isLive: broadcast.isBroadcasting, size: horizontalSizeClass == .compact ? 76 : 112)
 
                         VStack(spacing: 8) {
                             Text(broadcast.isBroadcasting ? MirrorL10n.text("화면을 보내는 중") : MirrorL10n.text("보낼 준비가 되었습니다"))
-                                .font(.title.weight(.semibold))
-                            Text(MirrorL10n.text("이 iPad는 화면을 보내는 역할입니다. Mac 앱이 함께 켜져 있어야 미러링이 보입니다."))
-                                .font(.body)
+                                .font((horizontalSizeClass == .compact ? Font.title2 : Font.title).weight(.semibold))
+                            Text(MirrorL10n.text("이 기기는 화면을 보내는 역할입니다. Mac 앱이 함께 켜져 있어야 미러링이 보입니다."))
+                                .font(horizontalSizeClass == .compact ? .callout : .body)
                                 .foregroundStyle(Color.monitorOnSurfaceVariant)
                                 .multilineTextAlignment(.center)
                         }
@@ -167,7 +168,9 @@ struct ContentView: View {
                     }
                 }
 
-                MonitorCompanionBanner(role: .pad)
+                if horizontalSizeClass != .compact {
+                    MonitorCompanionBanner(role: .pad)
+                }
 
                 VStack(spacing: 12) {
                     BroadcastPickerButton(preferredExtension: broadcastExtensionIdentifier)
