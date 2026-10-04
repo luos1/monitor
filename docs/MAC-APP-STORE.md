@@ -1,0 +1,13 @@
+# Mac App Store preparation
+
+The native receiver retains `com.raccoonmerchant.ipadmirror.mac`, version 1.0.0, macOS 14+, Korean/English resources, and free unlimited receiving. The iOS app uses `com.raccoonmerchant.ipadmirror` and remains a separate submitted app. Do not change the receiver bundle ID to reuse the iOS record: doing so changes the existing Mac app identity and preferences domain.
+
+The existing notarized Developer ID ZIP is direct distribution. It is not a Mac App Store package. A separate Mac App Store record and registered Mac bundle ID are required for the current receiver identity. The existing Apple Distribution signing identity can be reused with a matching Mac App Store profile; a Mac Installer Distribution identity is also needed for the installer package. No certificate, key or profile is committed or automatically created.
+
+`Packaging/MacAppStore` holds a separate store Info.plist (first store build 1) and standard App Sandbox/network entitlements. `scripts/package-mac-app-store.py qa --output /tmp/new-output` makes an isolated local sandbox QA app. The `store` mode requires caller-supplied existing app and installer signing identities and a matching OSX store profile. It rejects development/direct profiles, different bundle IDs, debugger access and expired profiles, then uses Xcode's codesign/productbuild/pkgutil tools. It does not install, notarize, upload, or modify iOS settings.
+
+Actual baseline testing showed `/var/run/usbmuxd` connection succeeds without Sandbox and fails with EPERM in an App Sandbox container, even with network client/server and USB entitlements. TCP loopback communication succeeds in that same sandbox. This is an actual functional blocker for the current direct USB implementation, not just a missing certificate. No broad sandbox exception or privileged helper is added.
+
+Store signing is therefore blocked while the binary includes that direct USB transport. A Wi-Fi store flavor may be viable, preserving the existing notarized USB-capable app, but that feature scope must be decided before calling it the final store product. A public supported USB route would need implementation and verification. Existing marketing images showing Direct USB Connection must not be uploaded for an unverified or Wi-Fi-only store build. Take matching genuine connected images after the final transport has passed verification.
+
+Keep the already submitted iOS 1.0 build 6 and existing notarized Mac release unchanged. Store package creation and web registration are separate operations; a signed QA app does not prove App Store acceptance.
