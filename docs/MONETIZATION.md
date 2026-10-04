@@ -2,10 +2,10 @@
 
 | 기능 | iPad | Mac |
 | --- | --- | --- |
-| 리워드 광고 | SDK 보상 콜백 후 iPad 사용 시간 60분 연장 | iPad 보상과 동기화되지 않음 |
+| 리워드 광고 | SDK 보상 콜백 후 iPad 사용 시간 60분 연장 | 시간 제한 없음 |
 | 배너 | 개인정보 설정 확인 후 영구 사용 전 표시 | 없음 |
-| 영구 사용/개발자 응원 | 검증된 현재 StoreKit entitlement | 별도 StoreKit entitlement |
-| 구매 복원 | 두 Non-Consumable 상품 | 같은 ID 사용, 실제 배포/구매 검증 필요 |
+| 영구 사용/개발자 응원 | 검증된 현재 StoreKit entitlement | 무료, 별도 구매 없음 |
+| 구매 복원 | 두 Non-Consumable 상품 | 구매/복원 없음 |
 
 기존 상품은 `ipadmirror.lifetime`, `ipadmirror.donation`입니다. 응원 상품도 영구 사용을 제공하도록 설계되어 있습니다. 가격은 StoreKit 현지화 표시 가격으로 보여 주며 로컬 구성의 $4.99/$99.99를 운영 가격 확정 근거로 삼지 않습니다. 취소·환불/만료/대체된 거래는 권한을 부여하지 않습니다.
 
@@ -20,6 +20,8 @@
 
 UMP 정보 갱신과 필요한 동의 양식 이후 `canRequestAds`가 허용할 때 SDK와 광고를 시작합니다. ATT와 UMP 허용 상태는 별도로 처리합니다. UMP가 요구하는 경우 개인정보 설정 버튼이 표시되고 설정 변경 중 기존 리워드를 폐기합니다. 영구 사용이 인증되면 진행 중 광고 로드 결과도 반영하지 않습니다.
 
+미리 받은 리워드 광고는 [Google의 1시간 만료 안내](https://developers.google.com/admob/ios/rewarded)에 따라 55분 이후 다시 불러옵니다. 무료 60분 사용 뒤에도 표시 전에 캐시 유효기간을 확인합니다. 보상 콜백 없이 닫거나 표시가 실패하면 사용 시간을 연장하지 않습니다.
+
 ## 로컬 검증
 
 1. Xcode Debug scheme의 기존 `Packaging/Products.storekit` 구성을 사용합니다. 이는 운영 구매 확인을 대신하지 않습니다.
@@ -28,4 +30,4 @@ UMP 정보 갱신과 필요한 동의 양식 이후 `canRequestAds`가 허용할
 4. 광고 성공/취소/실패, 보상 저장/재실행과 StoreKit 구매/복원/취소를 테스트 광고 및 승인된 샌드박스로 확인합니다.
 5. 개인정보 신고는 [SDK 데이터 공개 안내](https://developers.google.com/admob/ios/privacy/data-disclosure), 포함된 manifest 및 실제 설정을 함께 확인해 작성합니다.
 
-실기기 광고 보상/샌드박스 구매와 iPad↔Mac 권한 전달은 아직 검증되지 않았습니다. 출시 차단사항과 기존 등록 상태는 [LAUNCH.md](LAUNCH.md)에 기록합니다.
+실기기 광고 보상과 샌드박스 구매는 아직 검증되지 않았습니다. Mac 수신 앱은 무료이므로 iPad 권한을 Mac으로 전달할 필요가 없습니다. 출시 차단사항과 기존 등록 상태는 [LAUNCH.md](LAUNCH.md)에 기록합니다.

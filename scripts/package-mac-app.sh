@@ -9,11 +9,14 @@ esac
 
 cd "$(cd -- "$(dirname -- "$0")/.." && pwd)"
 BUILD_ARGS=(--configuration "$CONFIGURATION")
+if [[ "$CONFIGURATION" == "release" ]]; then
+  BUILD_ARGS+=(--arch arm64 --arch x86_64)
+fi
 if [[ -n "${IPADMIRROR_BUILD_ROOT:-}" ]]; then
   BUILD_ARGS+=(--scratch-path "$IPADMIRROR_BUILD_ROOT")
 fi
 PRODUCT="iPadMirrorMac"
-APP_NAME="아이패드미러.app"
+APP_NAME="iPad Mirror.app"
 
 swift build "${BUILD_ARGS[@]}"
 BIN_DIR="$(swift build "${BUILD_ARGS[@]}" --show-bin-path)"
@@ -33,6 +36,8 @@ fi
 cp Packaging/Info.plist "$BUNDLE_DIR/Contents/Info.plist"
 cp Packaging/AppIcon.icns "$BUNDLE_DIR/Contents/Resources/AppIcon.icns"
 cp Packaging/PrivacyInfo.xcprivacy "$BUNDLE_DIR/Contents/Resources/PrivacyInfo.xcprivacy"
+cp -R "$BIN_DIR/iPadMirrorMac_iPadMirrorShared.bundle" "$BUNDLE_DIR/Contents/Resources/"
+cp -R Packaging/en.lproj Packaging/ko.lproj "$BUNDLE_DIR/Contents/Resources/"
 cp "$EXECUTABLE_PATH" "$BUNDLE_DIR/Contents/MacOS/$PRODUCT"
 chmod +x "$BUNDLE_DIR/Contents/MacOS/$PRODUCT"
 

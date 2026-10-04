@@ -1,12 +1,20 @@
 import Foundation
 
 enum BroadcastSharedSettings {
+    enum Activity: String {
+        case idle
+        case broadcasting
+        case paused
+    }
+
     private static let extensionSuffix = ".BroadcastExtension"
     private static let stopRequestTokenKey = "stopRequestToken"
     private static let deviceNameKey = "deviceName"
     private static let pairingCodeKey = "pairingCode"
     private static let verifiedLifetimeKey = "verifiedLifetime"
     private static let entitlementVerifiedAtKey = "entitlementVerifiedAt"
+    private static let broadcastActivityKey = "broadcastActivity"
+    private static let broadcastHeartbeatKey = "broadcastHeartbeat"
     private static let pairingAlphabet = Array("23456789ABCDEFGHJKLMNPQRSTUVWXYZ")
 
     static var defaults: UserDefaults? {
@@ -74,5 +82,28 @@ enum BroadcastSharedSettings {
 
     static func currentStopRequestToken() -> String? {
         defaults?.string(forKey: stopRequestTokenKey)
+    }
+
+    static func writeActivity(
+        _ activity: Activity,
+        now: Date = Date(),
+        store: UserDefaults? = defaults
+    ) {
+        store?.set(activity.rawValue, forKey: broadcastActivityKey)
+        store?.set(now.timeIntervalSince1970, forKey: broadcastHeartbeatKey)
+    }
+
+    static func activity(
+        now: Date = Date(),
+        maximumAge: TimeInterval = 8,
+        store: UserDefaults? = defaults
+    ) -> Activity {
+        guard let store,
+              let raw = store.string(forKey: broadcastActivityKey),
+              let activity = Activity(rawValue: raw),
+              activity != .idle else { return .idle }
+        let age = now.timeIntervalSince1970 - store.double(forKey: broadcastHeartbeatKey)
+        guard age >= 0 && age <= maximumAge else { return .idle }
+        return activity
     }
 }

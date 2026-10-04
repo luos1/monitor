@@ -44,7 +44,7 @@ final class BroadcastPickerContainerView: UIView {
         iconView.isUserInteractionEnabled = false
         addSubview(iconView)
 
-        titleLabel.text = "전체 화면 방송 시작"
+        titleLabel.text = MirrorL10n.text("전체 화면 방송 시작")
         titleLabel.textColor = .white
         titleLabel.font = .systemFont(ofSize: 22, weight: .semibold)
         titleLabel.textAlignment = .center
@@ -59,7 +59,7 @@ final class BroadcastPickerContainerView: UIView {
 
         isAccessibilityElement = false
         accessibilityTraits = [.button]
-        accessibilityLabel = "iPad 현재 화면 방송 시작"
+        accessibilityLabel = MirrorL10n.text("iPad 현재 화면 방송 시작")
     }
 
     required init?(coder: NSCoder) {
@@ -104,7 +104,7 @@ final class BroadcastPickerContainerView: UIView {
             button.setTitle(nil, for: .normal)
             button.setImage(nil, for: .normal)
             button.isUserInteractionEnabled = true
-            button.accessibilityLabel = "전체 화면 방송 시작"
+            button.accessibilityLabel = MirrorL10n.text("전체 화면 방송 시작")
         }
     }
 

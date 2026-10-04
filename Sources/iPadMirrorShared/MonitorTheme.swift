@@ -1,7 +1,7 @@
 import SwiftUI
 
 public enum MonitorTheme {
-    public static let brandName = "아이패드미러"
+    public static let brandName = MirrorL10n.text("아이패드미러")
     public static let freeMinutes = 60
     public static let lifetimePrice = "$4.99"
     public static let donationPrice = "$99.99"

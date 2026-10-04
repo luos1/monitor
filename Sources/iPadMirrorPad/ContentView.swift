@@ -21,7 +21,7 @@ struct ContentView: View {
     var body: some View {
         Group {
             if usageAccess.isLocked {
-                paywall(title: "무료 \(MonitorTheme.freeMinutes)분이 끝났어요")
+                paywall(title: MirrorL10n.format("무료 {0}분이 끝났어요", String(describing: MonitorTheme.freeMinutes)))
             } else if didShowUsageGuide {
                 mainContent
             } else {
@@ -35,15 +35,15 @@ struct ContentView: View {
                 didShowUsageGuide = true
                 showingUsageGuide = false
             }
-            .frame(minWidth: 640, minHeight: 720)
+            .modifier(MirrorSheetPageSizing())
         }
         .sheet(isPresented: $showingUpgrade) {
-            paywall(title: "유료 기능")
-                .frame(minWidth: 640, minHeight: 720)
+            paywall(title: MirrorL10n.text("유료 기능"))
+                .modifier(MirrorSheetPageSizing())
         }
         .safeAreaInset(edge: .bottom) {
             if adPrivacy.privacyOptionsRequired {
-                Button("광고 개인정보 설정") {
+                Button(MirrorL10n.text("광고 개인정보 설정")) {
                     adPrivacy.presentPrivacyOptions()
                 }
                 .disabled(adPrivacy.isPreparing)
@@ -69,7 +69,11 @@ struct ContentView: View {
         .onChange(of: store.hasLifetimeEntitlement) { _, unlocked in
             usageAccess.setLifetimeEntitlement(unlocked)
             BroadcastSharedSettings.cacheVerifiedLifetimeEntitlement(unlocked)
-            if unlocked { ads.invalidate() }
+            if unlocked {
+                ads.invalidate()
+            } else if adPrivacy.canLoadAds {
+                ads.start()
+            }
         }
         .onChange(of: store.didRefreshEntitlements) { _, didRefresh in
             if didRefresh {
@@ -79,10 +83,14 @@ struct ContentView: View {
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active else { return }
             adPrivacy.prepareIfNeeded()
+            if adPrivacy.canLoadAds { ads.start() }
             usageAccess.reloadStoredUsage()
             Task {
                 await store.refreshEntitlements()
             }
+        }
+        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+            if broadcast.isBroadcasting { usageAccess.reloadStoredUsage() }
         }
     }
 
@@ -94,6 +102,8 @@ struct ContentView: View {
             adsSupported: ads.isSupported,
             adReady: ads.isReady,
             adPresenting: ads.isPresenting,
+            adLoading: ads.isLoading,
+            canLoadAds: adPrivacy.canLoadAds,
             adStatus: adPrivacy.canLoadAds ? ads.status : adPrivacy.status,
             onWatchAd: watchAd,
             onShowGuide: { showingUsageGuide = true }
@@ -122,9 +132,9 @@ struct ContentView: View {
                         MonitorStatusOrb(isLive: broadcast.isBroadcasting)
 
                         VStack(spacing: 8) {
-                            Text(broadcast.isBroadcasting ? "화면을 보내는 중" : "보낼 준비가 되었습니다")
+                            Text(broadcast.isBroadcasting ? MirrorL10n.text("화면을 보내는 중") : MirrorL10n.text("보낼 준비가 되었습니다"))
                                 .font(.title.weight(.semibold))
-                            Text("이 iPad는 화면을 보내는 역할입니다. Mac 앱이 함께 켜져 있어야 미러링이 보입니다.")
+                            Text(MirrorL10n.text("이 iPad는 화면을 보내는 역할입니다. Mac 앱이 함께 켜져 있어야 미러링이 보입니다."))
                                 .font(.body)
                                 .foregroundStyle(Color.monitorOnSurfaceVariant)
                                 .multilineTextAlignment(.center)
@@ -144,12 +154,12 @@ struct ContentView: View {
                             .font(.title2)
                             .foregroundStyle(Color.monitorPrimary)
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Mac 연결 코드")
+                            Text(MirrorL10n.text("Mac 연결 코드"))
                                 .font(.headline)
-                            Text(BroadcastSharedSettings.formattedPairingCode())
+                            Text(ScreenshotMode.isEnabled ? "••••-••••" : BroadcastSharedSettings.formattedPairingCode())
                                 .font(.system(.title2, design: .monospaced, weight: .bold))
                                 .textSelection(.enabled)
-                            Text("Mac 앱에 이 코드를 입력해야 화면을 받을 수 있습니다.")
+                            Text(MirrorL10n.text("Mac 앱에 이 코드를 입력해야 화면을 받을 수 있습니다."))
                                 .font(.caption)
                                 .foregroundStyle(Color.monitorOnSurfaceVariant)
                         }
@@ -162,12 +172,12 @@ struct ContentView: View {
                 VStack(spacing: 12) {
                     BroadcastPickerButton(preferredExtension: broadcastExtensionIdentifier)
                         .frame(maxWidth: 420, minHeight: MonitorTheme.primaryButtonHeight, maxHeight: 64)
-                        .accessibilityLabel("전체 화면 공유 시작")
+                        .accessibilityLabel(MirrorL10n.text("전체 화면 공유 시작"))
 
                     Button {
                         broadcast.stopBroadcast()
                     } label: {
-                        Label("화면 공유 종료", systemImage: "stop.circle.fill")
+                        Label(MirrorL10n.text("화면 공유 종료"), systemImage: "stop.circle.fill")
                             .font(.title3.weight(.semibold))
                             .frame(maxWidth: 420)
                             .frame(height: MonitorTheme.secondaryButtonHeight)
@@ -179,7 +189,7 @@ struct ContentView: View {
                         Button {
                             showingUpgrade = true
                         } label: {
-                            Label("광고 연장 / 영구 사용", systemImage: "sparkles")
+                            Label(MirrorL10n.text("광고 연장 / 영구 사용"), systemImage: "sparkles")
                                 .font(.title3.weight(.semibold))
                                 .frame(maxWidth: 420)
                                 .frame(height: MonitorTheme.secondaryButtonHeight)
@@ -190,7 +200,7 @@ struct ContentView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("쉽게 쓰는 순서")
+                    Text(MirrorL10n.text("쉽게 쓰는 순서"))
                         .font(.headline)
                     ForEach(MonitorRole.pad.steps, id: \.0) { step in
                         MonitorGuideStep(number: step.0, title: step.1, detail: step.2)
@@ -203,7 +213,7 @@ struct ContentView: View {
 
                 HStack {
                     Spacer()
-                    Button("사용법 다시 보기") {
+                    Button(MirrorL10n.text("사용법 다시 보기")) {
                         showingUsageGuide = true
                     }
                     .font(.subheadline.weight(.semibold))
@@ -217,11 +227,13 @@ struct ContentView: View {
     private func watchAd() {
         Task {
             do {
+                // Also refresh a prepared ad that expired during the free hour.
+                await ads.load()
                 try await ads.showRewarded()
                 MonetizationApplier.apply(.rewardedAdFinished, to: usageAccess)
                 showingUpgrade = false
             } catch {
-                ads.status = error.localizedDescription
+                ads.status = MirrorL10n.errorMessage(error)
             }
         }
     }
@@ -230,5 +242,17 @@ struct ContentView: View {
         guard store.didRefreshEntitlements else { return }
         usageAccess.setLifetimeEntitlement(store.hasLifetimeEntitlement)
         BroadcastSharedSettings.cacheVerifiedLifetimeEntitlement(store.hasLifetimeEntitlement)
+    }
+}
+
+/// A readable page-sized sheet on iPad, with the existing iOS 17 detent fallback.
+private struct MirrorSheetPageSizing: ViewModifier {
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, *) {
+            content.presentationSizing(.page).presentationDetents([.large])
+        } else {
+            content.presentationDetents([.large])
+        }
     }
 }

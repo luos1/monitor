@@ -1,3 +1,4 @@
+import iPadMirrorShared
 import Darwin
 import Foundation
 
@@ -8,7 +9,7 @@ enum UsbMuxClient {
         let serialNumber: String
     }
 
-    enum UsbMuxError: Error, LocalizedError {
+    enum UsbMuxError: Error, MirrorLocalizedError {
         case socketOpenFailed
         case connectFailed(String)
         case invalidResponse
@@ -20,19 +21,19 @@ enum UsbMuxClient {
         var errorDescription: String? {
             switch self {
             case .socketOpenFailed:
-                return "usbmuxd 소켓을 열 수 없습니다"
+                return MirrorL10n.text("usbmuxd 소켓을 열 수 없습니다")
             case .connectFailed(let path):
-                return "usbmuxd 연결 실패: \(path)"
+                return MirrorL10n.format("usbmuxd 연결 실패: {0}", String(describing: path))
             case .invalidResponse:
-                return "usbmuxd 응답이 올바르지 않습니다"
+                return MirrorL10n.text("usbmuxd 응답이 올바르지 않습니다")
             case .noSuchDevice:
-                return "USB iPad를 찾을 수 없습니다"
+                return MirrorL10n.text("USB iPad를 찾을 수 없습니다")
             case .devicePortUnavailable(let port):
-                return "USB iPad의 포트 \(port)에 연결할 수 없습니다. iPad에서 화면 방송을 먼저 시작하세요."
+                return MirrorL10n.format("USB iPad의 포트 {0}에 연결할 수 없습니다. iPad에서 화면 방송을 먼저 시작하세요.", String(describing: port))
             case .shortRead:
-                return "USB 연결에서 데이터를 끝까지 읽지 못했습니다"
+                return MirrorL10n.text("USB 연결에서 데이터를 끝까지 읽지 못했습니다")
             case .writeFailed:
-                return "USB 연결에 데이터를 쓰지 못했습니다"
+                return MirrorL10n.text("USB 연결에 데이터를 쓰지 못했습니다")
             }
         }
     }
@@ -93,12 +94,10 @@ enum UsbMuxClient {
             )
 
             guard let number = response["Number"] as? Int else {
-                close(socket)
                 throw UsbMuxError.invalidResponse
             }
 
             guard number == 0 else {
-                close(socket)
                 throw UsbMuxError.devicePortUnavailable(Int(port))
             }
 
@@ -130,6 +129,13 @@ enum UsbMuxClient {
         }
 
         return data
+    }
+
+    static func setReadTimeout(socket: Int32, seconds: Int) throws {
+        var timeout = timeval(tv_sec: seconds, tv_usec: 0)
+        guard setsockopt(socket, SOL_SOCKET, SO_RCVTIMEO, &timeout, socklen_t(MemoryLayout<timeval>.size)) == 0 else {
+            throw UsbMuxError.invalidResponse
+        }
     }
 
     static func writeAll(_ data: Data, to socket: Int32) throws {
@@ -192,6 +198,17 @@ enum UsbMuxClient {
         guard result == 0 else {
             close(socketFD)
             throw UsbMuxError.connectFailed(socketPath)
+        }
+
+        do {
+            try setReadTimeout(socket: socketFD, seconds: 5)
+            var sendTimeout = timeval(tv_sec: 5, tv_usec: 0)
+            guard setsockopt(socketFD, SOL_SOCKET, SO_SNDTIMEO, &sendTimeout, socklen_t(MemoryLayout<timeval>.size)) == 0 else {
+                throw UsbMuxError.invalidResponse
+            }
+        } catch {
+            close(socketFD)
+            throw error
         }
 
         return socketFD

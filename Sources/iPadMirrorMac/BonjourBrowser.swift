@@ -1,3 +1,4 @@
+import iPadMirrorShared
 import Combine
 import Foundation
 
@@ -17,9 +18,9 @@ final class BonjourBrowser: NSObject, ObservableObject {
         var endpointDescription: String {
             switch transport {
             case .network:
-                return "Wi‑Fi · 암호화 연결"
+                return MirrorL10n.text("Wi‑Fi · 암호화 연결")
             case .usb:
-                return "USB 직접 연결"
+                return MirrorL10n.text("USB 직접 연결")
             }
         }
 
@@ -48,7 +49,7 @@ final class BonjourBrowser: NSObject, ObservableObject {
     }
 
     @Published private(set) var devices: [Device] = []
-    @Published private(set) var status = "iPad 화면 방송 검색 대기 중"
+    @Published private(set) var status = MirrorL10n.text("iPad 화면 방송 검색 대기 중")
 
     private var browser: NetServiceBrowser?
     private var foundServices: [NetService] = []
@@ -67,7 +68,7 @@ final class BonjourBrowser: NSObject, ObservableObject {
         browser.searchForServices(ofType: serviceType, inDomain: "local.")
 
         self.browser = browser
-        status = "USB와 네트워크에서 iPad 화면 방송 검색 중…"
+        status = MirrorL10n.text("USB와 네트워크에서 iPad 화면 방송 검색 중…")
         refreshUSBDevices()
     }
 
@@ -85,7 +86,7 @@ final class BonjourBrowser: NSObject, ObservableObject {
             devices.removeAll()
         }
 
-        status = "iPad 화면 방송 검색 중지"
+        status = MirrorL10n.text("iPad 화면 방송 검색 중지")
     }
 
     private func refreshUSBDevices() {
@@ -100,7 +101,7 @@ final class BonjourBrowser: NSObject, ObservableObject {
                 }
                 self.devices.append(contentsOf: mirrorDevices)
                 self.sortDevices()
-                self.status = self.devices.isEmpty ? "USB와 네트워크에서 iPad 화면 방송 검색 중…" : "\(self.devices.count)개 화면 방송 발견"
+                self.status = self.devices.isEmpty ? MirrorL10n.text("USB와 네트워크에서 iPad 화면 방송 검색 중…") : MirrorL10n.format("{0}개 화면 방송 발견", String(describing: self.devices.count))
             }
         }
     }
@@ -136,7 +137,7 @@ extension BonjourBrowser: NetServiceBrowserDelegate {
         service.resolve(withTimeout: 5)
 
         DispatchQueue.main.async {
-            self.status = "iPad 화면 방송 확인 중: \(service.name)"
+            self.status = MirrorL10n.format("iPad 화면 방송 확인 중: {0}", String(describing: service.name))
         }
     }
 
@@ -148,13 +149,13 @@ extension BonjourBrowser: NetServiceBrowserDelegate {
                 }
                 return false
             }
-            self.status = self.devices.isEmpty ? "USB와 네트워크에서 iPad 화면 방송 검색 중…" : "\(self.devices.count)개 화면 방송 발견"
+            self.status = self.devices.isEmpty ? MirrorL10n.text("USB와 네트워크에서 iPad 화면 방송 검색 중…") : MirrorL10n.format("{0}개 화면 방송 발견", String(describing: self.devices.count))
         }
     }
 
     func netServiceBrowser(_ browser: NetServiceBrowser, didNotSearch errorDict: [String: NSNumber]) {
         DispatchQueue.main.async {
-            self.status = "Bonjour 검색 실패: \(errorDict)"
+            self.status = MirrorL10n.format("Bonjour 검색 실패: {0}", String(describing: errorDict))
         }
     }
 }
@@ -166,13 +167,13 @@ extension BonjourBrowser: NetServiceDelegate {
 
         DispatchQueue.main.async {
             self.upsert(device)
-            self.status = "\(self.devices.count)개 화면 방송 발견"
+            self.status = MirrorL10n.format("{0}개 화면 방송 발견", String(describing: self.devices.count))
         }
     }
 
     func netService(_ sender: NetService, didNotResolve errorDict: [String: NSNumber]) {
         DispatchQueue.main.async {
-            self.status = "iPad 주소 확인 실패: \(sender.name)"
+            self.status = MirrorL10n.format("iPad 주소 확인 실패: {0}", String(describing: sender.name))
         }
     }
 }

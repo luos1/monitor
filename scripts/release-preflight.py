@@ -26,7 +26,7 @@ for name, info in (("iPad app", pad), ("broadcast extension", extension)):
 check("AdMob app ID", pad.get("GADApplicationIdentifier") == "ca-app-pub-2932716467029728~6289164999")
 
 project = (ROOT / "iPadMirrorPad.xcodeproj/project.pbxproj").read_text()
-check("app and extension default to build 2", re.findall(r"CURRENT_PROJECT_VERSION = (\d+);", project) == ["2"] * 4)
+check("app and extension default to build 3", re.findall(r"CURRENT_PROJECT_VERSION = (\d+);", project) == ["3"] * 4)
 check("iOS 17 deployment target", set(re.findall(r"IPHONEOS_DEPLOYMENT_TARGET = ([\d.]+);", project)) == {"17.0"})
 check("skip-ads support compiled", "ScreenshotMode.swift in Sources" in project)
 

@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		13CA3A1CC93A61019C1CC951 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5322473E6BCE6F24FE8F80E4 /* Localizable.strings */; };
+		174FE7564E9959097EF57DC1 /* MirrorLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 888017171BF07ABA846DDC72 /* MirrorLocalization.swift */; };
+		1B554B8961E3DA8B96893967 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B75E0FC8DC9C83502800AEB0 /* Foundation.framework */; };
+		317E24D1C01B2E5F009E99DA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = ECF9984ADE9F72973DD7C74F /* InfoPlist.strings */; };
+		44DCFA9E3D8B541F1CB801B6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5322473E6BCE6F24FE8F80E4 /* Localizable.strings */; };
+		6DBD3684E1C4A159636E5207 /* StoreScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CCCC49A4ABFB86365A35F47 /* StoreScreenshotTests.swift */; };
+		7F7CAF6B9ED4C03D20FE0F63 /* StoreKitIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC489588E69B72A7DD40415 /* StoreKitIntegrationTests.swift */; };
+		9476EB9D7647AA90BF743AC9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B75E0FC8DC9C83502800AEB0 /* Foundation.framework */; };
 		A10000000000000000000001 /* iPadMirrorPadApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* iPadMirrorPadApp.swift */; };
 		A10000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000002 /* ContentView.swift */; };
 		A10000000000000000000005 /* BroadcastPickerButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000007 /* BroadcastPickerButton.swift */; };
@@ -17,11 +25,11 @@
 		A10000000000000000000010 /* BroadcastSharedSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* BroadcastSharedSettings.swift */; };
 		A10000000000000000000011 /* BroadcastSharedSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* BroadcastSharedSettings.swift */; };
 		A10000000000000000000012 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* Assets.xcassets */; };
-		A10000000000000000000017 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000021 /* PrivacyInfo.xcprivacy */; };
 		A10000000000000000000013 /* UsageAccessManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* UsageAccessManager.swift */; };
 		A10000000000000000000014 /* MonitorTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000018 /* MonitorTheme.swift */; };
 		A10000000000000000000015 /* MonitorChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000019 /* MonitorChrome.swift */; };
 		A10000000000000000000016 /* StoreLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000020 /* StoreLinks.swift */; };
+		A10000000000000000000017 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000021 /* PrivacyInfo.xcprivacy */; };
 		A10000000000000000000018 /* MonetizationConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000022 /* MonetizationConfig.swift */; };
 		A10000000000000000000019 /* StorePurchaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000023 /* StorePurchaseManager.swift */; };
 		A10000000000000000000020 /* AdRewardController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000024 /* AdRewardController.swift */; };
@@ -29,9 +37,59 @@
 		A10000000000000000000022 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = B20000000000000000000001 /* GoogleMobileAds */; };
 		A10000000000000000000024 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000027 /* PrivacyInfo.xcprivacy */; };
 		A10000000000000000000025 /* ScreenshotMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000028 /* ScreenshotMode.swift */; };
+		C40988A69C65B3F4812071C3 /* Products.storekit in Resources */ = {isa = PBXBuildFile; fileRef = C03AD378F837914A0B982DCD /* Products.storekit */; };
+		CAE92C46190FD42DB6C74BFE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 094C34F76C662C69370D07EF /* InfoPlist.strings */; };
+		D93B90892EBAF5FD456EE12F /* MirrorLocalization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 888017171BF07ABA846DDC72 /* MirrorLocalization.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		1A27E2A7F862CEFDD1731187 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A70000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A50000000000000000000001;
+			remoteInfo = iPadMirrorPad;
+		};
+		1A9B7D77ED21E0976D71A720 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A70000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A50000000000000000000001;
+			remoteInfo = iPadMirrorPad;
+		};
+		A52000000000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A70000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A50000000000000000000002;
+			remoteInfo = iPadMirrorBroadcastExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A60000000000000000000003 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				A10000000000000000000008 /* iPadMirrorBroadcastExtension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		08208181848E4979E4EC1D17 /* ko */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		11DF7BAADBD6C8917DA12DCA /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1CCCC49A4ABFB86365A35F47 /* StoreScreenshotTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoreScreenshotTests.swift; sourceTree = "<group>"; };
+		3E71C16DB480BF88E691E3E4 /* ko */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		60EEE655563C2EC0F12AD49C /* ko */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/Localizable.strings; sourceTree = "<group>"; };
+		888017171BF07ABA846DDC72 /* MirrorLocalization.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MirrorLocalization.swift; sourceTree = "<group>"; };
+		8C1BF5232AFB7BBDC5717D86 /* iPadMirrorPadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iPadMirrorPadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		8CC489588E69B72A7DD40415 /* StoreKitIntegrationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StoreKitIntegrationTests.swift; sourceTree = "<group>"; };
+		A1B99CA9E92EFB383CB256BB /* iPadMirrorPadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iPadMirrorPadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20000000000000000000001 /* iPadMirrorPadApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iPadMirrorPadApp.swift; sourceTree = "<group>"; };
 		A20000000000000000000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A20000000000000000000005 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -58,9 +116,29 @@
 		A20000000000000000000026 /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; name = Products.storekit; path = Packaging/Products.storekit; sourceTree = "<group>"; };
 		A20000000000000000000027 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A20000000000000000000028 /* ScreenshotMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotMode.swift; sourceTree = "<group>"; };
+		A519EE982D44DC6C1632AE7C /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		B75E0FC8DC9C83502800AEB0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		C03AD378F837914A0B982DCD /* Products.storekit */ = {isa = PBXFileReference; includeInIndex = 1; path = Products.storekit; sourceTree = "<group>"; };
+		F93E66F4F12A9FBE9660E17A /* en */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		24434627F040A03B3FD7054C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1B554B8961E3DA8B96893967 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		57D67F9C323B894EAE5EA586 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9476EB9D7647AA90BF743AC9 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A30000000000000000000001 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -79,18 +157,69 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		04ED02C7F384D03062369D9C /* iPad native localization */ = {
+			isa = PBXGroup;
+			children = (
+				094C34F76C662C69370D07EF /* InfoPlist.strings */,
+			);
+			name = "iPad native localization";
+			path = Sources/iPadMirrorPad/Resources;
+			sourceTree = "<group>";
+		};
+		1DB7771BBE40F1CDC3935317 /* QA configuration */ = {
+			isa = PBXGroup;
+			children = (
+				C03AD378F837914A0B982DCD /* Products.storekit */,
+			);
+			name = "QA configuration";
+			path = Packaging;
+			sourceTree = "<group>";
+		};
+		5E8D3A56015BB1F214FD3A63 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				B75E0FC8DC9C83502800AEB0 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		634410018C037FE279F20885 /* Broadcast native localization */ = {
+			isa = PBXGroup;
+			children = (
+				ECF9984ADE9F72973DD7C74F /* InfoPlist.strings */,
+			);
+			name = "Broadcast native localization";
+			path = Sources/iPadMirrorBroadcastExtension/Resources;
+			sourceTree = "<group>";
+		};
+		9875BCE7AF12AF68BCC04E91 /* iPadMirrorPadUITests */ = {
+			isa = PBXGroup;
+			children = (
+				1CCCC49A4ABFB86365A35F47 /* StoreScreenshotTests.swift */,
+			);
+			name = iPadMirrorPadUITests;
+			path = Tests/iPadMirrorPadUITests;
+			sourceTree = "<group>";
+		};
 		A40000000000000000000001 = {
 			isa = PBXGroup;
 			children = (
-				A40000000000000000000002 /* Sources/iPadMirrorPad */,
-				A40000000000000000000004 /* Sources/iPadMirrorBroadcastExtension */,
-				A40000000000000000000005 /* Sources/iPadMirrorShared */,
+				A40000000000000000000002 /* iPadMirrorPad */,
+				A40000000000000000000004 /* iPadMirrorBroadcastExtension */,
+				A40000000000000000000005 /* iPadMirrorShared */,
 				A20000000000000000000026 /* Products.storekit */,
 				A40000000000000000000003 /* Products */,
+				B403DB4FA5A0B86F49C76CC5 /* Frameworks */,
+				AE230735272BE821C1037E85 /* iPadMirrorPadTests */,
+				9875BCE7AF12AF68BCC04E91 /* iPadMirrorPadUITests */,
+				1DB7771BBE40F1CDC3935317 /* QA configuration */,
+				E247057EEE99812C118CF5B0 /* Shared localization */,
+				04ED02C7F384D03062369D9C /* iPad native localization */,
+				634410018C037FE279F20885 /* Broadcast native localization */,
 			);
 			sourceTree = "<group>";
 		};
-		A40000000000000000000002 /* Sources/iPadMirrorPad */ = {
+		A40000000000000000000002 /* iPadMirrorPad */ = {
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000001 /* iPadMirrorPadApp.swift */,
@@ -107,7 +236,18 @@
 			path = Sources/iPadMirrorPad;
 			sourceTree = "<group>";
 		};
-		A40000000000000000000004 /* Sources/iPadMirrorBroadcastExtension */ = {
+		A40000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A20000000000000000000006 /* iPadMirrorPad.app */,
+				A20000000000000000000010 /* iPadMirrorBroadcastExtension.appex */,
+				A1B99CA9E92EFB383CB256BB /* iPadMirrorPadTests.xctest */,
+				8C1BF5232AFB7BBDC5717D86 /* iPadMirrorPadUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A40000000000000000000004 /* iPadMirrorBroadcastExtension */ = {
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000008 /* SampleHandler.swift */,
@@ -119,7 +259,7 @@
 			path = Sources/iPadMirrorBroadcastExtension;
 			sourceTree = "<group>";
 		};
-		A40000000000000000000005 /* Sources/iPadMirrorShared */ = {
+		A40000000000000000000005 /* iPadMirrorShared */ = {
 			isa = PBXGroup;
 			children = (
 				A20000000000000000000013 /* BroadcastSharedSettings.swift */,
@@ -130,32 +270,58 @@
 				A20000000000000000000020 /* StoreLinks.swift */,
 				A20000000000000000000022 /* MonetizationConfig.swift */,
 				A20000000000000000000023 /* StorePurchaseManager.swift */,
+				888017171BF07ABA846DDC72 /* MirrorLocalization.swift */,
 			);
 			path = Sources/iPadMirrorShared;
 			sourceTree = "<group>";
 		};
-		A40000000000000000000003 /* Products */ = {
+		AE230735272BE821C1037E85 /* iPadMirrorPadTests */ = {
 			isa = PBXGroup;
 			children = (
-				A20000000000000000000006 /* iPadMirrorPad.app */,
-				A20000000000000000000010 /* iPadMirrorBroadcastExtension.appex */,
+				8CC489588E69B72A7DD40415 /* StoreKitIntegrationTests.swift */,
 			);
-			name = Products;
+			name = iPadMirrorPadTests;
+			path = Tests/iPadMirrorPadTests;
+			sourceTree = "<group>";
+		};
+		B403DB4FA5A0B86F49C76CC5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5E8D3A56015BB1F214FD3A63 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E247057EEE99812C118CF5B0 /* Shared localization */ = {
+			isa = PBXGroup;
+			children = (
+				5322473E6BCE6F24FE8F80E4 /* Localizable.strings */,
+			);
+			name = "Shared localization";
+			path = Sources/iPadMirrorShared/Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
-/* Begin PBXContainerItemProxy section */
-		A52000000000000000000001 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A70000000000000000000001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = A50000000000000000000002;
-			remoteInfo = iPadMirrorBroadcastExtension;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXNativeTarget section */
+		62C4C306C7DF5B37981E08A2 /* iPadMirrorPadTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 449CE1054364533C3C327330 /* Build configuration list for PBXNativeTarget "iPadMirrorPadTests" */;
+			buildPhases = (
+				C6A6F0AB346B680081539CB0 /* Sources */,
+				24434627F040A03B3FD7054C /* Frameworks */,
+				C208EF92C66EF94006F0F754 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2BC22BAA07FB751C0E2EBDC1 /* PBXTargetDependency */,
+			);
+			name = iPadMirrorPadTests;
+			productName = iPadMirrorPadTests;
+			productReference = A1B99CA9E92EFB383CB256BB /* iPadMirrorPadTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		A50000000000000000000001 /* iPadMirrorPad */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A80000000000000000000002 /* Build configuration list for PBXNativeTarget "iPadMirrorPad" */;
@@ -195,6 +361,24 @@
 			productReference = A20000000000000000000010 /* iPadMirrorBroadcastExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		FE5337C892946307CA264CE5 /* iPadMirrorPadUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F7DDCAD67EB0BF465432BFD3 /* Build configuration list for PBXNativeTarget "iPadMirrorPadUITests" */;
+			buildPhases = (
+				D39C17A76CC48B61051B8E9A /* Sources */,
+				57D67F9C323B894EAE5EA586 /* Frameworks */,
+				AE3F82F61CD1E8841E595FC2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				86BDE79D58CCF404F6519FD1 /* PBXTargetDependency */,
+			);
+			name = iPadMirrorPadUITests;
+			productName = iPadMirrorPadUITests;
+			productReference = 8C1BF5232AFB7BBDC5717D86 /* iPadMirrorPadUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -208,7 +392,7 @@
 					A50000000000000000000001 = {
 						CreatedOnToolsVersion = 16.0;
 					};
-				A50000000000000000000002 = {
+					A50000000000000000000002 = {
 						CreatedOnToolsVersion = 16.0;
 					};
 				};
@@ -232,23 +416,11 @@
 			targets = (
 				A50000000000000000000001 /* iPadMirrorPad */,
 				A50000000000000000000002 /* iPadMirrorBroadcastExtension */,
+				62C4C306C7DF5B37981E08A2 /* iPadMirrorPadTests */,
+				FE5337C892946307CA264CE5 /* iPadMirrorPadUITests */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		A60000000000000000000003 /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				A10000000000000000000008 /* iPadMirrorBroadcastExtension.appex in Embed App Extensions */,
-			);
-			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXResourcesBuildPhase section */
 		A60000000000000000000002 /* Resources */ = {
@@ -257,6 +429,8 @@
 			files = (
 				A10000000000000000000012 /* Assets.xcassets in Resources */,
 				A10000000000000000000017 /* PrivacyInfo.xcprivacy in Resources */,
+				44DCFA9E3D8B541F1CB801B6 /* Localizable.strings in Resources */,
+				CAE92C46190FD42DB6C74BFE /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -265,6 +439,23 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10000000000000000000024 /* PrivacyInfo.xcprivacy in Resources */,
+				13CA3A1CC93A61019C1CC951 /* Localizable.strings in Resources */,
+				317E24D1C01B2E5F009E99DA /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AE3F82F61CD1E8841E595FC2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C208EF92C66EF94006F0F754 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C40988A69C65B3F4812071C3 /* Products.storekit in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,6 +480,7 @@
 				A10000000000000000000020 /* AdRewardController.swift in Sources */,
 				A10000000000000000000021 /* BannerAdView.swift in Sources */,
 				A10000000000000000000025 /* ScreenshotMode.swift in Sources */,
+				174FE7564E9959097EF57DC1 /* MirrorLocalization.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,12 +491,41 @@
 				A10000000000000000000006 /* SampleHandler.swift in Sources */,
 				A10000000000000000000007 /* BroadcastFrameServer.swift in Sources */,
 				A10000000000000000000011 /* BroadcastSharedSettings.swift in Sources */,
+				D93B90892EBAF5FD456EE12F /* MirrorLocalization.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C6A6F0AB346B680081539CB0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7F7CAF6B9ED4C03D20FE0F63 /* StoreKitIntegrationTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D39C17A76CC48B61051B8E9A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6DBD3684E1C4A159636E5207 /* StoreScreenshotTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		2BC22BAA07FB751C0E2EBDC1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = iPadMirrorPad;
+			target = A50000000000000000000001 /* iPadMirrorPad */;
+			targetProxy = 1A9B7D77ED21E0976D71A720 /* PBXContainerItemProxy */;
+		};
+		86BDE79D58CCF404F6519FD1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = iPadMirrorPad;
+			target = A50000000000000000000001 /* iPadMirrorPad */;
+			targetProxy = 1A27E2A7F862CEFDD1731187 /* PBXContainerItemProxy */;
+		};
 		A51000000000000000000001 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = A50000000000000000000002 /* iPadMirrorBroadcastExtension */;
@@ -312,7 +533,60 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin PBXVariantGroup section */
+		094C34F76C662C69370D07EF /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				08208181848E4979E4EC1D17 /* ko */,
+				11DF7BAADBD6C8917DA12DCA /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		5322473E6BCE6F24FE8F80E4 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				60EEE655563C2EC0F12AD49C /* ko */,
+				F93E66F4F12A9FBE9660E17A /* en */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		ECF9984ADE9F72973DD7C74F /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				3E71C16DB480BF88E691E3E4 /* ko */,
+				A519EE982D44DC6C1632AE7C /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
+		7D2183D46B1169659F59E91F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 2YRYWKZ3M3;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/Developer/Library/Frameworks",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raccoonmerchant.ipadmirror.iPadMirrorPadUITests;
+				PRODUCT_MODULE_NAME = iPadMirrorPadUITests;
+				PRODUCT_NAME = iPadMirrorPadUITests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = iPadMirrorPad;
+			};
+			name = Debug;
+		};
 		A90000000000000000000001 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -438,19 +712,19 @@
 		A90000000000000000000003 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/iPadMirrorPad/iPadMirrorPad.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				OTHER_LDFLAGS = "-ObjC";
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 2YRYWKZ3M3;
 				GENERATE_INFOPLIST_FILE = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = Sources/iPadMirrorPad/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_DEVICE_FAMILIES = "1,2";
@@ -463,20 +737,20 @@
 		A90000000000000000000004 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Sources/iPadMirrorPad/iPadMirrorPad.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				OTHER_LDFLAGS = "-ObjC";
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 2YRYWKZ3M3;
 				GENERATE_INFOPLIST_FILE = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = Sources/iPadMirrorPad/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "iPadMirror App Store";
@@ -493,7 +767,7 @@
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_ENTITLEMENTS = Sources/iPadMirrorBroadcastExtension/iPadMirrorBroadcastExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 2YRYWKZ3M3;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/iPadMirrorBroadcastExtension/Info.plist;
@@ -520,7 +794,7 @@
 				CODE_SIGN_ENTITLEMENTS = Sources/iPadMirrorBroadcastExtension/iPadMirrorBroadcastExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Distribution";
 				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 2YRYWKZ3M3;
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Sources/iPadMirrorBroadcastExtension/Info.plist;
@@ -541,9 +815,91 @@
 			};
 			name = Release;
 		};
+		BFED8130E2D9EA0404E88C2D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 2YRYWKZ3M3;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/Developer/Library/Frameworks",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raccoonmerchant.ipadmirror.iPadMirrorPadTests;
+				PRODUCT_MODULE_NAME = iPadMirrorPadTests;
+				PRODUCT_NAME = iPadMirrorPadTests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/iPadMirrorPad.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/iPadMirrorPad";
+			};
+			name = Debug;
+		};
+		DDA367AAFD7BE66A32BEEE0D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 2YRYWKZ3M3;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/Developer/Library/Frameworks",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raccoonmerchant.ipadmirror.iPadMirrorPadTests;
+				PRODUCT_MODULE_NAME = iPadMirrorPadTests;
+				PRODUCT_NAME = iPadMirrorPadTests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/iPadMirrorPad.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/iPadMirrorPad";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		EC71B2FBC4569B9CA8CDDFEA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 2YRYWKZ3M3;
+				ENABLE_TESTING_SEARCH_PATHS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SDKROOT)/Developer/Library/Frameworks",
+				);
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.raccoonmerchant.ipadmirror.iPadMirrorPadUITests;
+				PRODUCT_MODULE_NAME = iPadMirrorPadUITests;
+				PRODUCT_NAME = iPadMirrorPadUITests;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = iPadMirrorPad;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		449CE1054364533C3C327330 /* Build configuration list for PBXNativeTarget "iPadMirrorPadTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DDA367AAFD7BE66A32BEEE0D /* Release */,
+				BFED8130E2D9EA0404E88C2D /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		A80000000000000000000001 /* Build configuration list for PBXProject "iPadMirrorPad" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -567,6 +923,15 @@
 			buildConfigurations = (
 				A90000000000000000000005 /* Debug */,
 				A90000000000000000000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F7DDCAD67EB0BF465432BFD3 /* Build configuration list for PBXNativeTarget "iPadMirrorPadUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EC71B2FBC4569B9CA8CDDFEA /* Release */,
+				7D2183D46B1169659F59E91F /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

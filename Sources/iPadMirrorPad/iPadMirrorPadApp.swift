@@ -8,6 +8,15 @@ import UserMessagingPlatform
 
 @main
 struct iPadMirrorPadApp: App {
+    init() {
+        #if DEBUG
+        if ScreenshotMode.isEnabled,
+           ProcessInfo.processInfo.arguments.contains("-ResetScreenshotOnboarding") {
+            UserDefaults.standard.removeObject(forKey: "monitor.pad.didShowUsageGuide")
+        }
+        #endif
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()
@@ -23,7 +32,7 @@ final class AdPrivacyController: ObservableObject {
     @Published private(set) var canLoadAds = false
     @Published private(set) var privacyOptionsRequired = false
     @Published private(set) var isPreparing = false
-    @Published private(set) var status = "광고 개인정보 설정 확인 중"
+    @Published private(set) var status = MirrorL10n.text("광고 개인정보 설정 확인 중")
     private var didPrepare = false
     private var didStartSDK = false
     private init() {}
@@ -37,15 +46,24 @@ final class AdPrivacyController: ObservableObject {
             defer { isPreparing = false }
             #if canImport(GoogleMobileAds) && canImport(UserMessagingPlatform)
             do {
-                try await ConsentInformation.shared.requestConsentInfoUpdate(with: RequestParameters())
+                let parameters = RequestParameters()
+                #if DEBUG
+                if ProcessInfo.processInfo.arguments.contains("-ConsentTestEEA") {
+                    let debugSettings = DebugSettings()
+                    debugSettings.geography = .EEA
+                    parameters.debugSettings = debugSettings
+                }
+                #endif
+                try await ConsentInformation.shared.requestConsentInfoUpdate(with: parameters)
                 try await ConsentForm.loadAndPresentIfRequired(from: nil)
             } catch {
-                status = "광고 개인정보 설정을 확인하지 못했습니다."
+                didPrepare = false
+                status = MirrorL10n.text("광고 개인정보 설정을 확인하지 못했습니다.")
             }
             privacyOptionsRequired = ConsentInformation.shared.privacyOptionsRequirementStatus == .required
             await updateAdPermission()
             #else
-            status = "광고를 현재 사용할 수 없습니다."
+            status = MirrorL10n.text("광고를 현재 사용할 수 없습니다.")
             #endif
         }
     }
@@ -60,7 +78,7 @@ final class AdPrivacyController: ObservableObject {
             do {
                 try await ConsentForm.presentPrivacyOptionsForm(from: nil)
             } catch {
-                status = "개인정보 설정을 열지 못했습니다. 잠시 후 다시 시도해 주세요."
+                status = MirrorL10n.text("개인정보 설정을 열지 못했습니다. 잠시 후 다시 시도해 주세요.")
             }
             privacyOptionsRequired = ConsentInformation.shared.privacyOptionsRequirementStatus == .required
             await updateAdPermission()
@@ -72,7 +90,7 @@ final class AdPrivacyController: ObservableObject {
     private func updateAdPermission() async {
         guard ConsentInformation.shared.canRequestAds, !ScreenshotMode.skipAds else {
             canLoadAds = false
-            status = "광고를 현재 사용할 수 없습니다."
+            status = MirrorL10n.text("광고를 현재 사용할 수 없습니다.")
             return
         }
         if UIApplication.shared.applicationState == .active,
@@ -86,7 +104,7 @@ final class AdPrivacyController: ObservableObject {
             didStartSDK = true
         }
         canLoadAds = ConsentInformation.shared.canRequestAds && !ScreenshotMode.skipAds
-        status = canLoadAds ? "광고 개인정보 설정 확인됨" : "광고를 현재 사용할 수 없습니다."
+        status = canLoadAds ? MirrorL10n.text("광고 개인정보 설정 확인됨") : MirrorL10n.text("광고를 현재 사용할 수 없습니다.")
     }
     #endif
 }

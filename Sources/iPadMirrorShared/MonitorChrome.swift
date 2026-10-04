@@ -7,27 +7,27 @@ public enum MonitorRole {
     public var companionTitle: String {
         switch self {
         case .pad:
-            return "Mac 앱이 켜져 있어야 화면이 보입니다"
+            return MirrorL10n.text("Mac 앱이 켜져 있어야 화면이 보입니다")
         case .mac:
-            return "iPad 앱이 방송을 시작해야 화면을 받습니다"
+            return MirrorL10n.text("iPad 앱이 방송을 시작해야 화면을 받습니다")
         }
     }
 
     public var companionDetail: String {
         switch self {
         case .pad:
-            return "이 앱은 화면을 보내는 역할입니다. Mac에서 아이패드미러를 함께 실행하세요."
+            return MirrorL10n.text("이 앱은 화면을 보내는 역할입니다. Mac에서 아이패드미러를 함께 실행하세요.")
         case .mac:
-            return "이 앱은 화면을 받는 역할입니다. iPad에서 아이패드미러 방송을 시작하세요."
+            return MirrorL10n.text("이 앱은 화면을 받는 역할입니다. iPad에서 아이패드미러 방송을 시작하세요.")
         }
     }
 
     public var onboardingSubtitle: String {
         switch self {
         case .pad:
-            return "iPad 화면을 Mac으로 보내는 가장 단순한 방법입니다. 두 앱을 한 세트로 사용하세요."
+            return MirrorL10n.text("iPad 화면을 Mac으로 보내는 가장 단순한 방법입니다. 두 앱을 한 세트로 사용하세요.")
         case .mac:
-            return "iPad가 보낸 화면을 이 Mac에서 받습니다. 두 앱을 한 세트로 사용하세요."
+            return MirrorL10n.text("iPad가 보낸 화면을 이 Mac에서 받습니다. 두 앱을 한 세트로 사용하세요.")
         }
     }
 
@@ -35,15 +35,15 @@ public enum MonitorRole {
         switch self {
         case .pad:
             return [
-                ("1", "Mac 앱 켜기", "아이패드미러 Mac을 먼저 실행해 받을 준비를 합니다."),
-                ("2", "iPad에서 방송 시작", "전체 화면 공유를 누르고 ‘아이패드미러 방송’을 선택합니다."),
-                ("3", "Mac에서 iPad 선택", "Mac 왼쪽 목록의 iPad 이름을 누르면 화면이 연결됩니다.")
+                ("1", MirrorL10n.text("Mac 앱 켜기"), MirrorL10n.text("아이패드미러 Mac을 먼저 실행해 받을 준비를 합니다.")),
+                ("2", MirrorL10n.text("iPad에서 방송 시작"), MirrorL10n.text("전체 화면 공유를 누르고 ‘아이패드미러 방송’을 선택합니다.")),
+                ("3", MirrorL10n.text("Mac에서 iPad 선택"), MirrorL10n.text("Mac 왼쪽 목록의 iPad 이름을 누르면 화면이 연결됩니다."))
             ]
         case .mac:
             return [
-                ("1", "iPad 앱 준비", "iPad에서 아이패드미러를 열고 방송을 시작합니다."),
-                ("2", "목록에서 선택", "왼쪽에 나타난 iPad 이름을 눌러 연결합니다."),
-                ("3", "크게 보기", "화면이 잡히면 전체 크기로 전환해 작업합니다.")
+                ("1", MirrorL10n.text("iPad 앱 준비"), MirrorL10n.text("iPad에서 아이패드미러를 열고 방송을 시작합니다.")),
+                ("2", MirrorL10n.text("목록에서 선택"), MirrorL10n.text("왼쪽에 나타난 iPad 이름을 눌러 연결합니다.")),
+                ("3", MirrorL10n.text("크게 보기"), MirrorL10n.text("화면이 잡히면 전체 크기로 전환해 작업합니다."))
             ]
         }
     }
@@ -84,7 +84,7 @@ public struct MonitorUsageChip: View {
     public var body: some View {
         let warning = !lifetimeUnlocked && remainingSeconds <= 10 * 60
 
-        Label(lifetimeUnlocked ? "무제한" : remainingLabel, systemImage: lifetimeUnlocked ? "infinity" : "clock")
+        Label(lifetimeUnlocked ? MirrorL10n.text("무제한") : remainingLabel, systemImage: lifetimeUnlocked ? "infinity" : "clock")
             .font(.subheadline.weight(.semibold))
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
@@ -93,7 +93,7 @@ public struct MonitorUsageChip: View {
                 (warning ? Color.monitorWarning : Color.monitorPrimary).opacity(0.12),
                 in: Capsule()
             )
-            .accessibilityLabel(lifetimeUnlocked ? "사용 시간 무제한" : "남은 시간 \(remainingLabel)")
+            .accessibilityLabel(lifetimeUnlocked ? MirrorL10n.text("사용 시간 무제한") : MirrorL10n.format("남은 시간 {0}", String(describing: remainingLabel)))
     }
 }
 
@@ -145,7 +145,7 @@ public struct MonitorCompanionBanner: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 if StoreLinks.hasCompanionInstall {
-                    Button("동반 앱 설치하기") {
+                    Button(MirrorL10n.text("동반 앱 설치하기")) {
                         StoreLinks.open(StoreLinks.companionInstallURL)
                     }
                     .font(.subheadline.weight(.semibold))
@@ -215,7 +215,7 @@ public struct MonitorOnboardingView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(MonitorTheme.brandName)
                             .font(.largeTitle.weight(.semibold))
-                        Text(role == .pad ? "보내는 앱" : "받는 앱")
+                        Text(role == .pad ? MirrorL10n.text("보내는 앱") : MirrorL10n.text("받는 앱"))
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(Color.monitorPrimary)
                     }
@@ -233,16 +233,18 @@ public struct MonitorOnboardingView: View {
 
                 MonitorCard {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("무료와 유료")
+                        Text(role == .mac ? MirrorL10n.text("Mac은 무료 동반 앱입니다") : MirrorL10n.text("iPad 무료와 유료"))
                             .font(.headline)
-                        Text("처음 \(MonitorTheme.freeMinutes)분은 무료입니다. iPad에서는 AdMob 광고로 \(MonitorTheme.freeMinutes)분을 연장할 수 있고, 양쪽 앱에서 영구 사용 \(MonitorTheme.lifetimePrice) 또는 응원 \(MonitorTheme.donationPrice)을 구매할 수 있습니다.")
+                        Text(role == .mac
+                             ? MirrorL10n.text("Mac 수신 앱은 시간 제한과 별도 구매 없이 무료로 사용할 수 있습니다. iPad 송신 앱의 사용 시간과 구매 조건은 iPad에서 확인하세요.")
+                             : MirrorL10n.format("iPad는 처음 {0}분이 무료입니다. 광고로 {1}분을 연장하거나 영구 사용 또는 개발자 응원을 구매할 수 있습니다. Mac 수신 앱은 시간 제한과 별도 구매 없이 무료입니다.", String(describing: MonitorTheme.freeMinutes), String(describing: MonitorTheme.freeMinutes)))
                             .font(.subheadline)
                             .foregroundStyle(Color.monitorOnSurfaceVariant)
                     }
                 }
 
                 Button(action: onContinue) {
-                    Text("시작하기")
+                    Text(MirrorL10n.text("시작하기"))
                         .font(.headline)
                         .frame(maxWidth: .infinity)
                         .frame(height: MonitorTheme.primaryButtonHeight)
@@ -263,6 +265,8 @@ public struct MonitorPaywallView: View {
     public let adsSupported: Bool
     public let adReady: Bool
     public let adPresenting: Bool
+    public let adLoading: Bool
+    public let canLoadAds: Bool
     public let adStatus: String
     public let onWatchAd: () -> Void
     public let onShowGuide: () -> Void
@@ -270,10 +274,12 @@ public struct MonitorPaywallView: View {
     public init(
         store: StorePurchaseManager,
         remainingLabel: String,
-        title: String = "무료 \(MonitorTheme.freeMinutes)분이 끝났어요",
+        title: String = MirrorL10n.format("무료 {0}분이 끝났어요", String(describing: MonitorTheme.freeMinutes)),
         adsSupported: Bool,
         adReady: Bool,
         adPresenting: Bool,
+        adLoading: Bool = false,
+        canLoadAds: Bool = true,
         adStatus: String,
         onWatchAd: @escaping () -> Void,
         onShowGuide: @escaping () -> Void
@@ -284,6 +290,8 @@ public struct MonitorPaywallView: View {
         self.adsSupported = adsSupported
         self.adReady = adReady
         self.adPresenting = adPresenting
+        self.adLoading = adLoading
+        self.canLoadAds = canLoadAds
         self.adStatus = adStatus
         self.onWatchAd = onWatchAd
         self.onShowGuide = onShowGuide
@@ -305,7 +313,7 @@ public struct MonitorPaywallView: View {
                     Text(title)
                         .font(.largeTitle.weight(.semibold))
                         .multilineTextAlignment(.center)
-                    Text("AdMob 리워드 광고를 보면 \(MonitorTheme.freeMinutes)분을 더 쓸 수 있습니다. 영구 사용은 \(store.lifetimePriceLabel), 개발자 응원은 \(store.donationPriceLabel)입니다. 응원 구매 시 영구 사용도 함께 해제됩니다.")
+                    Text(MirrorL10n.format("AdMob 리워드 광고를 보면 {0}분을 더 쓸 수 있습니다. 영구 사용은 {1}, 개발자 응원은 {2}입니다. 응원 구매 시 영구 사용도 함께 해제됩니다.", String(describing: MonitorTheme.freeMinutes), String(describing: store.lifetimePriceLabel), String(describing: store.donationPriceLabel)))
                         .font(.title3)
                         .foregroundStyle(Color.monitorOnSurfaceVariant)
                         .multilineTextAlignment(.center)
@@ -314,7 +322,7 @@ public struct MonitorPaywallView: View {
                 VStack(spacing: 12) {
                     Button(action: onWatchAd) {
                         Label(
-                            adPresenting ? "광고 재생 중…" : "광고 보고 \(MonitorTheme.freeMinutes)분 연장",
+                            adPresenting ? MirrorL10n.text("광고 재생 중…") : adLoading ? MirrorL10n.text("광고 불러오는 중…") : MirrorL10n.format("광고 보고 {0}분 연장", String(describing: MonitorTheme.freeMinutes)),
                             systemImage: "play.rectangle.fill"
                         )
                         .font(.title3.weight(.semibold))
@@ -323,13 +331,13 @@ public struct MonitorPaywallView: View {
                     }
                     .buttonStyle(.borderedProminent)
                     .tint(Color.monitorPrimary)
-                    .disabled(!adsSupported || adPresenting || store.isPurchasing)
+                    .disabled(!adsSupported || !canLoadAds || adLoading || adPresenting || store.isPurchasing || store.isRestoring)
 
                     Button {
                         Task { _ = await store.purchaseLifetime() }
                     } label: {
                         Label(
-                            store.hasLifetimeEntitlement ? "영구 사용 해제됨" : "영구 사용 \(store.lifetimePriceLabel)",
+                            store.hasLifetimeEntitlement ? MirrorL10n.text("영구 사용 해제됨") : MirrorL10n.format("영구 사용 {0}", String(describing: store.lifetimePriceLabel)),
                             systemImage: "cart.fill"
                         )
                         .font(.title3.weight(.semibold))
@@ -342,7 +350,7 @@ public struct MonitorPaywallView: View {
                     Button {
                         Task { _ = await store.purchaseDonation() }
                     } label: {
-                        Label("개발자 응원 \(store.donationPriceLabel)", systemImage: "heart.fill")
+                        Label(MirrorL10n.format("개발자 응원 {0}", String(describing: store.donationPriceLabel)), systemImage: "heart.fill")
                             .font(.title3.weight(.semibold))
                             .frame(maxWidth: 420)
                             .frame(height: MonitorTheme.secondaryButtonHeight)
@@ -353,28 +361,35 @@ public struct MonitorPaywallView: View {
                     Button {
                         Task { await store.restore() }
                     } label: {
-                        Text(store.isRestoring ? "복원 중…" : "구매 복원")
+                        Text(store.isRestoring ? MirrorL10n.text("복원 중…") : MirrorL10n.text("구매 복원"))
                     }
                     .disabled(store.isRestoring || store.isPurchasing)
+
+                    if store.shouldRetryProducts {
+                        Button(MirrorL10n.text("구매 옵션 다시 불러오기")) {
+                            Task { await store.loadProducts() }
+                        }
+                        .disabled(store.isPurchasing || store.isRestoring)
+                    }
                 }
 
                 VStack(spacing: 6) {
-                    Text(adsSupported ? adStatus : "광고 연장은 iPad 앱에서 사용할 수 있습니다. Mac에서는 인앱 결제로 잠금을 해제하세요.")
+                    Text(adsSupported ? adStatus : MirrorL10n.text("광고 연장은 iPad 앱에서 사용할 수 있습니다. Mac에서는 인앱 결제로 잠금을 해제하세요."))
                     if let statusMessage = store.statusMessage {
                         Text(statusMessage)
                     }
-                    if MonetizationConfig.usesGoogleSampleAds && adsSupported {
-                        Text("지금은 Google 테스트 광고 ID를 사용합니다. AdMob 앱을 등록한 뒤 MonetizationConfig의 ID를 바꾸세요.")
+                    if MonetizationConfig.usesGoogleSampleAds && adsSupported && !ScreenshotMode.isEnabled {
+                        Text(MirrorL10n.text("지금은 Google 테스트 광고 ID를 사용합니다. AdMob 앱을 등록한 뒤 MonetizationConfig의 ID를 바꾸세요."))
                     }
                 }
                 .font(.footnote)
                 .foregroundStyle(Color.monitorOnSurfaceVariant)
                 .multilineTextAlignment(.center)
 
-                Button("사용법 다시 보기", action: onShowGuide)
+                Button(MirrorL10n.text("사용법 다시 보기"), action: onShowGuide)
                     .padding(.top, 4)
 
-                Text("남은 시간: \(remainingLabel)")
+                Text(MirrorL10n.format("남은 시간: {0}", String(describing: remainingLabel)))
                     .font(.headline)
                     .foregroundStyle(Color.monitorOnSurfaceVariant)
             }

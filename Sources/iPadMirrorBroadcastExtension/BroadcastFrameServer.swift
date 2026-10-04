@@ -18,7 +18,7 @@ struct BroadcastCaptureProfile {
     }
 
     static let wired = BroadcastCaptureProfile(
-        name: "유선",
+        name: MirrorL10n.text("유선"),
         targetFPS: 30,
         maxEncodedDimension: 1920,
         jpegQuality: 0.52,
@@ -27,7 +27,7 @@ struct BroadcastCaptureProfile {
     )
 
     static let wireless = BroadcastCaptureProfile(
-        name: "무선",
+        name: MirrorL10n.text("무선"),
         targetFPS: 12,
         maxEncodedDimension: 1280,
         jpegQuality: 0.38,
@@ -54,6 +54,7 @@ final class BroadcastFrameServer: NSObject {
 
     private let queue = DispatchQueue(label: "dev.local.iPadMirrorPad.BroadcastFrameServer", qos: .userInitiated)
     private let clientCountLock = NSLock()
+    private let queueKey = DispatchSpecificKey<UInt8>()
     private let port: UInt16 = 12_346
     private let serviceType = "_ipadmirror._tcp."
     private let maximumSessions = 4
@@ -64,6 +65,11 @@ final class BroadcastFrameServer: NSObject {
     private var sessions: [ObjectIdentifier: Session] = [:]
     private var activeClientCount = 0
     private var lastFrameTime: Date = .distantPast
+
+    override init() {
+        super.init()
+        queue.setSpecific(key: queueKey, value: 1)
+    }
 
     var hasClients: Bool {
         clientCountLock.lock()
@@ -91,6 +97,10 @@ final class BroadcastFrameServer: NSObject {
     }
 
     func start() {
+        if DispatchQueue.getSpecific(key: queueKey) == nil {
+            queue.sync { start() }
+            return
+        }
         guard listener == nil else { return }
 
         guard let nwPort = NWEndpoint.Port(rawValue: port) else { return }
@@ -122,6 +132,10 @@ final class BroadcastFrameServer: NSObject {
     }
 
     func stop() {
+        if DispatchQueue.getSpecific(key: queueKey) == nil {
+            queue.sync { stop() }
+            return
+        }
         service?.stop()
         service = nil
 
@@ -160,9 +174,11 @@ final class BroadcastFrameServer: NSObject {
     private func publishService(port: UInt16) {
         service?.stop()
 
-        let name = "iPad-\(BroadcastSharedSettings.pairingCode().suffix(4))"
+        // Discovery is public on the LAN; never advertise any pairing secret.
+        let name = "iPad-\(UUID().uuidString.prefix(6))"
         let service = NetService(domain: "local.", type: serviceType, name: name, port: Int32(port))
         service.includesPeerToPeer = false
+        service.schedule(in: .main, forMode: .common)
         service.publish()
 
         self.service = service

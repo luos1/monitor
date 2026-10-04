@@ -17,7 +17,7 @@ struct BannerAdView: View {
                     .stroke(Color.monitorOutline, lineWidth: 1)
             )
         #else
-        Text("배너 광고는 Google Mobile Ads 연결 후 표시됩니다.")
+        Text(MirrorL10n.text("배너 광고는 Google Mobile Ads 연결 후 표시됩니다."))
             .font(.footnote)
             .foregroundStyle(Color.monitorOnSurfaceVariant)
             .frame(maxWidth: .infinity)

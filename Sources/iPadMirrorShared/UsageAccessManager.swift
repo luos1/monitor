@@ -122,9 +122,9 @@ public final class UsageAccessManager: ObservableObject {
         return min(1, Double(usedSeconds) / limit)
     }
 
-    public static func formatRemaining(seconds: Int, lifetimeUnlocked: Bool) -> String {
+    public static func formatRemaining(seconds: Int, lifetimeUnlocked: Bool, language: String? = nil) -> String {
         if lifetimeUnlocked {
-            return "무제한"
+            return MirrorL10n.text("무제한", language: language)
         }
 
         let clamped = max(0, seconds)
@@ -133,12 +133,12 @@ public final class UsageAccessManager: ObservableObject {
         let remainSeconds = clamped % 60
 
         if hours > 0 {
-            return "\(hours)시간 \(minutes)분"
+            return MirrorL10n.format("{0}시간 {1}분", String(describing: hours), String(describing: minutes), language: language)
         }
         if minutes > 0 {
-            return "\(minutes)분 \(remainSeconds)초"
+            return MirrorL10n.format("{0}분 {1}초", String(describing: minutes), String(describing: remainSeconds), language: language)
         }
-        return "\(remainSeconds)초"
+        return MirrorL10n.format("{0}초", String(describing: remainSeconds), language: language)
     }
 
     private func refreshState() {

@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "iPadMirrorMac",
+    defaultLocalization: "en",
     platforms: [
         .macOS(.v14)
     ],
@@ -12,7 +13,8 @@ let package = Package(
     targets: [
         .target(
             name: "iPadMirrorShared",
-            path: "Sources/iPadMirrorShared"
+            path: "Sources/iPadMirrorShared",
+            resources: [.process("Resources")]
         ),
         .executableTarget(
             name: "iPadMirrorMac",

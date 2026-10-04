@@ -15,11 +15,12 @@ iPad 현재 화면을 같은 네트워크(또는 USB)의 Mac으로 보내는 미
 
 1. Mac에서 아이패드미러를 켭니다.
 2. iPad에서 **전체 화면 공유 시작**을 누르고 `아이패드미러 방송`을 선택합니다.
-3. Mac 왼쪽 목록에서 iPad 이름을 선택합니다.
+3. iPad에 표시된 8자리 연결 코드를 Mac에 입력한 뒤 왼쪽 목록에서 iPad 이름을 선택합니다.
 
 ## 무료 / 유료
 
-- 기본 사용 60분
+- Mac 수신 앱: 시간 제한과 별도 구매 없이 무료
+- iPad 송신 앱: 기본 사용 60분
 - iPad에서 AdMob 리워드 광고를 보면 60분 연장, 홈 화면에 배너 표시
 - 영구 사용 `$4.99`, 개발자 응원 `$99.99` (StoreKit, 응원 시 영구 사용도 해제)
 - 설정: `Sources/iPadMirrorShared/MonetizationConfig.swift`, 안내: `docs/MONETIZATION.md`

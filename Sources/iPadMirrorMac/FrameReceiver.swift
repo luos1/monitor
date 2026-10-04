@@ -1,322 +1,293 @@
+import iPadMirrorShared
 import AppKit
 import Combine
 import CryptoKit
+import Darwin
 import Foundation
 import ImageIO
 import Network
 
-final class FrameReceiver: ObservableObject {
+// Connection/session state is guarded by sessionLock. Published UI values and
+// frame counts are written only on the main queue; decoding uses serial workers.
+final class FrameReceiver: ObservableObject, @unchecked Sendable {
     @Published private(set) var image: NSImage?
-    @Published private(set) var status = "iPad를 선택하세요"
+    @Published private(set) var status = MirrorL10n.text("iPad를 선택하세요")
 
-    private let queue = DispatchQueue(label: "dev.local.iPadMirrorMac.FrameReceiver", qos: .userInitiated)
-    private let usbQueue = DispatchQueue(label: "dev.local.iPadMirrorMac.USBFrameReceiver", qos: .userInitiated)
-    private let maxFrameSize = 20 * 1024 * 1024
-    private let maxImageDimension = 4_096
-    private let maxImagePixelCount = 16_777_216
-    private var connection: NWConnection?
-    private var usbSocket: Int32?
-    private var decryptionKey: SymmetricKey?
-    private var receivedFrameCount = 0
-    private var transportLabel = "네트워크"
-
-    func connect(to device: BonjourBrowser.Device, pairingCode: String) {
-        let normalizedCode = Self.normalizedPairingCode(pairingCode)
-        guard normalizedCode.count == 8 else {
-            status = "iPad에 표시된 8자리 연결 코드를 입력하세요"
-            return
-        }
-        if let usbDeviceID = device.usbDeviceID {
-            connectUSB(
-                deviceID: usbDeviceID,
-                port: device.port,
-                displayName: device.name,
-                pairingCode: normalizedCode
-            )
-        } else {
-            connect(host: device.host, port: device.port, pairingCode: normalizedCode)
+    private final class Session: @unchecked Sendable {
+        let key: SymmetricKey
+        var connection: NWConnection?
+        var socket: Int32?
+        var transportLabel: String
+        // Image/count updates only run on the main queue.
+        var frameCount = 0
+        init(code: String, transportLabel: String) {
+            self.key = FrameReceiver.pairingKey(for: code)
+            self.transportLabel = transportLabel
         }
     }
 
-    func connect(host: String, port: Int, pairingCode: String) {
-        disconnect(keepImage: true)
-        decryptionKey = Self.pairingKey(for: pairingCode)
+    private let queue = DispatchQueue(label: "dev.local.iPadMirrorMac.FrameReceiver", qos: .userInitiated)
+    private let usbQueue = DispatchQueue(label: "dev.local.iPadMirrorMac.USBFrameReceiver", qos: .userInitiated)
+    private let sessionLock = NSLock()
+    private var currentSession: Session?
+    private let maxFrameSize = 20 * 1024 * 1024
+    private let maxImageDimension = 4_096
+    private let maxImagePixelCount = 16_777_216
 
-        guard let rawPort = UInt16(exactly: port), let nwPort = NWEndpoint.Port(rawValue: rawPort) else {
-            status = "잘못된 포트: \(port)"
+    @MainActor
+    func connect(to device: BonjourBrowser.Device, pairingCode: String) {
+        if let deviceID = device.usbDeviceID {
+            connectUSB(deviceID: deviceID, port: device.port, displayName: device.name, pairingCode: pairingCode)
+        } else {
+            connect(host: device.host, port: device.port, pairingCode: pairingCode)
+        }
+    }
+
+    @MainActor
+    func connect(host: String, port: Int, pairingCode: String) {
+        disconnect()
+        let code = Self.normalizedPairingCode(pairingCode)
+        guard code.count == 8 else {
+            status = MirrorL10n.text("iPad에 표시된 8자리 연결 코드를 입력하세요")
             return
         }
-        receivedFrameCount = 0
-
-        let tcpOptions = NWProtocolTCP.Options()
-        tcpOptions.noDelay = true
-        let parameters = NWParameters(tls: nil, tcp: tcpOptions)
-
-        let connection = NWConnection(host: NWEndpoint.Host(host), port: nwPort, using: parameters)
-        self.connection = connection
-        status = "\(host):\(port)에 연결 중…"
-
-        connection.stateUpdateHandler = { [weak self, weak connection] state in
-            guard let self, let connection else { return }
-            self.handleConnectionState(state, connection: connection, pairingCode: pairingCode)
+        guard let rawPort = UInt16(exactly: port), rawPort > 0,
+              let nwPort = NWEndpoint.Port(rawValue: rawPort) else {
+            status = MirrorL10n.format("잘못된 포트: {0}", String(port))
+            return
+        }
+        let session = Session(code: code, transportLabel: MirrorL10n.text("네트워크"))
+        let tcp = NWProtocolTCP.Options()
+        tcp.noDelay = true
+        let connection = NWConnection(host: NWEndpoint.Host(host), port: nwPort, using: NWParameters(tls: nil, tcp: tcp))
+        session.connection = connection
+        sessionLock.lock()
+        currentSession = session
+        sessionLock.unlock()
+        status = MirrorL10n.format("{0}:{1}에 연결 중…", host, String(port))
+        connection.stateUpdateHandler = { [weak self, weak session, weak connection] state in
+            guard let self, let session, let connection, self.isCurrent(session) else { return }
+            self.handle(state, connection: connection, session: session)
         }
         connection.start(queue: queue)
     }
 
+    @MainActor
     func disconnect() {
-        disconnect(keepImage: false)
+        abortCurrentSession()
+        image = nil
+        status = MirrorL10n.text("연결 해제")
     }
 
-    private func disconnect(keepImage: Bool) {
+    deinit { abortCurrentSession() }
+
+    private func abortCurrentSession() {
+        sessionLock.lock()
+        let previous = currentSession
+        currentSession = nil
+        let connection = previous?.connection
+        let socket = previous?.socket
+        if let socket {
+            // The read worker owns close(). Shutdown interrupts a blocked read
+            // without letting a stale worker close a reused file descriptor.
+            Darwin.shutdown(socket, SHUT_RDWR)
+        }
+        sessionLock.unlock()
         connection?.cancel()
-        connection = nil
-        decryptionKey = nil
-
-        if let usbSocket {
-            close(usbSocket)
-            self.usbSocket = nil
-        }
-
-        if !keepImage {
-            image = nil
-            receivedFrameCount = 0
-        }
-
-        status = "연결 해제"
     }
 
+    private func isCurrent(_ session: Session) -> Bool {
+        sessionLock.lock()
+        defer { sessionLock.unlock() }
+        return currentSession === session
+    }
+
+    @MainActor
     private func connectUSB(deviceID: Int, port: Int, displayName: String, pairingCode: String) {
-        disconnect(keepImage: true)
-        decryptionKey = Self.pairingKey(for: pairingCode)
-        receivedFrameCount = 0
-        transportLabel = "USB 직접 연결"
-        status = "\(displayName) USB 연결 중…"
+        disconnect()
+        let code = Self.normalizedPairingCode(pairingCode)
+        guard code.count == 8 else {
+            status = MirrorL10n.text("iPad에 표시된 8자리 연결 코드를 입력하세요")
+            return
+        }
+        guard let port = UInt16(exactly: port), port > 0 else {
+            status = MirrorL10n.format("잘못된 포트: {0}", String(port))
+            return
+        }
+        let session = Session(code: code, transportLabel: MirrorL10n.text("USB 직접 연결"))
+        sessionLock.lock()
+        currentSession = session
+        sessionLock.unlock()
+        status = MirrorL10n.format("{0} USB 연결 중…", displayName)
 
-        usbQueue.async { [weak self] in
-            guard let self else { return }
-
+        usbQueue.async { [weak self, session] in
+            guard let self, self.isCurrent(session) else { return }
             do {
-                let socket = try UsbMuxClient.connectToDevice(deviceID: deviceID, port: UInt16(port))
-                self.usbSocket = socket
+                let socket = try UsbMuxClient.connectToDevice(deviceID: deviceID, port: port)
+                defer {
+                    self.sessionLock.lock()
+                    if session.socket == socket { session.socket = nil }
+                    close(socket)
+                    self.sessionLock.unlock()
+                }
+                self.sessionLock.lock()
+                let active = self.currentSession === session
+                if active { session.socket = socket }
+                self.sessionLock.unlock()
+                guard active else { return }
                 let challenge = try self.readChallenge(from: socket)
-                let authentication = self.authenticationMessage(
-                    challenge: challenge,
-                    pairingCode: pairingCode,
-                    profile: "wired"
-                )
-                try UsbMuxClient.writeAll(authentication, to: socket)
-
-                DispatchQueue.main.async {
-                    self.status = "연결됨 (USB 직접 연결). 프레임 수신 중…"
-                }
-
-                self.receiveUSBFrames(from: socket)
+                try UsbMuxClient.writeAll(self.authenticationMessage(challenge: challenge, key: session.key), to: socket)
+                // Handshake is bounded; a live stream may pause indefinitely.
+                try UsbMuxClient.setReadTimeout(socket: socket, seconds: 0)
+                self.publishStatus(MirrorL10n.text("연결 코드를 확인하는 중…"), session: session)
+                self.receiveUSBFrames(from: socket, session: session)
             } catch {
-                DispatchQueue.main.async {
-                    self.status = "USB 연결 실패: \(error.localizedDescription)"
-                }
+                self.fail(MirrorL10n.format("USB 연결 실패: {0}", MirrorL10n.errorMessage(error)), session: session)
             }
         }
     }
 
-    private func handleConnectionState(
-        _ state: NWConnection.State,
-        connection: NWConnection,
-        pairingCode: String
-    ) {
+    private func handle(_ state: NWConnection.State, connection: NWConnection, session: Session) {
         switch state {
         case .ready:
-            let actualTransport = connection.currentPath.map(Self.transportLabel(for:)) ?? "네트워크"
-            transportLabel = actualTransport == "유선 최적화" ? actualTransport : "\(actualTransport) · 고성능 요청"
-            receiveChallenge(from: connection, pairingCode: pairingCode)
+            let actual = connection.currentPath.map(Self.transportLabel(for:)) ?? MirrorL10n.text("네트워크")
+            sessionLock.lock()
+            session.transportLabel = actual
+            sessionLock.unlock()
+            receiveChallenge(from: connection, session: session)
         case .waiting(let error):
-            updateStatus("연결 대기 중: \(error.localizedDescription)")
+            publishStatus(MirrorL10n.format("연결 대기 중: {0}", MirrorL10n.errorMessage(error)), session: session)
         case .failed(let error):
-            updateStatus("연결 실패: \(error.localizedDescription)")
-            connection.cancel()
-        case .cancelled:
-            updateStatus("연결 종료")
+            fail(MirrorL10n.format("연결 실패: {0}", MirrorL10n.errorMessage(error)), session: session)
         default:
             break
         }
     }
 
-    private func receiveHeader(from connection: NWConnection) {
-        connection.receive(minimumIncompleteLength: 4, maximumLength: 4) { [weak self, weak connection] data, _, isComplete, error in
-            guard let self, let connection else { return }
-
-            if let error {
-                self.updateStatus("헤더 수신 오류: \(error.localizedDescription)")
-                connection.cancel()
-                return
-            }
-
-            guard !isComplete else {
-                self.updateStatus("iPad가 연결을 종료했습니다")
-                return
-            }
-
-            guard let data, data.count == 4 else {
-                self.updateStatus("잘못된 프레임 헤더")
-                connection.cancel()
-                return
-            }
-
-            let length = self.decodeFrameLength(data)
-
-            guard length > 0, length <= self.maxFrameSize else {
-                self.updateStatus("잘못된 프레임 크기: \(length) bytes")
-                connection.cancel()
-                return
-            }
-
-            self.receiveFrame(length: length, from: connection)
-        }
-    }
-
-    private func receiveFrame(length: Int, from connection: NWConnection) {
-        connection.receive(minimumIncompleteLength: length, maximumLength: length) { [weak self, weak connection] data, _, isComplete, error in
-            guard let self, let connection else { return }
-
-            if let error {
-                self.updateStatus("프레임 수신 오류: \(error.localizedDescription)")
-                connection.cancel()
-                return
-            }
-
-            guard !isComplete else {
-                self.updateStatus("iPad가 연결을 종료했습니다")
-                return
-            }
-
-            guard let data, data.count == length else {
-                self.updateStatus("프레임 크기 불일치")
-                connection.cancel()
-                return
-            }
-
-            if let decrypted = decryptFrame(data), let image = decodeValidatedImage(decrypted) {
-                DispatchQueue.main.async {
-                    self.image = image
-                    self.receivedFrameCount += 1
-                    if self.receivedFrameCount % 15 == 0 {
-                        self.status = "수신 중 · \(self.transportLabel) (\(length) bytes)"
-                    }
-                }
-            } else {
-                updateStatus("프레임 인증 또는 이미지 디코딩 실패")
-                connection.cancel()
-                return
-            }
-
-            receiveHeader(from: connection)
-        }
-    }
-
-    private func receiveUSBFrames(from socket: Int32) {
-        while usbSocket == socket {
-            do {
-                let header = try UsbMuxClient.readExact(from: socket, byteCount: 4)
-                let length = decodeFrameLength(header)
-
-                guard length > 0, length <= maxFrameSize else {
-                    updateStatus("USB 프레임 크기 오류: \(length) bytes")
-                    close(socket)
-                    return
-                }
-
-                let data = try UsbMuxClient.readExact(from: socket, byteCount: length)
-                guard displayFrame(data, length: length) else {
-                    close(socket)
-                    return
-                }
-            } catch {
-                if usbSocket == socket {
-                    updateStatus("USB 수신 종료: \(error.localizedDescription)")
-                }
-                close(socket)
-                return
-            }
-        }
-    }
-
-    private func displayFrame(_ data: Data, length: Int) -> Bool {
-        if let decrypted = decryptFrame(data), let image = decodeValidatedImage(decrypted) {
-            DispatchQueue.main.async {
-                self.image = image
-                self.receivedFrameCount += 1
-                if self.receivedFrameCount % 15 == 0 {
-                    self.status = "수신 중 · \(self.transportLabel) (\(length) bytes)"
-                }
-            }
-            return true
-        } else {
-            updateStatus("USB 프레임 인증 또는 이미지 디코딩 실패")
-            return false
-        }
-    }
-
-    private func decodeFrameLength(_ data: Data) -> Int {
-        data.reduce(0) { partial, byte in
-            (partial << 8) | Int(byte)
-        }
-    }
-
-    private func updateStatus(_ status: String) {
-        DispatchQueue.main.async {
-            self.status = status
-        }
-    }
-
-    private func receiveChallenge(
-        from connection: NWConnection,
-        pairingCode: String,
-        buffer: Data = Data()
-    ) {
-        connection.receive(minimumIncompleteLength: 1, maximumLength: 128) { [weak self, weak connection] data, _, isComplete, error in
-            guard let self, let connection else { return }
-            guard error == nil, !isComplete, let data else {
-                self.updateStatus("iPad 연결 인증 요청이 올바르지 않습니다")
-                connection.cancel()
-                return
-            }
-
+    private func receiveChallenge(from connection: NWConnection, session: Session, buffer: Data = Data()) {
+        connection.receive(minimumIncompleteLength: 1, maximumLength: 128) { [weak self, weak session, weak connection] data, _, isComplete, error in
+            guard let self, let session, let connection, self.isCurrent(session) else { return }
             var received = buffer
-            received.append(data)
-            guard received.count <= 128 else {
-                self.updateStatus("iPad 연결 인증 요청이 너무 깁니다")
-                connection.cancel()
+            if let data { received.append(data) }
+            guard error == nil, received.count <= 128 else {
+                self.fail(MirrorL10n.text("iPad 연결 인증 요청이 올바르지 않습니다"), session: session)
                 return
             }
             guard received.contains(0x0A) else {
-                self.receiveChallenge(
-                    from: connection,
-                    pairingCode: pairingCode,
-                    buffer: received
-                )
+                if isComplete {
+                    self.fail(MirrorL10n.text("iPad 연결 인증 요청이 올바르지 않습니다"), session: session)
+                } else {
+                    self.receiveChallenge(from: connection, session: session, buffer: received)
+                }
                 return
             }
             guard let challenge = self.parseChallenge(received) else {
-                self.updateStatus("iPad 연결 인증 요청이 올바르지 않습니다")
-                connection.cancel()
+                self.fail(MirrorL10n.text("iPad 연결 인증 요청이 올바르지 않습니다"), session: session)
                 return
             }
-
-            let message = self.authenticationMessage(
-                challenge: challenge,
-                pairingCode: pairingCode,
-                profile: "wired"
-            )
-            connection.send(content: message, completion: .contentProcessed { [weak self, weak connection] error in
-                guard let self, let connection else { return }
+            connection.send(content: self.authenticationMessage(challenge: challenge, key: session.key), completion: .contentProcessed { [weak self, weak session, weak connection] error in
+                guard let self, let session, let connection, self.isCurrent(session) else { return }
                 if let error {
-                    self.updateStatus("연결 인증 전송 실패: \(error.localizedDescription)")
-                    connection.cancel()
+                    self.fail(MirrorL10n.format("연결 인증 전송 실패: {0}", MirrorL10n.errorMessage(error)), session: session)
                     return
                 }
-                self.updateStatus("인증됨 (\(self.transportLabel)). 암호화된 프레임 수신 중…")
-                self.receiveHeader(from: connection)
+                self.publishStatus(MirrorL10n.text("연결 코드를 확인하는 중…"), session: session)
+                self.receiveHeader(from: connection, session: session)
             })
+        }
+    }
+
+    private func receiveHeader(from connection: NWConnection, session: Session) {
+        connection.receive(minimumIncompleteLength: 4, maximumLength: 4) { [weak self, weak session, weak connection] data, _, isComplete, error in
+            guard let self, let session, let connection, self.isCurrent(session) else { return }
+            if let error {
+                self.fail(MirrorL10n.format("헤더 수신 오류: {0}", MirrorL10n.errorMessage(error)), session: session)
+                return
+            }
+            guard let data, data.count == 4 else {
+                self.fail(MirrorL10n.text(isComplete ? "iPad가 연결을 종료했습니다" : "잘못된 프레임 헤더"), session: session)
+                return
+            }
+            let length = self.decodeFrameLength(data)
+            guard length > 0, length <= self.maxFrameSize else {
+                self.fail(MirrorL10n.format("잘못된 프레임 크기: {0} bytes", String(length)), session: session)
+                return
+            }
+            self.receiveFrame(length: length, from: connection, session: session)
+        }
+    }
+
+    private func receiveFrame(length: Int, from connection: NWConnection, session: Session) {
+        connection.receive(minimumIncompleteLength: length, maximumLength: length) { [weak self, weak session, weak connection] data, _, isComplete, error in
+            guard let self, let session, let connection, self.isCurrent(session) else { return }
+            if let error {
+                self.fail(MirrorL10n.format("프레임 수신 오류: {0}", MirrorL10n.errorMessage(error)), session: session)
+                return
+            }
+            guard let data, data.count == length else {
+                self.fail(MirrorL10n.text(isComplete ? "iPad가 연결을 종료했습니다" : "프레임 크기 불일치"), session: session)
+                return
+            }
+            guard self.displayFrame(data, session: session) else {
+                self.fail(MirrorL10n.text("프레임 인증 또는 이미지 디코딩 실패"), session: session)
+                return
+            }
+            self.receiveHeader(from: connection, session: session)
+        }
+    }
+
+    private func receiveUSBFrames(from socket: Int32, session: Session) {
+        while isCurrent(session) {
+            do {
+                let header = try UsbMuxClient.readExact(from: socket, byteCount: 4)
+                let length = decodeFrameLength(header)
+                guard length > 0, length <= maxFrameSize else {
+                    fail(MirrorL10n.format("USB 프레임 크기 오류: {0} bytes", String(length)), session: session)
+                    return
+                }
+                let data = try UsbMuxClient.readExact(from: socket, byteCount: length)
+                guard displayFrame(data, session: session) else {
+                    fail(MirrorL10n.text("USB 프레임 인증 또는 이미지 디코딩 실패"), session: session)
+                    return
+                }
+            } catch {
+                fail(MirrorL10n.format("USB 수신 종료: {0}", MirrorL10n.errorMessage(error)), session: session)
+                return
+            }
+        }
+    }
+
+    private func displayFrame(_ data: Data, session: Session) -> Bool {
+        guard let box = try? ChaChaPoly.SealedBox(combined: data),
+              let decrypted = try? ChaChaPoly.open(box, using: session.key),
+              let decoded = decodeValidatedImage(decrypted) else { return false }
+        sessionLock.lock()
+        let transportLabel = session.transportLabel
+        sessionLock.unlock()
+        DispatchQueue.main.async { [weak self, weak session] in
+            guard let self, let session, self.isCurrent(session) else { return }
+            self.image = decoded
+            session.frameCount += 1
+            if session.frameCount == 1 || session.frameCount % 15 == 0 {
+                self.status = MirrorL10n.format("수신 중 · {0} ({1} bytes)", transportLabel, String(data.count))
+            }
+        }
+        return true
+    }
+
+    private func publishStatus(_ message: String, session: Session) {
+        DispatchQueue.main.async { [weak self, weak session] in
+            guard let self, let session, self.isCurrent(session) else { return }
+            self.status = message
+        }
+    }
+
+    private func fail(_ message: String, session: Session) {
+        DispatchQueue.main.async { [weak self, weak session] in
+            guard let self, let session, self.isCurrent(session) else { return }
+            self.abortCurrentSession()
+            self.image = nil
+            self.status = message
         }
     }
 
@@ -325,9 +296,7 @@ final class FrameReceiver: ObservableObject {
         while line.count < 128 {
             let byte = try UsbMuxClient.readExact(from: socket, byteCount: 1)
             if byte.first == 0x0A {
-                guard let challenge = parseChallenge(line) else {
-                    throw UsbMuxClient.UsbMuxError.invalidResponse
-                }
+                guard let challenge = parseChallenge(line) else { throw UsbMuxClient.UsbMuxError.invalidResponse }
                 return challenge
             }
             line.append(byte)
@@ -336,32 +305,20 @@ final class FrameReceiver: ObservableObject {
     }
 
     private func parseChallenge(_ data: Data) -> Data? {
-        let line = String(decoding: data, as: UTF8.self)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let line = String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
         guard line.hasPrefix("CHALLENGE "),
               let challenge = Data(base64Encoded: String(line.dropFirst(10))),
-              challenge.count == 32 else {
-            return nil
-        }
+              challenge.count == 32 else { return nil }
         return challenge
     }
 
-    private func authenticationMessage(
-        challenge: Data,
-        pairingCode: String,
-        profile: String
-    ) -> Data {
-        let key = Self.pairingKey(for: pairingCode)
+    private func authenticationMessage(challenge: Data, key: SymmetricKey) -> Data {
         let authentication = Data(HMAC<SHA256>.authenticationCode(for: challenge, using: key))
-        return Data("AUTH \(authentication.base64EncodedString())\nPROFILE \(profile)\n".utf8)
+        return Data("AUTH \(authentication.base64EncodedString())\nPROFILE wired\n".utf8)
     }
 
-    private func decryptFrame(_ data: Data) -> Data? {
-        guard let decryptionKey,
-              let box = try? ChaChaPoly.SealedBox(combined: data) else {
-            return nil
-        }
-        return try? ChaChaPoly.open(box, using: decryptionKey)
+    private func decodeFrameLength(_ data: Data) -> Int {
+        data.reduce(0) { ($0 << 8) | Int($1) }
     }
 
     private func decodeValidatedImage(_ data: Data) -> NSImage? {
@@ -370,28 +327,21 @@ final class FrameReceiver: ObservableObject {
               let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
               let width = properties[kCGImagePropertyPixelWidth] as? Int,
               let height = properties[kCGImagePropertyPixelHeight] as? Int,
-              width > 0,
-              height > 0,
-              width <= maxImageDimension,
-              height <= maxImageDimension,
-              width <= maxImagePixelCount / height else {
-            return nil
-        }
-
+              width > 0, height > 0,
+              width <= maxImageDimension, height <= maxImageDimension,
+              width <= maxImagePixelCount / height else { return nil }
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceCreateThumbnailWithTransform: true,
             kCGImageSourceThumbnailMaxPixelSize: maxImageDimension,
             kCGImageSourceShouldCacheImmediately: true,
         ]
-        guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-            return nil
-        }
-        return NSImage(cgImage: image, size: .zero)
+        guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
+        return NSImage(cgImage: cgImage, size: .zero)
     }
 
-    private static func pairingKey(for pairingCode: String) -> SymmetricKey {
-        SymmetricKey(data: SHA256.hash(data: Data(pairingCode.utf8)))
+    private static func pairingKey(for code: String) -> SymmetricKey {
+        SymmetricKey(data: SHA256.hash(data: Data(code.utf8)))
     }
 
     private static func normalizedPairingCode(_ code: String) -> String {
@@ -400,11 +350,8 @@ final class FrameReceiver: ObservableObject {
 
     private static func transportLabel(for path: NWPath) -> String {
         if path.usesInterfaceType(.wiredEthernet) || path.usesInterfaceType(.loopback) || path.usesInterfaceType(.other) {
-            return "유선 최적화"
+            return MirrorL10n.text("유선 최적화")
         }
-        if path.usesInterfaceType(.wifi) {
-            return "Wi‑Fi"
-        }
-        return "네트워크"
+        return path.usesInterfaceType(.wifi) ? "Wi‑Fi" : MirrorL10n.text("네트워크")
     }
 }

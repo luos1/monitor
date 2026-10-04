@@ -9,23 +9,18 @@ private final class ReceiverDisplayMode: ObservableObject {
 struct ReceiverView: View {
     @AppStorage("monitor.mac.didShowUsageGuide") private var didShowUsageGuide = false
     @State private var showingUsageGuide = false
-    @State private var showingUpgrade = false
     @State private var pairingCode = ""
-    @StateObject private var usageAccess = UsageAccessManager(
-        namespace: "monitor.mac",
-        maximumBonusHours: 0
-    )
     @StateObject private var browser = BonjourBrowser()
     @StateObject private var receiver = FrameReceiver()
     @StateObject private var displayMode = ReceiverDisplayMode()
-    @StateObject private var store = StorePurchaseManager()
-    @StateObject private var ads = MacAdRewardController()
+    #if DEBUG
+    @State private var qaConnectionTask: Task<Void, Never>?
+    @State private var qaFrameCount = 0
+    #endif
 
     var body: some View {
         Group {
-            if usageAccess.isLocked {
-                paywall(title: "무료 \(MonitorTheme.freeMinutes)분이 끝났어요")
-            } else if didShowUsageGuide {
+            if didShowUsageGuide {
                 mainContent
             } else {
                 MonitorOnboardingView(role: .mac) {
@@ -42,29 +37,78 @@ struct ReceiverView: View {
             }
             .frame(minWidth: 720, minHeight: 740)
         }
-        .sheet(isPresented: $showingUpgrade) {
-            paywall(title: "유료 기능")
-                .frame(minWidth: 720, minHeight: 740)
-        }
         .onReceive(NotificationCenter.default.publisher(for: .monitorShowUsageGuide)) { _ in
             showingUsageGuide = true
         }
-        .onChange(of: store.hasLifetimeEntitlement) { _, unlocked in
-            usageAccess.setLifetimeEntitlement(unlocked)
-        }
         .onAppear {
             browser.startSearching()
-            usageAccess.startTracking()
-            store.start()
-            ads.start()
-            usageAccess.setLifetimeEntitlement(store.hasLifetimeEntitlement)
+            #if DEBUG
+            preparePhysicalQA()
+            #endif
         }
+        #if DEBUG
+        .onReceive(receiver.$image) { image in recordPhysicalQAFrame(image) }
+        #endif
         .onDisappear {
+            #if DEBUG
+            qaConnectionTask?.cancel()
+            qaConnectionTask = nil
+            #endif
             receiver.disconnect()
             browser.stopSearching()
-            usageAccess.stopTracking()
         }
     }
+
+    #if DEBUG
+    // Local QA only. Release has no automatic connection or file output.
+    private var qaConfiguration: [String: String]? {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let index = arguments.firstIndex(of: "-PhysicalQAConfig"), index + 1 < arguments.count,
+              let data = try? Data(contentsOf: URL(fileURLWithPath: arguments[index + 1])),
+              let configuration = try? JSONDecoder().decode([String: String].self, from: data),
+              configuration["pairingCode"]?.count == 8 else { return nil }
+        return configuration
+    }
+
+    private func preparePhysicalQA() {
+        guard let configuration = qaConfiguration, qaConnectionTask == nil else { return }
+        didShowUsageGuide = true
+        if configuration["fullWindow"] == "true" { displayMode.isFullWindowMirror = true }
+        pairingCode = configuration["pairingCode"] ?? ""
+        qaConnectionTask = Task { @MainActor in
+            for _ in 0..<180 {
+                guard !Task.isCancelled, receiver.image == nil else { return }
+                if let host = configuration["host"], let port = Int(configuration["port"] ?? "12346") {
+                    receiver.connect(host: host, port: port, pairingCode: pairingCode)
+                } else if let serial = configuration["deviceSerial"] {
+                    let devices = await Task.detached { (try? UsbMuxClient.listDevices()) ?? [] }.value
+                    if let device = devices.first(where: { $0.serialNumber.replacingOccurrences(of: "-", with: "") == serial.replacingOccurrences(of: "-", with: "") }) {
+                        receiver.connect(to: BonjourBrowser.Device(usb: device, port: 12346), pairingCode: pairingCode)
+                    }
+                }
+                try? await Task.sleep(for: .seconds(2))
+            }
+        }
+    }
+
+    private func recordPhysicalQAFrame(_ image: NSImage?) {
+        guard let image, let configuration = qaConfiguration,
+              let output = configuration["evidencePath"],
+              let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
+        qaFrameCount += 1
+        let record: [String: Any] = [
+            "checked_at_utc": ISO8601DateFormatter().string(from: Date()),
+            "transport": configuration["host"] == nil ? "USB" : "network",
+            "authenticated_decoded_frames": qaFrameCount,
+            "width": cgImage.width, "height": cgImage.height,
+            "screen_image_saved": false, "pairing_code_exposed": false,
+            "scope": "actual Debug Mac receiver view; encrypted JPEG decoded from physical iPad"
+        ]
+        if let data = try? JSONSerialization.data(withJSONObject: record, options: [.prettyPrinted, .sortedKeys]) {
+            try? data.write(to: URL(fileURLWithPath: output), options: .atomic)
+        }
+    }
+    #endif
 
     private var mainContent: some View {
         VStack(spacing: 0) {
@@ -103,16 +147,12 @@ struct ReceiverView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(MonitorTheme.brandName)
                     .font(.title3.weight(.semibold))
-                Text(receiver.image == nil ? "화면을 기다리는 중" : "미러링 연결됨")
+                Text(receiver.image == nil ? MirrorL10n.text("화면을 기다리는 중") : MirrorL10n.text("미러링 연결됨"))
                     .font(.caption)
                     .foregroundStyle(receiver.image == nil ? Color.monitorOnSurfaceVariant : Color.monitorSuccess)
             }
             Spacer()
-            MonitorUsageChip(
-                remainingSeconds: usageAccess.remainingSeconds,
-                lifetimeUnlocked: usageAccess.lifetimeUnlocked,
-                remainingLabel: usageAccess.remainingTimeLabel
-            )
+            freeCompanionLabel
         }
         .padding(.horizontal, 20)
     }
@@ -126,18 +166,16 @@ struct ReceiverView: View {
 
             Spacer()
 
-            Button("사용법") {
+            Button {
                 showingUsageGuide = true
+            } label: {
+                Text(MirrorL10n.text("사용법")).foregroundStyle(Color.black)
             }
 
-            if !usageAccess.lifetimeUnlocked {
-                Button("유료 기능") {
-                    showingUpgrade = true
-                }
-            }
-
-            Button("앱 전체 크기로 보기") {
+            Button {
                 displayMode.isFullWindowMirror = true
+            } label: {
+                Text(MirrorL10n.text("앱 전체 크기로 보기")).foregroundStyle(Color.black)
             }
             .disabled(receiver.image == nil)
             .keyboardShortcut("f", modifiers: [.command, .shift])
@@ -150,7 +188,7 @@ struct ReceiverView: View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("연결된 iPad")
+                    Text(MirrorL10n.text("연결된 iPad"))
                         .font(.headline)
                     Text(browser.status)
                         .font(.caption)
@@ -162,21 +200,21 @@ struct ReceiverView: View {
                 } label: {
                     Image(systemName: "arrow.clockwise")
                 }
-                .help("새로고침")
+                .help(MirrorL10n.text("새로고침"))
             }
 
-            SecureField("iPad 연결 코드 (예: ABCD-2345)", text: $pairingCode)
+            SecureField(MirrorL10n.text("iPad 연결 코드 (예: ABCD-2345)"), text: $pairingCode)
                 .textFieldStyle(.roundedBorder)
-                .help("iPad 앱 홈 화면에 표시된 8자리 코드를 입력하세요.")
+                .help(MirrorL10n.text("iPad 앱 홈 화면에 표시된 8자리 코드를 입력하세요."))
 
             if browser.devices.isEmpty {
                 VStack(spacing: 12) {
                     Image(systemName: "ipad.and.arrow.forward")
                         .font(.system(size: 28, weight: .semibold))
                         .foregroundStyle(Color.monitorPrimary)
-                    Text("방송 중인 iPad 없음")
+                    Text(MirrorL10n.text("방송 중인 iPad 없음"))
                         .font(.headline)
-                    Text("iPad 앱에서 방송을 시작하면 여기에 나타납니다.")
+                    Text(MirrorL10n.text("iPad 앱에서 방송을 시작하면 여기에 나타납니다."))
                         .font(.subheadline)
                         .foregroundStyle(Color.monitorOnSurfaceVariant)
                         .multilineTextAlignment(.center)
@@ -244,10 +282,10 @@ struct ReceiverView: View {
                     Image(systemName: "display")
                         .font(.system(size: 34, weight: .semibold))
                         .foregroundStyle(Color.white.opacity(0.72))
-                    Text("현재 화면 미러링 대기 중")
+                    Text(MirrorL10n.text("현재 화면 미러링 대기 중"))
                         .font(.headline)
                         .foregroundStyle(.white)
-                    Text("왼쪽 목록에서 iPad 이름을 선택하세요.")
+                    Text(MirrorL10n.text("왼쪽 목록에서 iPad 이름을 선택하세요."))
                         .font(.subheadline)
                         .foregroundStyle(Color.white.opacity(0.7))
                 }
@@ -276,17 +314,15 @@ struct ReceiverView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                MonitorUsageChip(
-                    remainingSeconds: usageAccess.remainingSeconds,
-                    lifetimeUnlocked: usageAccess.lifetimeUnlocked,
-                    remainingLabel: usageAccess.remainingTimeLabel
-                )
+                freeCompanionLabel
 
-                Button("사용법") {
+                Button {
                     showingUsageGuide = true
+                } label: {
+                    Text(MirrorL10n.text("사용법")).foregroundStyle(Color.black)
                 }
 
-                Button("목록 보기") {
+                Button(MirrorL10n.text("목록 보기")) {
                     displayMode.isFullWindowMirror = false
                 }
                 .keyboardShortcut(.escape, modifiers: [])
@@ -297,25 +333,12 @@ struct ReceiverView: View {
         }
     }
 
-    private func paywall(title: String) -> some View {
-        MonitorPaywallView(
-            store: store,
-            remainingLabel: usageAccess.remainingTimeLabel,
-            title: title,
-            adsSupported: ads.isSupported,
-            adReady: ads.isReady,
-            adPresenting: ads.isPresenting,
-            adStatus: ads.status,
-            onWatchAd: {
-                Task {
-                    do {
-                        try await ads.showRewarded()
-                    } catch {
-                        ads.status = error.localizedDescription
-                    }
-                }
-            },
-            onShowGuide: { showingUsageGuide = true }
-        )
+    private var freeCompanionLabel: some View {
+        Label(MirrorL10n.text("무료 동반 앱"), systemImage: "infinity")
+            .font(.subheadline.weight(.semibold))
+            .foregroundStyle(Color.monitorPrimary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Color.monitorPrimary.opacity(0.12), in: Capsule())
     }
 }

@@ -1,0 +1,35 @@
+{
+  "configurations": [
+    {
+      "id": "C41E5484-7318-4E89-B5E6-6A9A83D27411",
+      "name": "Local StoreKit",
+      "options": {
+      }
+    }
+  ],
+  "defaultOptions": {
+    "commandLineArgumentEntries": [
+      { "argument": "-SkipAds", "enabled": true }
+    ],
+    "storeKitConfigurationFileReference": {
+      "identifier": "Packaging/Products.storekit"
+    }
+  },
+  "testTargets": [
+    {
+      "target": {
+        "containerPath": "container:iPadMirrorPad.xcodeproj",
+        "identifier": "62C4C306C7DF5B37981E08A2",
+        "name": "iPadMirrorPadTests"
+      }
+    },
+    {
+      "target": {
+        "containerPath": "container:iPadMirrorPad.xcodeproj",
+        "identifier": "FE5337C892946307CA264CE5",
+        "name": "iPadMirrorPadUITests"
+      }
+    }
+  ],
+  "version": 1
+}

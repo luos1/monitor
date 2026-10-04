@@ -24,6 +24,17 @@ public enum MonetizationConfig {
     }
 }
 
+public enum RewardedAdCachePolicy {
+    // Google rewarded ads expire after one hour; refresh before that boundary.
+    public static let maximumAge: TimeInterval = 55 * 60
+
+    public static func isFresh(loadedAt: Date?, now: Date = Date()) -> Bool {
+        guard let loadedAt else { return false }
+        let age = now.timeIntervalSince(loadedAt)
+        return age >= 0 && age < maximumAge
+    }
+}
+
 public enum MonetizationOutcome: String, Equatable {
     case rewardedAdFinished
     case lifetimeUnlocked
@@ -57,7 +68,7 @@ public enum MonetizationApplier {
     }
 }
 
-public enum AdRewardError: LocalizedError, Equatable {
+public enum AdRewardError: MirrorLocalizedError, Equatable {
     case unsupported
     case notReady
     case failed(String)
@@ -66,13 +77,13 @@ public enum AdRewardError: LocalizedError, Equatable {
     public var errorDescription: String? {
         switch self {
         case .unsupported:
-            return "광고 연장은 iPad 앱에서 사용할 수 있습니다."
+            return MirrorL10n.text("광고 연장은 iPad 앱에서 사용할 수 있습니다.")
         case .notReady:
-            return "광고를 아직 불러오지 못했습니다. 잠시 후 다시 시도해 주세요."
+            return MirrorL10n.text("광고를 아직 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.")
         case .failed(let message):
             return message
         case .noReward:
-            return "광고를 끝까지 보지 않아 시간이 연장되지 않았습니다."
+            return MirrorL10n.text("광고를 끝까지 보지 않아 시간이 연장되지 않았습니다.")
         }
     }
 }

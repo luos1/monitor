@@ -1,3 +1,4 @@
+import iPadMirrorShared
 import SwiftUI
 
 @main
@@ -9,7 +10,7 @@ struct iPadMirrorMacApp: App {
         .defaultSize(width: 1100, height: 740)
         .commands {
             CommandGroup(replacing: .help) {
-                Button("아이패드미러 사용법") {
+                Button(MirrorL10n.text("아이패드미러 사용법")) {
                     NotificationCenter.default.post(name: .monitorShowUsageGuide, object: nil)
                 }
             }
