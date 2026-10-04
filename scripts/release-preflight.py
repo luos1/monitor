@@ -3,6 +3,7 @@
 import json
 import plistlib
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -26,7 +27,7 @@ for name, info in (("iPad app", pad), ("broadcast extension", extension)):
 check("AdMob app ID", pad.get("GADApplicationIdentifier") == "ca-app-pub-2932716467029728~6289164999")
 
 project = (ROOT / "iPadMirrorPad.xcodeproj/project.pbxproj").read_text()
-check("app and extension default to build 4", re.findall(r"CURRENT_PROJECT_VERSION = (\d+);", project) == ["4"] * 4)
+check("app and extension default to build 5", re.findall(r"CURRENT_PROJECT_VERSION = (\d+);", project) == ["5"] * 4)
 check("iOS 17 deployment target", set(re.findall(r"IPHONEOS_DEPLOYMENT_TARGET = ([\d.]+);", project)) == {"17.0"})
 check("skip-ads support compiled", "ScreenshotMode.swift in Sources" in project)
 
@@ -51,6 +52,8 @@ for name, path, required in (
     check(f"{name}: UserDefaults reason matches container", set(defaults["NSPrivacyAccessedAPITypeReasons"]) == required)
 
 products = json.loads((ROOT / "Packaging/Products.storekit").read_text())["products"]
+privacy_validation = subprocess.run([sys.executable, str(ROOT / "scripts/validate-privacy-manifests.py")], capture_output=True, text=True)
+check("privacy manifest types and TN3181 tracking relationships", privacy_validation.returncode == 0)
 check("local StoreKit IDs match existing products", {p["productID"] for p in products} == {"ipadmirror.lifetime", "ipadmirror.donation"})
 check("products are non-consumable", all(p["type"] == "NonConsumable" for p in products))
 

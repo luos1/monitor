@@ -1,0 +1,13 @@
+# Privacy manifest technical validation
+
+Checked on 2026-10-04 against the actual build 4 IPA and pinned Google Mobile Ads 12.14.0 / UMP 3.1.0 packages.
+
+Apple [TN3181](https://developer.apple.com/documentation/technotes/tn3181-debugging-invalid-privacy-manifest) identifies tracking enabled with an empty domain array as an invalid combination. The build 4 app contained that combination. Apple's [DTS response](https://developer.apple.com/forums/thread/842856) also advises removing an unused domain key entirely from nontracking app/extension manifests.
+
+The main app keeps `NSPrivacyTracking` enabled and lists `googleads.g.doubleclick.net` and `pagead2.googlesyndication.com`. Both hostnames occur in the pinned device SDK library and the actual build 4 main executable. The SDK contains its native ad resource URLs under the first host and its `/pagead/gen_204` endpoint under the second. Its original privacy manifest marks Device ID collection as tracking, and [Google's ATT guidance](https://developers.google.com/admob/ios/privacy/strategies) explains that authorized IDFA can be used in ad requests. Classifying these advertising hosts as tracking domains is a technical inference from those SDK facts; a runtime DNS capture has not been performed. The consent service host and broad `www.google.com` are not added.
+
+The Broadcast Extension and free Mac receiver keep tracking disabled and omit `NSPrivacyTrackingDomains`. Their own collection entries and required API reasons are preserved. Google-supplied manifests remain byte-for-byte unchanged; the app's own collected-data array remains empty because the app has no own data upload or receipt server. This does not remove SDK collection declarations or alter consent/ATT behavior.
+
+Run `python3 scripts/validate-privacy-manifests.py` for the three source manifests. Pass an extracted app or archive directory to validate every included SDK/extension manifest. `scripts/release-preflight.py` includes the source check. Local regression validation rejects the actual build 4 app combination, unused empty domain keys, a false tracking flag with domains, a non-Boolean tracking value, and URL-form domains. It accepts the corrected source and unchanged SDK manifests.
+
+The Apple email described a false/nonempty mismatch, which was not literally present in the uploaded build 4 bytes. The independently documented true/empty defect is present and corrected here. Local validation does not establish App Store processing or review acceptance; a new archive, upload, and server revalidation remain separate operations. Store privacy answers and the published privacy policy are not changed by this technical correction.
