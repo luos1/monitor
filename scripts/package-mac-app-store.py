@@ -61,6 +61,8 @@ def main():
     assert info["CFBundleIdentifier"] == expected_bundle
     assert entitlements["com.apple.security.app-sandbox"] is True
     assert entitlements["com.apple.security.network.client"] is True
+    if "com.apple.security.network.server" in entitlements:
+        raise ValueError("The Mac receiver initiates outgoing connections; it has no incoming listener and must not request network.server")
     if any(key.startswith("com.apple.security.temporary-exception") for key in entitlements):
         raise ValueError("No broad sandbox exception is permitted in this store configuration")
     if args.mode == "store":
