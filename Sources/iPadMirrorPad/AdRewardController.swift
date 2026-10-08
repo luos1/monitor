@@ -33,7 +33,10 @@ final class AdRewardController: NSObject, ObservableObject {
     func load() async {
         #if canImport(GoogleMobileAds)
         expireCachedAdIfNeeded()
-        guard AdPrivacyController.shared.canLoadAds, !ScreenshotMode.skipAds,
+        #if DEBUG
+        guard !ScreenshotMode.skipAds else { return }
+        #endif
+        guard AdPrivacyController.shared.canLoadAds,
               !BroadcastSharedSettings.hasRecentVerifiedLifetimeEntitlement(),
               loadID == nil, !isPresenting, rewardedAd == nil else { return }
         let requestID = UUID()
@@ -67,8 +70,10 @@ final class AdRewardController: NSObject, ObservableObject {
     func showRewarded() async throws {
         #if canImport(GoogleMobileAds)
         expireCachedAdIfNeeded()
-        guard !isPresenting, AdPrivacyController.shared.canLoadAds,
-              !ScreenshotMode.skipAds else { throw AdRewardError.notReady }
+        #if DEBUG
+        guard !ScreenshotMode.skipAds else { throw AdRewardError.notReady }
+        #endif
+        guard !isPresenting, AdPrivacyController.shared.canLoadAds else { throw AdRewardError.notReady }
         guard let rewardedAd, let presenter = Self.topViewController() else {
             throw AdRewardError.notReady
         }

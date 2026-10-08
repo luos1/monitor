@@ -38,7 +38,10 @@ final class AdPrivacyController: ObservableObject {
     private init() {}
 
     func prepareIfNeeded() {
-        guard !didPrepare, !isPreparing, !ScreenshotMode.skipAds,
+        #if DEBUG
+        guard !ScreenshotMode.skipAds else { return }
+        #endif
+        guard !didPrepare, !isPreparing,
               UIApplication.shared.applicationState == .active else { return }
         didPrepare = true
         isPreparing = true
@@ -88,7 +91,14 @@ final class AdPrivacyController: ObservableObject {
 
     #if canImport(GoogleMobileAds) && canImport(UserMessagingPlatform)
     private func updateAdPermission() async {
-        guard ConsentInformation.shared.canRequestAds, !ScreenshotMode.skipAds else {
+        #if DEBUG
+        if ScreenshotMode.skipAds {
+            canLoadAds = false
+            status = MirrorL10n.text("광고를 현재 사용할 수 없습니다.")
+            return
+        }
+        #endif
+        guard ConsentInformation.shared.canRequestAds else {
             canLoadAds = false
             status = MirrorL10n.text("광고를 현재 사용할 수 없습니다.")
             return
@@ -103,7 +113,7 @@ final class AdPrivacyController: ObservableObject {
             }
             didStartSDK = true
         }
-        canLoadAds = ConsentInformation.shared.canRequestAds && !ScreenshotMode.skipAds
+        canLoadAds = ConsentInformation.shared.canRequestAds
         status = canLoadAds ? MirrorL10n.text("광고 개인정보 설정 확인됨") : MirrorL10n.text("광고를 현재 사용할 수 없습니다.")
     }
     #endif

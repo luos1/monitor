@@ -1,3 +1,4 @@
+#if DEBUG
 import Foundation
 
 public enum AppLocale: String {
@@ -23,3 +24,4 @@ public enum ScreenshotMode {
         return value
     }
 }
+#endif

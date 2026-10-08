@@ -16,7 +16,7 @@ public enum MonitorRole {
     public var companionDetail: String {
         switch self {
         case .pad:
-            return MirrorL10n.text("이 앱은 화면을 보내는 역할입니다. Mac에서 아이패드미러를 함께 실행하세요.")
+            return MirrorL10n.text("이 앱은 화면을 보냅니다. Mac에서 아이패드미러를 함께 실행하세요. Mac App Store 버전은 같은 로컬 네트워크로 연결하며 USB 케이블만으로는 연결되지 않습니다.")
         case .mac:
             return MirrorL10n.text("이 앱은 화면을 받는 역할입니다. iPad에서 아이패드미러 방송을 시작하세요.")
         }
@@ -35,9 +35,9 @@ public enum MonitorRole {
         switch self {
         case .pad:
             return [
-                ("1", MirrorL10n.text("Mac 앱 켜기"), MirrorL10n.text("아이패드미러 Mac을 먼저 실행해 받을 준비를 합니다.")),
-                ("2", MirrorL10n.text("iPad에서 방송 시작"), MirrorL10n.text("전체 화면 공유를 누르고 ‘아이패드미러 방송’을 선택합니다.")),
-                ("3", MirrorL10n.text("Mac에서 iPad 선택"), MirrorL10n.text("Mac 왼쪽 목록의 iPad 이름을 누르면 화면이 연결됩니다."))
+                ("1", MirrorL10n.text("같은 네트워크에서 두 앱 켜기"), MirrorL10n.text("Mac과 이 기기를 서로 연결 가능한 같은 로컬 네트워크에 연결하고 두 앱을 켜세요. 요청되면 두 기기의 로컬 네트워크 접근을 허용하세요.")),
+                ("2", MirrorL10n.text("이 기기에서 방송 시작"), MirrorL10n.text("전체 화면 방송 시작을 누르고 ‘아이패드미러 방송’을 선택한 뒤 방송 시작을 확인하세요.")),
+                ("3", MirrorL10n.text("코드 입력 후 기기 선택"), MirrorL10n.text("이 앱 홈 화면의 8자리 연결 코드를 Mac 앱에 입력한 뒤 왼쪽 목록에서 이 기기를 선택하세요."))
             ]
         case .mac:
             return [
@@ -380,9 +380,11 @@ public struct MonitorPaywallView: View {
                     if let statusMessage = store.statusMessage {
                         Text(statusMessage)
                     }
+                    #if DEBUG
                     if MonetizationConfig.usesGoogleSampleAds && adsSupported && !ScreenshotMode.isEnabled {
                         Text(MirrorL10n.text("지금은 Google 테스트 광고 ID를 사용합니다. AdMob 앱을 등록한 뒤 MonetizationConfig의 ID를 바꾸세요."))
                     }
+                    #endif
                 }
                 .font(.footnote)
                 .foregroundStyle(Color.monitorOnSurfaceVariant)

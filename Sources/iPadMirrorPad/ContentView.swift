@@ -15,6 +15,13 @@ struct ContentView: View {
     @StateObject private var store = StorePurchaseManager()
     @StateObject private var ads = AdRewardController()
 
+    private var displayedPairingCode: String {
+        #if DEBUG
+        if ScreenshotMode.isEnabled { return "••••-••••" }
+        #endif
+        return BroadcastSharedSettings.formattedPairingCode()
+    }
+
     private var broadcastExtensionIdentifier: String {
         "\(Bundle.main.bundleIdentifier ?? "com.raccoonmerchant.ipadmirror").BroadcastExtension"
     }
@@ -157,7 +164,7 @@ struct ContentView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(MirrorL10n.text("Mac 연결 코드"))
                                 .font(.headline)
-                            Text(ScreenshotMode.isEnabled ? "••••-••••" : BroadcastSharedSettings.formattedPairingCode())
+                            Text(displayedPairingCode)
                                 .font(.system(.title2, design: .monospaced, weight: .bold))
                                 .textSelection(.enabled)
                             Text(MirrorL10n.text("Mac 앱에 이 코드를 입력해야 화면을 받을 수 있습니다."))

@@ -25,7 +25,7 @@ UMP 정보 갱신과 필요한 동의 양식 이후 `canRequestAds`가 허용할
 ## 로컬 검증
 
 1. Xcode Debug scheme의 기존 `Packaging/Products.storekit` 구성을 사용합니다. 이는 운영 구매 확인을 대신하지 않습니다.
-2. Debug에서는 [Google 테스트 광고](https://developers.google.com/admob/ios/test-ads)를 사용합니다. 화면 확인만 할 때는 `-SkipAds`로 실행합니다.
+2. Debug에서는 [Google 테스트 광고](https://developers.google.com/admob/ios/test-ads)를 사용합니다. Debug 화면 확인만 할 때는 `-SkipAds`로 실행합니다. 촬영·광고 생략 옵션과 모든 호출부는 DEBUG 전용이며 Release에서 제외됩니다.
 3. 실제 광고 클릭, 운영 노출 반복, 실제 구매로 검증하지 않습니다.
 4. 광고 성공/취소/실패, 보상 저장/재실행과 StoreKit 구매/복원/취소를 테스트 광고 및 승인된 샌드박스로 확인합니다.
 5. 개인정보 신고는 [SDK 데이터 공개 안내](https://developers.google.com/admob/ios/privacy/data-disclosure), 포함된 manifest 및 실제 설정을 함께 확인해 작성합니다.

@@ -173,3 +173,10 @@
 "화면 공유 일시 정지" = "Screen sharing paused";
 "광고 불러오는 중…" = "Loading ad…";
 "연결 코드를 확인하는 중…" = "Checking the connection code…";
+"이 앱은 화면을 보냅니다. Mac에서 아이패드미러를 함께 실행하세요. Mac App Store 버전은 같은 로컬 네트워크로 연결하며 USB 케이블만으로는 연결되지 않습니다." = "This app sends your screen. Open iPad Mirror on your Mac as well. The Mac App Store version connects over the same local network; a USB cable alone does not connect it.";
+"같은 네트워크에서 두 앱 켜기" = "Open both apps on the same network";
+"Mac과 이 기기를 서로 연결 가능한 같은 로컬 네트워크에 연결하고 두 앱을 켜세요. 요청되면 두 기기의 로컬 네트워크 접근을 허용하세요." = "Connect your Mac and this device to the same reachable local network and open both apps. Allow local network access on both devices when requested.";
+"이 기기에서 방송 시작" = "Start broadcasting on this device";
+"전체 화면 방송 시작을 누르고 ‘아이패드미러 방송’을 선택한 뒤 방송 시작을 확인하세요." = "Tap Start Full-Screen Broadcast, select iPad Mirror Broadcast (아이패드미러 방송), and confirm Start Broadcast.";
+"코드 입력 후 기기 선택" = "Enter the code, then select your device";
+"이 앱 홈 화면의 8자리 연결 코드를 Mac 앱에 입력한 뒤 왼쪽 목록에서 이 기기를 선택하세요." = "Enter the eight-character connection code from this app home screen in the Mac app, then select this device in the list.";

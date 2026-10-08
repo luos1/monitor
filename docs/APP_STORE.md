@@ -1,46 +1,48 @@
-# App Store / Mac 소개 문구
+# App Store 소개 문구
 
-이름: 아이패드미러
-부제: iPad 화면을 Mac으로
+앱 이름: 아이패드미러 / iPad Mirror
+현재 재제출 후보: iOS 1.0 빌드 7, macOS 1.0 빌드 3. 아래 문구는 콘솔 담당에게 전달할 원본이며 콘솔에 저장됐다는 기록이 아닙니다.
 
-## 한국어 설명
+## iOS 한국어 설명
 
-아이패드미러는 iPad의 현재 화면을 Mac으로 보내는 미러링 앱입니다.
-
-iPad 앱은 화면을 보내고, Mac 앱은 그 화면을 받아 보여 줍니다. 두 앱을 함께 켜야 동작합니다. 홈 화면과 다른 앱을 포함한 전체 화면을 방송할 수 있습니다.
+아이패드미러는 iPhone 또는 iPad의 현재 화면을 Mac으로 보내는 미러링 앱입니다. iOS 앱은 화면을 보내고 무료 Mac 동반 앱은 받아 보여 줍니다. 두 앱이 함께 실행돼야 합니다. ReplayKit 방송을 시작하면 홈 화면과 다른 앱의 화면도 공유할 수 있습니다.
 
 사용 방법
-1. Mac에서 아이패드미러를 켭니다.
-2. iPad에서 전체 화면 공유를 시작하고 ‘아이패드미러 방송’을 선택합니다.
-3. Mac 목록에서 iPad 이름을 누릅니다.
+1. Mac과 iPhone/iPad를 서로 연결 가능한 같은 로컬 네트워크에 연결하고 두 앱을 켭니다. 요청되면 두 기기의 로컬 네트워크 접근을 허용합니다.
+2. iOS 앱에서 전체 화면 방송 시작을 누르고 ‘아이패드미러 방송’을 선택한 뒤 시스템의 방송 시작을 확인합니다.
+3. iOS 앱 홈 화면에 표시된 8자리 연결 코드를 Mac 앱에 입력합니다.
+4. Mac 왼쪽 목록에서 해당 기기를 선택합니다.
 
-Mac 수신 앱은 시간 제한과 별도 구매 없이 무료입니다. iPad의 처음 60분은 무료입니다. iPad에서는 광고를 보고 60분을 연장할 수 있습니다. 영구 사용($4.99)과 개발자 응원($99.99)은 인앱 결제입니다. 응원 구매 시 영구 사용도 함께 해제됩니다.
+Mac App Store 수신 앱은 로컬 네트워크로 연결합니다. USB 케이블만 연결해서는 이 Mac 버전으로 미러링할 수 없습니다. 기존 USB 지원 다운로드 배포판과 연결 방식이 다릅니다.
 
-화면은 외부 서버로 올라가지 않습니다. iPad에 표시된 연결 코드로 Mac을 인증하고, 암호화된 화면을 같은 네트워크 또는 USB로만 전달합니다.
+iOS의 처음 60분은 무료입니다. 보상 광고를 완료하면 사용 시간을 60분 연장할 수 있습니다. 영구 사용과 개발자 응원은 Apple 인앱 결제이며, 개발자 응원도 영구 사용을 제공합니다. 구매 화면에 현지화된 실제 가격이 표시되고 구매 복원을 제공합니다. Mac 수신 앱은 시간 제한·광고·별도 구매 없이 무료입니다.
 
-## English description
+화면은 연결 코드로 인증된 Mac에 암호화해 전달됩니다. 화면 전송 기능에는 개발자 서버 업로드나 녹화 저장이 없습니다. iOS 광고 SDK의 데이터 처리는 개인정보 처리방침의 별도 설명을 따릅니다.
 
-iPad Mirror sends your iPad screen to your Mac.
+## iOS English description
 
-The iPad app broadcasts the screen, and the companion Mac app receives it. Both apps are required. Use the broadcast extension to share the Home Screen and other apps.
+iPad Mirror sends the screen of your iPhone or iPad to your Mac. The iOS app sends the screen and the free Mac companion receives it. Both apps must be running. Start the ReplayKit broadcast to share the Home Screen and other apps.
 
-How to use
-1. Open iPad Mirror on your Mac.
-2. Start full-screen sharing on iPad and select the iPad Mirror broadcast extension (아이패드미러 방송).
-3. Enter the connection code shown on iPad in the Mac app, then select your iPad.
+How to connect
+1. Connect both devices to the same reachable local network and open both apps. Allow local network access on both devices when requested.
+2. Tap Start Full-Screen Broadcast in the iOS app, select iPad Mirror Broadcast (아이패드미러 방송), and confirm the system Start Broadcast action.
+3. Enter the eight-character connection code shown on the iOS app home screen in the Mac app.
+4. Select that device in the Mac app list.
 
-The first 60 minutes are free. On iPad, a rewarded ad can add 60 minutes to the iPad usage allowance. Lifetime access and Developer Support are non-consumable in-app purchases. Developer Support also includes lifetime access. The Mac companion is free, with no separate time limit or purchase.
+The Mac App Store receiver connects over your local network. A USB cable alone does not provide mirroring in this Mac version. The existing USB-capable download distribution has a different connection scope.
 
-Screen frames are encrypted and sent over your local network or USB. Screen frames are not uploaded to an external server.
+The first 60 minutes on iOS are free. Completing a rewarded ad adds 60 minutes. Lifetime Access and Developer Support are Apple in-app purchases; Developer Support also provides lifetime access. The purchase screen shows localized prices and offers Restore Purchases. The Mac receiver is free, with no time limit, ads or separate purchase.
 
-## 키워드
+Screen frames are authenticated with the connection code and encrypted for the connected Mac. The screen-sharing feature does not upload frames to a developer server or save recordings. iOS ad SDK processing is described separately in the privacy policy.
 
-아이패드미러,화면미러링,iPad,Mac,미러,방송,모니터,화면공유,Sidecar대안,로컬네트워크
+## Mac App Store 한국어 설명
 
-## 카테고리
+아이패드미러 Mac은 iPhone 또는 iPad에서 방송한 화면을 받아 보여 주는 무료 동반 앱입니다. iOS 아이패드미러 앱이 함께 필요합니다. 두 기기를 같은 로컬 네트워크에 연결하고 로컬 네트워크 접근을 허용한 뒤, iOS 앱에서 ‘아이패드미러 방송’을 시작하세요. 송신 앱 홈 화면의 8자리 코드를 Mac 앱에 입력하고 목록에서 해당 기기를 선택하면 암호화된 화면을 받습니다.
 
-생산성 (보조: 유틸리티)
+이 Mac App Store 버전은 로컬 네트워크 전용입니다. USB 케이블만으로는 연결되지 않습니다. Mac 앱에는 시간 제한·광고·구매·복원 화면이 없습니다. iOS 송신 앱의 무료 시간·광고 연장·영구 사용 조건은 iOS 앱에서 확인하세요. 이 앱에 자체 필기·회의·녹화 기능은 없으며 사용자가 선택한 화면을 표시합니다.
 
-## 프로모션 텍스트 (170자 이내)
+## Mac App Store English description
 
-iPad 화면을 Mac으로. 두 앱을 켜고 방송만 시작하면 됩니다. 처음 60분은 무료입니다.
+iPad Mirror for Mac is a free companion that receives a screen broadcast from your iPhone or iPad. The companion iOS iPad Mirror app is required. Connect both devices to the same reachable local network, allow local network access when requested, and start iPad Mirror Broadcast in the iOS app. Enter the eight-character code from the sender app home screen in the Mac app, then select the device to receive its encrypted screen.
+
+This Mac App Store version is local-network-only. A USB cable alone does not connect it. The Mac app has no time limit, ads, purchases or restore screen. The sender iOS app explains its free time, rewarded extensions and lifetime access. This receiver displays the screen selected by the user; it has no built-in handwriting, meeting or recording feature.
