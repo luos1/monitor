@@ -110,7 +110,7 @@
 "수신 중 · {0} ({1} bytes)" = "Receiving · {0} ({1} bytes)";
 "쉽게 쓰는 순서" = "How to Connect";
 "스토어 상품 로드 실패: {0}" = "Could not load purchase options: {0}";
-"스토어 상품을 아직 불러오지 못했습니다. Xcode StoreKit 구성 또는 App Store Connect 상품을 확인하세요." = "Unable to load purchase options. Check your internet connection and try again.";
+"스토어 상품을 아직 불러오지 못했습니다. Xcode StoreKit 구성 또는 App Store Connect 상품을 확인하세요." = "Purchase options are currently unavailable. Please try reloading shortly.";
 "스토어 상품이 아직 준비되지 않았습니다." = "The purchase option is not ready yet.";
 "시작하기" = "Get Started";
 "아이패드미러" = "iPad Mirror";
@@ -180,3 +180,6 @@
 "전체 화면 방송 시작을 누르고 ‘아이패드미러 방송’을 선택한 뒤 방송 시작을 확인하세요." = "Tap Start Full-Screen Broadcast, select iPad Mirror Broadcast (아이패드미러 방송), and confirm Start Broadcast.";
 "코드 입력 후 기기 선택" = "Enter the code, then select your device";
 "이 앱 홈 화면의 8자리 연결 코드를 Mac 앱에 입력한 뒤 왼쪽 목록에서 이 기기를 선택하세요." = "Enter the eight-character connection code from this app home screen in the Mac app, then select this device in the list.";
+
+"현재 이용 불가" = "Unavailable";
+"일부 구매 옵션을 불러오지 못했습니다. 다시 불러오세요." = "Some purchase options are unavailable. Please try reloading.";

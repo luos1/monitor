@@ -46,6 +46,25 @@ final class StoreKitIntegrationTests: XCTestCase {
         print("[Local StoreKit QA] environment=Xcode bundle=\(Bundle.main.bundleIdentifier ?? "nil") productIDs=\(products.map(\.id).sorted())")
     }
 
+    /// Reads products before the AppTransaction guard to distinguish catalog
+    /// setup from receipt/account failures. Never purchases or restores.
+    func testLocalCatalogReadOnlyProbe() async throws {
+        let configuration = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "Products", withExtension: "storekit"))
+        let session = try SKTestSession(contentsOf: configuration)
+        session.resetToDefaultState()
+        defer { withExtendedLifetime(session) {} }
+        let products = try await Product.products(for: MonetizationConfig.productIDs)
+        print("[StoreKit read-only probe] productIDs=\(products.map(\.id).sorted())")
+        XCTAssertEqual(Set(products.map(\.id)), MonetizationConfig.productIDs)
+        do {
+            if case .verified(let transaction) = try await AppTransaction.shared {
+                print("[StoreKit read-only probe] appEnvironment=\(transaction.environment)")
+            }
+        } catch {
+            print("[StoreKit read-only probe] appTransactionError=\(error)")
+        }
+    }
+
     func testLocalLifetimePurchaseRestoreAndRefund() async throws {
         let session = try await session()
         defer { session.clearTransactions() }
@@ -120,6 +139,54 @@ final class StoreKitIntegrationTests: XCTestCase {
         await store.loadProducts()
         _ = try XCTUnwrap(store.lifetimeProduct)
         _ = try XCTUnwrap(store.donationProduct)
+        XCTAssertNil(store.statusMessage)
+    }
+
+    func testLocalEmptyCatalogCanRecoverWithRealProducts() async throws {
+        let session = try await session()
+        defer { session.clearTransactions() }
+        var catalogAvailable = false
+        let store = StorePurchaseManager { ids in
+            if !catalogAvailable { return [] }
+            return try await Product.products(for: ids)
+        }
+        await store.loadProducts()
+        XCTAssertFalse(store.isLoadingProducts)
+        XCTAssertEqual(store.lifetimePriceLabel, MirrorL10n.text("현재 이용 불가"))
+        XCTAssertTrue(store.shouldRetryProducts)
+        XCTAssertFalse(store.canPurchaseLifetime)
+
+        catalogAvailable = true
+        await store.loadProducts()
+        let lifetime = try XCTUnwrap(store.lifetimeProduct)
+        _ = try XCTUnwrap(store.donationProduct)
+        XCTAssertEqual(store.lifetimePriceLabel, lifetime.displayPrice)
+        XCTAssertTrue(store.canPurchaseLifetime)
+        XCTAssertFalse(store.shouldRetryProducts)
+        XCTAssertNil(store.statusMessage)
+    }
+
+    func testLocalPartialCatalogKeepsAvailableProductAndReportsMissingOne() async throws {
+        let session = try await session()
+        defer { session.clearTransactions() }
+        var catalogComplete = false
+        let store = StorePurchaseManager { ids in
+            let products = try await Product.products(for: ids)
+            return catalogComplete ? products : products.filter { $0.id == MonetizationConfig.lifetimeProductID }
+        }
+        await store.loadProducts()
+        _ = try XCTUnwrap(store.lifetimeProduct)
+        XCTAssertNil(store.donationProduct)
+        XCTAssertTrue(store.canPurchaseLifetime)
+        XCTAssertFalse(store.canPurchaseDonation)
+        XCTAssertTrue(store.shouldRetryProducts)
+        XCTAssertNotNil(store.statusMessage)
+
+        catalogComplete = true
+        await store.loadProducts()
+        _ = try XCTUnwrap(store.donationProduct)
+        XCTAssertTrue(store.canPurchaseDonation)
+        XCTAssertFalse(store.shouldRetryProducts)
         XCTAssertNil(store.statusMessage)
     }
 

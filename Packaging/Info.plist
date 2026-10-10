@@ -33,7 +33,7 @@
 		<string>_ipadmirror._tcp</string>
 	</array>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>iPad 화면을 이 Mac으로 받기 위해 같은 네트워크의 아이패드미러 앱을 찾습니다.</string>
+	<string>iPad 화면을 이 Mac으로 받기 위해 같은 네트워크의 스크린미러 앱을 찾습니다.</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>CFBundleLocalizations</key>

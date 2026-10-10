@@ -1,15 +1,18 @@
 # App Store 소개 문구
 
-앱 이름: 아이패드미러 / iPad Mirror
-현재 재제출 후보: iOS 1.0 빌드 7, macOS 1.0 빌드 3. 아래 문구는 콘솔 담당에게 전달할 원본이며 콘솔에 저장됐다는 기록이 아닙니다.
+한국어 앱 이름: 스크린미러
+한국어 iOS 부제: 연결 코드로 안전하게 화면 공유
+한국어 Mac 부제: 같은 네트워크에서 화면 받기
+영문 앱 이름: 사용자 미지정, 기존 iPad Mirror 유지
+이전 제출 빌드: iOS 1.0 빌드 13, macOS 1.0 빌드 3. 이름·상품 로딩 수정본의 새 빌드 번호는 아직 정하지 않았습니다. 아래 문구는 콘솔 담당에게 전달할 원본이며 콘솔에 저장됐다는 기록이 아닙니다.
 
 ## iOS 한국어 설명
 
-아이패드미러는 iPhone 또는 iPad의 현재 화면을 Mac으로 보내는 미러링 앱입니다. iOS 앱은 화면을 보내고 무료 Mac 동반 앱은 받아 보여 줍니다. 두 앱이 함께 실행돼야 합니다. ReplayKit 방송을 시작하면 홈 화면과 다른 앱의 화면도 공유할 수 있습니다.
+스크린미러는 iPhone 또는 iPad의 현재 화면을 Mac으로 보내는 미러링 앱입니다. iOS 앱은 화면을 보내고 무료 Mac 동반 앱은 받아 보여 줍니다. 두 앱이 함께 실행돼야 합니다. ReplayKit 방송을 시작하면 홈 화면과 다른 앱의 화면도 공유할 수 있습니다.
 
 사용 방법
 1. Mac과 iPhone/iPad를 서로 연결 가능한 같은 로컬 네트워크에 연결하고 두 앱을 켭니다. 요청되면 두 기기의 로컬 네트워크 접근을 허용합니다.
-2. iOS 앱에서 전체 화면 방송 시작을 누르고 ‘아이패드미러 방송’을 선택한 뒤 시스템의 방송 시작을 확인합니다.
+2. iOS 앱에서 전체 화면 방송 시작을 누르고 ‘스크린미러 방송’을 선택한 뒤 시스템의 방송 시작을 확인합니다.
 3. iOS 앱 홈 화면에 표시된 8자리 연결 코드를 Mac 앱에 입력합니다.
 4. Mac 왼쪽 목록에서 해당 기기를 선택합니다.
 
@@ -25,7 +28,7 @@ iPad Mirror sends the screen of your iPhone or iPad to your Mac. The iOS app sen
 
 How to connect
 1. Connect both devices to the same reachable local network and open both apps. Allow local network access on both devices when requested.
-2. Tap Start Full-Screen Broadcast in the iOS app, select iPad Mirror Broadcast (아이패드미러 방송), and confirm the system Start Broadcast action.
+2. Tap Start Full-Screen Broadcast in the iOS app, select iPad Mirror Broadcast (스크린미러 방송), and confirm the system Start Broadcast action.
 3. Enter the eight-character connection code shown on the iOS app home screen in the Mac app.
 4. Select that device in the Mac app list.
 
@@ -37,7 +40,7 @@ Screen frames are authenticated with the connection code and encrypted for the c
 
 ## Mac App Store 한국어 설명
 
-아이패드미러 Mac은 iPhone 또는 iPad에서 방송한 화면을 받아 보여 주는 무료 동반 앱입니다. iOS 아이패드미러 앱이 함께 필요합니다. 두 기기를 같은 로컬 네트워크에 연결하고 로컬 네트워크 접근을 허용한 뒤, iOS 앱에서 ‘아이패드미러 방송’을 시작하세요. 송신 앱 홈 화면의 8자리 코드를 Mac 앱에 입력하고 목록에서 해당 기기를 선택하면 암호화된 화면을 받습니다.
+스크린미러는 iPhone 또는 iPad에서 방송한 화면을 받아 보여 주는 무료 동반 앱입니다. iOS 스크린미러 앱이 함께 필요합니다. 두 기기를 같은 로컬 네트워크에 연결하고 로컬 네트워크 접근을 허용한 뒤, iOS 앱에서 ‘스크린미러 방송’을 시작하세요. 송신 앱 홈 화면의 8자리 코드를 Mac 앱에 입력하고 목록에서 해당 기기를 선택하면 암호화된 화면을 받습니다.
 
 이 Mac App Store 버전은 로컬 네트워크 전용입니다. USB 케이블만으로는 연결되지 않습니다. Mac 앱에는 시간 제한·광고·구매·복원 화면이 없습니다. iOS 송신 앱의 무료 시간·광고 연장·영구 사용 조건은 iOS 앱에서 확인하세요. 이 앱에 자체 필기·회의·녹화 기능은 없으며 사용자가 선택한 화면을 표시합니다.
 

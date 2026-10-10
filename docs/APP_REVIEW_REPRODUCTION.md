@@ -7,7 +7,7 @@ Both apps are needed. The console owner must provide a working way to obtain the
 1. Install/open the candidate iOS sender and Mac App Store receiver on their respective devices.
 2. Connect both to the same reachable local network. Client isolation or blocked Bonjour/TCP can prevent discovery. Allow local network access on both devices when requested.
 3. In the sender, complete the visible usage guide. Its home screen shows a real eight-character connection code.
-4. Tap the visible full-screen broadcast button. In the ReplayKit system picker select iPad Mirror Broadcast (아이패드미러 방송) and confirm Start Broadcast.
+4. Tap the visible full-screen broadcast button. In the ReplayKit system picker select iPad Mirror Broadcast (스크린미러 방송) and confirm Start Broadcast.
 5. In the Mac app, enter the code from the sender home screen and select the matching discovered device.
 6. Switch to the iOS Home Screen or another app to see those screen frames in the Mac receiver. No separate built-in drawing or meeting feature is involved.
 7. Use the visible stop-sharing button or system broadcast control to stop. The Mac full-window display button is enabled after a frame arrives.

@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import StoreKit
 import SwiftUI
 
@@ -16,15 +17,28 @@ public final class StorePurchaseManager: ObservableObject {
 
     private var updatesTask: Task<Void, Never>?
     private var didStart = false
+    private let productLoader: @MainActor (Set<String>) async throws -> [Product]
+    private let logger = Logger(subsystem: "com.raccoonmerchant.ipadmirror", category: "StoreProducts")
 
-    public init() {}
+    public init(
+        productLoader: @escaping @MainActor (Set<String>) async throws -> [Product] = {
+            try await Product.products(for: $0)
+        }
+    ) {
+        self.productLoader = productLoader
+    }
 
     public var lifetimePriceLabel: String {
-        lifetimeProduct?.displayPrice ?? MirrorL10n.text("불러오는 중…")
+        priceLabel(for: lifetimeProduct)
     }
 
     public var donationPriceLabel: String {
-        donationProduct?.displayPrice ?? MirrorL10n.text("불러오는 중…")
+        priceLabel(for: donationProduct)
+    }
+
+    private func priceLabel(for product: Product?) -> String {
+        if let product { return product.displayPrice }
+        return MirrorL10n.text(isLoadingProducts || !didLoadProducts ? "불러오는 중…" : "현재 이용 불가")
     }
 
     public var canPurchaseLifetime: Bool {
@@ -61,20 +75,32 @@ public final class StorePurchaseManager: ObservableObject {
     public func loadProducts() async {
         guard !isLoadingProducts else { return }
         isLoadingProducts = true
+        statusMessage = nil
         defer {
             isLoadingProducts = false
             didLoadProducts = true
         }
         do {
-            let products = try await Product.products(for: MonetizationConfig.productIDs)
-            lifetimeProduct = products.first { $0.id == MonetizationConfig.lifetimeProductID }
-            donationProduct = products.first { $0.id == MonetizationConfig.donationProductID }
-            if lifetimeProduct == nil && donationProduct == nil {
-                statusMessage = MirrorL10n.text("스토어 상품을 아직 불러오지 못했습니다. Xcode StoreKit 구성 또는 App Store Connect 상품을 확인하세요.")
-            } else {
-                statusMessage = nil
+            // A temporarily empty or incomplete catalog can recover after the
+            // StoreKit service is ready. Keep retries bounded; never purchase
+            // or sync the user's account as part of loading the catalog.
+            for attempt in 1...3 {
+                let products = try await productLoader(MonetizationConfig.productIDs)
+                lifetimeProduct = products.first { $0.id == MonetizationConfig.lifetimeProductID }
+                donationProduct = products.first { $0.id == MonetizationConfig.donationProductID }
+                let missing = MonetizationConfig.productIDs.subtracting(products.map(\.id))
+                logger.info("Product lookup attempt=\(attempt) returned=\(products.map(\.id).sorted().joined(separator: ","), privacy: .public) missing=\(missing.sorted().joined(separator: ","), privacy: .public)")
+                if missing.isEmpty { return }
+                if attempt < 3 {
+                    try await Task.sleep(for: .milliseconds(500 * attempt))
+                }
             }
+            statusMessage = MirrorL10n.text(lifetimeProduct == nil && donationProduct == nil
+                ? "스토어 상품을 아직 불러오지 못했습니다. Xcode StoreKit 구성 또는 App Store Connect 상품을 확인하세요."
+                : "일부 구매 옵션을 불러오지 못했습니다. 다시 불러오세요.")
         } catch {
+            let details = error as NSError
+            logger.error("Product lookup failed domain=\(details.domain, privacy: .public) code=\(details.code)")
             statusMessage = MirrorL10n.format("스토어 상품 로드 실패: {0}", String(describing: MirrorL10n.errorMessage(error)))
         }
     }

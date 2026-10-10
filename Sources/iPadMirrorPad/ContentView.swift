@@ -116,6 +116,11 @@ struct ContentView: View {
             onWatchAd: watchAd,
             onShowGuide: { showingUsageGuide = true }
         )
+        .task {
+            if store.shouldRetryProducts {
+                await store.loadProducts()
+            }
+        }
     }
 
     private var mainContent: some View {
