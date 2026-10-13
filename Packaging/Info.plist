@@ -13,9 +13,9 @@
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
 	<key>CFBundleDisplayName</key>
-	<string>iPad Mirror</string>
+	<string>스크린 미러 수신기</string>
 	<key>CFBundleName</key>
-	<string>iPad Mirror</string>
+	<string>스크린 미러 수신기</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

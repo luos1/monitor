@@ -1,3 +1,3 @@
-"CFBundleDisplayName" = "iPad Mirror";
-"CFBundleName" = "iPad Mirror";
-"NSLocalNetworkUsageDescription" = "Local network access discovers iPad Mirror broadcasts so this Mac can receive the iPad screen.";
+"CFBundleDisplayName" = "스크린 미러 수신기";
+"CFBundleName" = "스크린 미러 수신기";
+"NSLocalNetworkUsageDescription" = "Local network access discovers 스크린미러 broadcasts so this Mac can receive the iPad screen.";

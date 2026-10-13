@@ -1,10 +1,14 @@
 # App Store 소개 문구
 
-한국어 앱 이름: 스크린미러
+한국어·영어(미국) iOS 앱 이름: 스크린미러
+한국어·영어(미국) Mac 앱 이름: 스크린 미러 수신기
 한국어 iOS 부제: 연결 코드로 안전하게 화면 공유
 한국어 Mac 부제: 같은 네트워크에서 화면 받기
-영문 앱 이름: 사용자 미지정, 기존 iPad Mirror 유지
-이전 제출 빌드: iOS 1.0 빌드 13, macOS 1.0 빌드 3. 이름·상품 로딩 수정본의 새 빌드 번호는 아직 정하지 않았습니다. 아래 문구는 콘솔 담당에게 전달할 원본이며 콘솔에 저장됐다는 기록이 아닙니다.
+영어(미국) iOS 부제: Secure sharing with a code
+영어(미국) Mac 부제: Receive screens locally
+2026-10-13 제출 상태: iOS 1.0 빌드 14와 macOS 1.0 빌드 4를 업로드했고 Apple의 빌드 처리 상태는 모두 VALID입니다. iOS 빌드 14는 버전 1.0에 선택된 제출 준비 상태입니다. 실제 Apple Sandbox 상품 조회·구매·복원 검증은 완료되지 않았으며 iOS 재제출은 아직 진행하지 않았습니다.
+Mac은 기존 빌드 3 제출을 취소하고 이름 변경을 포함한 빌드 4를 2026-10-13 20:53 KST에 재제출했습니다. [Mac 제출 43a58548-f970-4005-b8b9-49948765430b](https://appstoreconnect.apple.com/apps/6818995921/distribution/reviewsubmissions/details/43a58548-f970-4005-b8b9-49948765430b)의 상태는 WAITING_FOR_REVIEW이며 수동 출시 설정을 유지합니다.
+두 앱의 이름과 부제를 한국어·영어(미국)에 저장하고 조회로 확인했습니다. Apple은 같은 계정의 ‘스크린미러’와 ‘스크린 미러’를 중복 이름으로 처리하므로 Mac에는 수신 역할을 나타내는 접미사를 사용합니다. 두 바이너리에도 새 표시 이름을 포함하며 번들 ID와 인앱 상품 ID는 유지합니다.
 
 ## iOS 한국어 설명
 
@@ -24,11 +28,11 @@ iOS의 처음 60분은 무료입니다. 보상 광고를 완료하면 사용 시
 
 ## iOS English description
 
-iPad Mirror sends the screen of your iPhone or iPad to your Mac. The iOS app sends the screen and the free Mac companion receives it. Both apps must be running. Start the ReplayKit broadcast to share the Home Screen and other apps.
+스크린미러 sends the screen of your iPhone or iPad to your Mac. The iOS app sends the screen and the free Mac companion receives it. Both apps must be running. Start the ReplayKit broadcast to share the Home Screen and other apps.
 
 How to connect
 1. Connect both devices to the same reachable local network and open both apps. Allow local network access on both devices when requested.
-2. Tap Start Full-Screen Broadcast in the iOS app, select iPad Mirror Broadcast (스크린미러 방송), and confirm the system Start Broadcast action.
+2. Tap Start Full-Screen Broadcast in the iOS app, select 스크린미러 Broadcast (스크린미러 방송), and confirm the system Start Broadcast action.
 3. Enter the eight-character connection code shown on the iOS app home screen in the Mac app.
 4. Select that device in the Mac app list.
 
@@ -40,12 +44,12 @@ Screen frames are authenticated with the connection code and encrypted for the c
 
 ## Mac App Store 한국어 설명
 
-스크린미러는 iPhone 또는 iPad에서 방송한 화면을 받아 보여 주는 무료 동반 앱입니다. iOS 스크린미러 앱이 함께 필요합니다. 두 기기를 같은 로컬 네트워크에 연결하고 로컬 네트워크 접근을 허용한 뒤, iOS 앱에서 ‘스크린미러 방송’을 시작하세요. 송신 앱 홈 화면의 8자리 코드를 Mac 앱에 입력하고 목록에서 해당 기기를 선택하면 암호화된 화면을 받습니다.
+스크린 미러 수신기는 iPhone 또는 iPad에서 방송한 화면을 받아 보여 주는 무료 동반 앱입니다. iOS 스크린미러 앱이 함께 필요합니다. 두 기기를 같은 로컬 네트워크에 연결하고 로컬 네트워크 접근을 허용한 뒤, iOS 앱에서 ‘스크린미러 방송’을 시작하세요. 송신 앱 홈 화면의 8자리 코드를 Mac 앱에 입력하고 목록에서 해당 기기를 선택하면 암호화된 화면을 받습니다.
 
 이 Mac App Store 버전은 로컬 네트워크 전용입니다. USB 케이블만으로는 연결되지 않습니다. Mac 앱에는 시간 제한·광고·구매·복원 화면이 없습니다. iOS 송신 앱의 무료 시간·광고 연장·영구 사용 조건은 iOS 앱에서 확인하세요. 이 앱에 자체 필기·회의·녹화 기능은 없으며 사용자가 선택한 화면을 표시합니다.
 
 ## Mac App Store English description
 
-iPad Mirror for Mac is a free companion that receives a screen broadcast from your iPhone or iPad. The companion iOS iPad Mirror app is required. Connect both devices to the same reachable local network, allow local network access when requested, and start iPad Mirror Broadcast in the iOS app. Enter the eight-character code from the sender app home screen in the Mac app, then select the device to receive its encrypted screen.
+스크린 미러 수신기 is a free companion that receives a screen broadcast from your iPhone or iPad. The companion iOS 스크린미러 app is required. Connect both devices to the same reachable local network, allow local network access when requested, and start 스크린미러 Broadcast in the iOS app. Enter the eight-character code from the sender app home screen in the Mac app, then select the device to receive its encrypted screen.
 
 This Mac App Store version is local-network-only. A USB cable alone does not connect it. The Mac app has no time limit, ads, purchases or restore screen. The sender iOS app explains its free time, rewarded extensions and lifetime access. This receiver displays the screen selected by the user; it has no built-in handwriting, meeting or recording feature.
