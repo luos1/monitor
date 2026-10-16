@@ -53,3 +53,9 @@ Screen frames are authenticated with the connection code and encrypted for the c
 스크린 미러 수신기 is a free companion that receives a screen broadcast from your iPhone or iPad. The companion iOS 스크린미러 app is required. Connect both devices to the same reachable local network, allow local network access when requested, and start 스크린미러 Broadcast in the iOS app. Enter the eight-character code from the sender app home screen in the Mac app, then select the device to receive its encrypted screen.
 
 This Mac App Store version is local-network-only. A USB cable alone does not connect it. The Mac app has no time limit, ads, purchases or restore screen. The sender iOS app explains its free time, rewarded extensions and lifetime access. This receiver displays the screen selected by the user; it has no built-in handwriting, meeting or recording feature.
+
+## 2026-10-16 배포 파일 확인
+
+코드 기준 커밋은 `a862782`이며 이번 확인에서는 실행 코드를 변경하지 않았습니다. 10월 13일 업로드한 iOS 1.0(14) IPA와 Mac 1.0(4) 패키지의 SHA-256이 기존 업로드 기록과 일치했습니다. 두 앱의 실행 파일에서 QA 전용 인자 `-ScreenshotDemo`, `-SkipAds`, `-ScreenshotLocale`이 발견되지 않았고, Mac 패키지를 설치 없이 풀어 엄격한 코드 서명 검증을 통과했습니다. 이 검사는 알려진 QA 진입점만 다루며 앱의 모든 기능이나 Apple 심사 통과를 입증하지 않습니다.
+
+iOS 실행 파일에는 기존 두 상품 ID가 포함돼 있습니다. 실제 IPA의 `UIDeviceFamily`는 `[1, 2]`, 최소 OS는 17.0으로 iPhone·iPad를 모두 지원합니다. 이 확인은 실제 Apple Sandbox 상품 조회·구매·복원 검증을 대체하지 않습니다. 해당 Sandbox 거래 검증은 아직 미완료이며, iOS 빌드 14는 미제출 상태입니다. Mac 빌드 4는 기존 제출의 심사 대기를 유지합니다.
